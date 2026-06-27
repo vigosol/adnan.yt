@@ -4,7 +4,6 @@ export default defineType({
   name: "siteSettings",
   title: "Site Settings",
   type: "document",
-  __experimental_actions: ["update", "publish"],
   fields: [
     defineField({ name: "siteName", type: "string", title: "Site Name", initialValue: "adnan.yt" }),
     defineField({ name: "tagline", type: "string", title: "Tagline" }),

@@ -11,6 +11,14 @@ export default defineConfig({
   projectId: process.env.SANITY_STUDIO_PROJECT_ID ?? 'd54eszpi',
   dataset:   process.env.SANITY_STUDIO_DATASET    ?? 'production',
 
+  // Restrict the siteSettings singleton to publish only (no delete/duplicate/unpublish)
+  document: {
+    actions: (input, context) =>
+      context.schemaType === 'siteSettings'
+        ? input.filter(({ action }) => action === 'publish')
+        : input,
+  },
+
   plugins: [
     structureTool({
       structure: (S) =>
@@ -26,6 +34,10 @@ export default defineConfig({
                   .schemaType('siteSettings')
                   .documentId('siteSettings')
               ),
+            S.divider(),
+
+            // Page SEO
+            S.documentTypeListItem('pageSeo').title('🔍 Page SEO'),
             S.divider(),
 
             // Services
