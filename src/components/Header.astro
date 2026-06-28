@@ -57,7 +57,7 @@ const navLinks = [
 
     <button
       id="mobile-menu-btn"
-      class="md:hidden flex items-center justify-center w-10 h-10 -mr-2 text-text-white"
+      class="md:hidden flex items-center justify-center w-11 h-11 -mr-2 text-text-white"
       aria-label="Open menu"
       aria-expanded="false"
       aria-controls="mobile-menu"
@@ -75,7 +75,7 @@ const navLinks = [
     <div class="container py-4 flex flex-col gap-1 text-sm font-medium">
       <a href="/services" class="px-2 py-2.5 rounded-btn hover:bg-bg-2 text-text-white">Services</a>
       {services?.slice(0, 5).map((s: any) => (
-        <a href={`/services/${s.slug.current}`} class="px-4 py-2 rounded-btn hover:bg-bg-2 text-text-muted text-sm">
+        <a href={`/services/${s.slug.current}`} class="px-4 py-2.5 rounded-btn hover:bg-bg-2 text-text-muted text-sm">
           {s.title}
         </a>
       ))}

@@ -104,14 +104,14 @@ const faqs = contact?.faqs?.length ? contact.faqs : [
           <h3 class="text-text-white font-bold mb-3">Prefer to reach out directly?</h3>
           <div class="space-y-3 text-sm">
             {settings?.email && (
-              <a href={`mailto:${settings.email}`} class="flex items-center gap-2 text-text-muted hover:text-text-white transition-colors">
+              <a href={`mailto:${settings.email}`} class="flex items-center gap-2 py-2 text-text-muted hover:text-text-white transition-colors">
                 ✉️ {settings.email}
               </a>
             )}
             {settings?.enableWhatsapp && settings?.whatsappNumber && (
               <a
                 href={`https://wa.me/${settings.whatsappNumber}`} target="_blank" rel="noopener noreferrer"
-                class="flex items-center gap-2 text-text-muted hover:text-text-white transition-colors"
+                class="flex items-center gap-2 py-2 text-text-muted hover:text-text-white transition-colors"
               >
                 💬 Chat on WhatsApp
               </a>
