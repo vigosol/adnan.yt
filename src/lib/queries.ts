@@ -68,14 +68,21 @@ export const SERVICES_LIST_QUERY = `
   }
 `
 
+// Homepage shows only services explicitly toggled on via showOnHomepage,
+// capped at 6 max — could be 3, 4, 5, or 6 depending on what's toggled on.
+export const SERVICES_HOMEPAGE_QUERY = `
+  *[_type == "service" && isActive == true && showOnHomepage == true] | order(order asc) [0...6] {
+    _id, title, slug, shortDescription, icon, price,
+    "thumbnail": thumbnail.asset->url
+  }
+`
+
 export const SERVICE_BY_SLUG_QUERY = `
   *[_type == "service" && slug.current == $slug][0] {
-    _id, title, slug, shortDescription, fullDescription,
-    problem, solution, deliverables, process[],
-    benefits[], pricing[], faqs[],
+    _id, title, slug, icon, shortDescription, fullDescription, price,
+    deliverables, faqs[] { question, answer },
     seoTitle, seoDescription,
-    "ogImage": ogImage.asset->url,
-    "relatedPortfolio": relatedPortfolio[]->{ _id, title, slug, "thumbnail": thumbnail.asset->url }
+    "thumbnail": thumbnail.asset->url
   }
 `
 

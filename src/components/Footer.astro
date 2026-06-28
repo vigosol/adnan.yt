@@ -1,8 +1,13 @@
 ---
+import { fetchSanity } from '../lib/sanity'
+import { SERVICES_LIST_QUERY } from '../lib/queries'
+
 interface Props {
   settings?: any
 }
 const { settings } = Astro.props as Props
+
+const services = await fetchSanity<any[]>(SERVICES_LIST_QUERY).catch(() => [])
 
 const year = new Date().getFullYear()
 
@@ -11,9 +16,7 @@ const footerCols = [
     title: 'Services',
     links: [
       { href: '/services', label: 'All Services' },
-      { href: '/services/youtube-video-editing', label: 'YouTube Editing' },
-      { href: '/services/shorts-reels-editing', label: 'Shorts & Reels' },
-      { href: '/services/podcast-editing', label: 'Podcast Editing' },
+      ...(services ?? []).slice(0, 3).map((s: any) => ({ href: `/services/${s.slug.current}`, label: s.title })),
     ],
   },
   {

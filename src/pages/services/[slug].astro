@@ -1,0 +1,148 @@
+---
+import MainLayout from '../../layouts/MainLayout.astro'
+import FAQ from '../../components/FAQ.astro'
+import CTA from '../../components/CTA.astro'
+import { fetchSanity } from '../../lib/sanity'
+import { SERVICES_LIST_QUERY, SERVICE_BY_SLUG_QUERY } from '../../lib/queries'
+
+export async function getStaticPaths() {
+  const services = await fetchSanity<any[]>(SERVICES_LIST_QUERY)
+  return (services ?? []).map((s: any) => ({ params: { slug: s.slug.current } }))
+}
+
+const { slug } = Astro.params
+
+const [service, allServices] = await Promise.all([
+  fetchSanity<any>(SERVICE_BY_SLUG_QUERY, { slug }),
+  fetchSanity<any[]>(SERVICES_LIST_QUERY),
+])
+
+if (!service) return Astro.redirect('/services')
+
+const otherServices = (allServices ?? []).filter((s: any) => s.slug.current !== slug).slice(0, 3)
+
+// JSON-LD — Service schema
+const serviceSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  serviceType: service.title,
+  name: service.title,
+  description: service.shortDescription,
+  provider: { '@type': 'Organization', name: 'adnan.yt', url: 'https://adnan.yt' },
+  ...(service.price && {
+    offers: { '@type': 'Offer', price: service.price, priceCurrency: 'USD' },
+  }),
+}
+
+const faqSchema = service.faqs?.length ? {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: service.faqs.map((f: any) => ({
+    '@type': 'Question',
+    name: f.question,
+    acceptedAnswer: { '@type': 'Answer', text: f.answer },
+  })),
+} : null
+---
+
+<MainLayout
+  title={service.seoTitle ?? `${service.title} | adnan.yt`}
+  description={service.seoDescription ?? service.shortDescription}
+  schema={faqSchema ? [serviceSchema, faqSchema] : serviceSchema}
+>
+
+  <!-- ══ HEADER ═════════════════════════════════════════════════════ -->
+  <section class="py-20 border-b border-border">
+    <div class="container max-w-3xl">
+      <a href="/services" class="text-accent-light text-sm font-semibold hover:underline">← All Services</a>
+      <h1 class="text-4xl md:text-5xl font-black text-text-white mt-4 mb-4 tracking-tight">
+        {service.icon && <span class="mr-2">{service.icon}</span>}{service.title}
+      </h1>
+      {service.shortDescription && (
+        <p class="text-text-muted text-lg leading-relaxed">{service.shortDescription}</p>
+      )}
+    </div>
+  </section>
+
+  <section class="py-20 border-b border-border">
+    <div class="container grid lg:grid-cols-[1fr_360px] gap-12">
+      <div>
+        {service.thumbnail && (
+          <img
+            src={service.thumbnail} alt={service.title}
+            class="w-full rounded-card border border-border mb-10"
+            loading="lazy"
+          />
+        )}
+
+        {service.fullDescription && (
+          <div class="mb-10">
+            <h2 class="section-heading">Overview</h2>
+            <p class="text-text-muted leading-relaxed">{service.fullDescription}</p>
+          </div>
+        )}
+
+        {service.deliverables?.length > 0 && (
+          <div class="mb-10">
+            <h2 class="section-heading">What's Included</h2>
+            <ul class="space-y-2.5">
+              {service.deliverables.map((item: string) => (
+                <li class="flex items-start gap-2.5 text-text">
+                  <svg class="w-4 h-4 mt-1 shrink-0 text-success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {service.faqs?.length > 0 && (
+          <div>
+            <h2 class="section-heading">FAQs</h2>
+            <FAQ items={service.faqs} />
+          </div>
+        )}
+      </div>
+
+      <!-- ── Sidebar: pricing + CTA ── -->
+      <aside class="space-y-6">
+        <div class="card">
+          {service.price && (
+            <div class="mb-4">
+              <div class="text-text-muted text-sm mb-1">Starting from</div>
+              <div class="text-4xl font-black text-text-white">${service.price}</div>
+            </div>
+          )}
+          <a href="/contact" class="btn-primary w-full justify-center mb-3">Get a Free Quote →</a>
+          <a href="/pricing" class="btn-secondary w-full justify-center">View All Packages</a>
+        </div>
+
+        {otherServices.length > 0 && (
+          <div class="card">
+            <h3 class="text-text-white font-bold mb-4 text-sm">Other Services</h3>
+            <ul class="space-y-3">
+              {otherServices.map((s: any) => (
+                <li>
+                  <a href={`/services/${s.slug.current}`} class="flex items-center gap-2 text-text-muted hover:text-text-white text-sm transition-colors">
+                    <span>{s.icon ?? '🎬'}</span>
+                    <span>{s.title}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </aside>
+    </div>
+  </section>
+
+  <CTA
+    heading={`Ready to Start Your ${service.title}?`}
+    subtext="Tell me about your project and get a free quote within 24 hours."
+    primaryCta={{ label: 'Get a Free Quote →', href: '/contact' }}
+    secondaryCta={{ label: 'View Pricing', href: '/pricing' }}
+  />
+
+</MainLayout>

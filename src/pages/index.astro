@@ -9,14 +9,14 @@ import FAQ from '../components/FAQ.astro'
 import CTA from '../components/CTA.astro'
 import { fetchSanity } from '../lib/sanity'
 import {
-  SITE_SETTINGS_QUERY, HOME_PAGE_QUERY, SERVICES_LIST_QUERY, TESTIMONIALS_QUERY, PORTFOLIO_LIST_QUERY,
+  SITE_SETTINGS_QUERY, HOME_PAGE_QUERY, SERVICES_HOMEPAGE_QUERY, TESTIMONIALS_QUERY, PORTFOLIO_LIST_QUERY,
   PRICING_PAGE_QUERY,
 } from '../lib/queries'
 
 const [settings, home, services, testimonials, portfolio, pricingPage] = await Promise.all([
   fetchSanity<any>(SITE_SETTINGS_QUERY),
   fetchSanity<any>(HOME_PAGE_QUERY),
-  fetchSanity<any[]>(SERVICES_LIST_QUERY),
+  fetchSanity<any[]>(SERVICES_HOMEPAGE_QUERY),
   fetchSanity<any[]>(TESTIMONIALS_QUERY),
   fetchSanity<any[]>(PORTFOLIO_LIST_QUERY),
   fetchSanity<any>(PRICING_PAGE_QUERY),

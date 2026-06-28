@@ -10,6 +10,11 @@ export default defineType({
     defineField({ name: "icon", type: "string", title: "Emoji Icon" }),
     defineField({ name: "order", type: "number", title: "Display Order" }),
     defineField({ name: "isActive", type: "boolean", title: "Active?", initialValue: true }),
+    defineField({
+      name: "showOnHomepage", type: "boolean", title: "Show on Homepage?",
+      description: "Only services with this toggled on appear on the homepage, up to a maximum of 6.",
+      initialValue: true,
+    }),
     defineField({ name: "shortDescription", type: "text", title: "Short Description", rows: 2 }),
     defineField({ name: "fullDescription", type: "text", title: "Full Description", rows: 4 }),
     defineField({ name: "price", type: "string", title: "Starting Price", description: "e.g. $49" }),
