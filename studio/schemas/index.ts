@@ -2,6 +2,7 @@
 import homePage from './homePage'
 import aboutPage from './aboutPage'
 import contactPage from './contactPage'
+import pricingPage from './pricingPage'
 import pageSeo from './pageSeo'
 import service from './service'
 import testimonial from './testimonial'
@@ -12,6 +13,7 @@ export const schemaTypes = [
   homePage,
   aboutPage,
   contactPage,
+  pricingPage,
   pageSeo,
   service,
   testimonial,

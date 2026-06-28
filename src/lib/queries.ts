@@ -43,6 +43,15 @@ export const CONTACT_PAGE_QUERY = `
   }
 `
 
+// ── Pricing Page ─────────────────────────────────────────────────
+export const PRICING_PAGE_QUERY = `
+  *[_type == "pricingPage"][0] {
+    packages[] { title, price, period, description, features, featured },
+    addOns[] { name, price, description },
+    faqs[] { question, answer }
+  }
+`
+
 // ── Page SEO ──────────────────────────────────────────────────
 export const PAGE_SEO_QUERY = `
   *[_type == "pageSeo" && page == $page][0] {

@@ -5,7 +5,7 @@ import { visionTool } from '@sanity/vision'
 import { schemaTypes } from './schemas'
 
 // Singletons: exactly one document of this type should ever exist.
-const SINGLETON_TYPES = ['siteSettings', 'homePage', 'aboutPage', 'contactPage']
+const SINGLETON_TYPES = ['siteSettings', 'homePage', 'aboutPage', 'contactPage', 'pricingPage']
 
 const singleton = (S: StructureBuilder, schemaType: string, title: string) =>
   S.listItem()
@@ -39,6 +39,7 @@ export default defineConfig({
             singleton(S, 'homePage', '🏠 Home Page'),
             singleton(S, 'aboutPage', '👤 About Page'),
             singleton(S, 'contactPage', '📞 Contact Page'),
+            singleton(S, 'pricingPage', '💰 Pricing Page'),
             S.divider(),
 
             // Site-wide defaults only (name, contact info, social links, SEO defaults)

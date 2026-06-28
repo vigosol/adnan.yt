@@ -2,6 +2,7 @@
 import MainLayout from '../layouts/MainLayout.astro'
 import Hero from '../components/Hero.astro'
 import ServiceCard from '../components/ServiceCard.astro'
+import PricingCard from '../components/PricingCard.astro'
 import TestimonialCard from '../components/TestimonialCard.astro'
 import PortfolioCard from '../components/PortfolioCard.astro'
 import FAQ from '../components/FAQ.astro'
@@ -9,14 +10,16 @@ import CTA from '../components/CTA.astro'
 import { fetchSanity } from '../lib/sanity'
 import {
   SITE_SETTINGS_QUERY, HOME_PAGE_QUERY, SERVICES_LIST_QUERY, TESTIMONIALS_QUERY, PORTFOLIO_LIST_QUERY,
+  PRICING_PAGE_QUERY,
 } from '../lib/queries'
 
-const [settings, home, services, testimonials, portfolio] = await Promise.all([
+const [settings, home, services, testimonials, portfolio, pricingPage] = await Promise.all([
   fetchSanity<any>(SITE_SETTINGS_QUERY),
   fetchSanity<any>(HOME_PAGE_QUERY),
   fetchSanity<any[]>(SERVICES_LIST_QUERY),
   fetchSanity<any[]>(TESTIMONIALS_QUERY),
   fetchSanity<any[]>(PORTFOLIO_LIST_QUERY),
+  fetchSanity<any>(PRICING_PAGE_QUERY),
 ])
 
 // Hero / Process / FAQs / Trust Stats are CMS-managed via the Home Page
@@ -48,6 +51,28 @@ const trustStats = home?.trustStats?.length ? home.trustStats : [
   { val: '50+',  label: 'Happy Clients' },
   { val: '24h',  label: 'Avg. Turnaround' },
   { val: '5★',   label: 'Average Rating' },
+]
+
+// Same packages shown on /pricing — kept here without add-ons/FAQs for a quick preview
+const packages = pricingPage?.packages?.length ? pricingPage.packages : [
+  {
+    title: 'Starter', price: '$99', period: '/video',
+    description: 'For single videos and quick turnarounds.',
+    features: ['Up to 5 min final video', '1 round of revisions', 'Basic color grading', 'Captions included', '48h turnaround'],
+    featured: false,
+  },
+  {
+    title: 'Growth', price: '$249', period: '/video',
+    description: 'For creators publishing regularly.',
+    features: ['Up to 15 min final video', '2 rounds of revisions', 'Color grading + sound design', 'Motion graphics titles', '24h turnaround'],
+    featured: true,
+  },
+  {
+    title: 'Agency', price: 'Custom', period: '',
+    description: 'For ongoing or bulk monthly volume.',
+    features: ['Dedicated editor', 'Unlimited revisions', 'Priority turnaround', 'Monthly retainer pricing'],
+    featured: false,
+  },
 ]
 
 // JSON-LD — Organization schema
@@ -168,9 +193,29 @@ const faqSchema = {
     </div>
   </section>
 
+  <!-- ══ PRICING ════════════════════════════════════════════════════ -->
+  <section class="py-24 border-t border-border bg-bg-1">
+    <div class="container">
+      <h2 class="section-heading">Pricing</h2>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+        {packages.map((pkg: any) => (
+          <PricingCard
+            title={pkg.title}
+            price={pkg.price}
+            period={pkg.period}
+            description={pkg.description}
+            features={pkg.features}
+            featured={pkg.featured}
+            ctaLabel={pkg.price === 'Custom' ? 'Get a Custom Quote' : 'Get Started'}
+          />
+        ))}
+      </div>
+    </div>
+  </section>
+
   <!-- ══ TESTIMONIALS ═══════════════════════════════════════════════ -->
   {testimonials?.length > 0 && (
-    <section class="py-24 border-t border-border bg-bg-1">
+    <section class="py-24 border-t border-border">
       <div class="container">
         <h2 class="section-heading">Client Results</h2>
         <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5 mt-8">
@@ -183,7 +228,7 @@ const faqSchema = {
   )}
 
   <!-- ══ FAQs ═══════════════════════════════════════════════════════ -->
-  <section class="py-24 border-t border-border">
+  <section class="py-24 border-t border-border bg-bg-1">
     <div class="container max-w-2xl">
       <h2 class="section-heading">Frequently Asked Questions</h2>
       <FAQ items={faqs} />

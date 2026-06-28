@@ -1,0 +1,55 @@
+---
+import MainLayout from '../layouts/MainLayout.astro'
+import ServiceCard from '../components/ServiceCard.astro'
+import CTA from '../components/CTA.astro'
+import { fetchSanity } from '../lib/sanity'
+import { SERVICES_LIST_QUERY } from '../lib/queries'
+
+const services = await fetchSanity<any[]>(SERVICES_LIST_QUERY)
+
+const fallbackServices = [
+  { title: 'YouTube Video Editing', slug: 'youtube-video-editing', icon: '🎬', shortDescription: 'Long-form edits built for watch time and retention.' },
+  { title: 'Shorts & Reels Editing', slug: 'shorts-reels-editing', icon: '⚡', shortDescription: 'Fast-paced vertical edits for TikTok, Reels, and Shorts.' },
+  { title: 'Podcast Video Editing', slug: 'podcast-editing', icon: '🎙️', shortDescription: 'Multi-cam podcast edits, clipped for social.' },
+  { title: 'Motion Graphics', slug: 'motion-graphics', icon: '✨', shortDescription: 'Animated titles, lower-thirds, and branded intros.' },
+  { title: 'Corporate Video', slug: 'corporate-video', icon: '🏢', shortDescription: 'Polished edits for brand and internal communications.' },
+  { title: 'Social Media Packages', slug: 'social-media-packages', icon: '📱', shortDescription: 'Ongoing monthly editing for your content calendar.' },
+]
+
+const list = services?.length ? services : fallbackServices
+---
+
+<MainLayout
+  title="Services — Video Editing for Creators & Brands | adnan.yt"
+  description="YouTube, Shorts, podcast, and corporate video editing services. Pick the service that fits your project and get a free quote."
+>
+
+  <section class="py-20 border-b border-border text-center">
+    <div class="container max-w-2xl">
+      <h1 class="text-4xl md:text-5xl font-black text-text-white mb-4 tracking-tight">
+        Video Editing <span class="text-gradient">Services</span>
+      </h1>
+      <p class="text-text-muted text-lg leading-relaxed">
+        From raw footage to publish-ready — pick the service that fits your project.
+      </p>
+    </div>
+  </section>
+
+  <section class="py-20 border-b border-border">
+    <div class="container">
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        {list.map((service: any) => (
+          <ServiceCard service={service} />
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <CTA
+    heading="Not Sure Which Service You Need?"
+    subtext="Describe your project and I'll recommend the right fit — free, no obligation."
+    primaryCta={{ label: 'Get a Free Quote →', href: '/contact' }}
+    secondaryCta={{ label: 'View Pricing', href: '/pricing' }}
+  />
+
+</MainLayout>

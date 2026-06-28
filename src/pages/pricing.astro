@@ -1,0 +1,137 @@
+---
+import MainLayout from '../layouts/MainLayout.astro'
+import PricingCard from '../components/PricingCard.astro'
+import FAQ from '../components/FAQ.astro'
+import CTA from '../components/CTA.astro'
+import { fetchSanity } from '../lib/sanity'
+import { PRICING_PAGE_QUERY } from '../lib/queries'
+
+const pricingPage = await fetchSanity<any>(PRICING_PAGE_QUERY)
+
+// Pricing content is CMS-managed via the Pricing Page document — fall
+// back to launch-day defaults until that content is filled in.
+const packages = pricingPage?.packages?.length ? pricingPage.packages : [
+  {
+    title: 'Starter', price: '$99', period: '/video',
+    description: 'For single videos and quick turnarounds.',
+    features: ['Up to 5 min final video', '1 round of revisions', 'Basic color grading', 'Captions included', '48h turnaround'],
+    featured: false,
+  },
+  {
+    title: 'Growth', price: '$249', period: '/video',
+    description: 'For creators publishing regularly.',
+    features: ['Up to 15 min final video', '2 rounds of revisions', 'Color grading + sound design', 'Motion graphics titles', '24h turnaround'],
+    featured: true,
+  },
+  {
+    title: 'Agency', price: 'Custom', period: '',
+    description: 'For ongoing or bulk monthly volume.',
+    features: ['Dedicated editor', 'Unlimited revisions', 'Priority turnaround', 'Monthly retainer pricing'],
+    featured: false,
+  },
+]
+
+const addOns = pricingPage?.addOns?.length ? pricingPage.addOns : [
+  { name: 'Extra Revision', price: '+$25', description: 'One additional round beyond what\'s included.' },
+  { name: 'Rush Delivery (12h)', price: '+$40', description: 'Move to the front of the queue.' },
+  { name: 'Custom Thumbnail', price: '+$15', description: 'A scroll-stopping thumbnail designed for your video.' },
+  { name: 'Motion Graphics Intro', price: '+$30', description: 'A branded animated intro for your channel.' },
+  { name: 'Multi-Platform Resize', price: '+$20', description: 'Reformatted for Shorts, Reels, and TikTok.' },
+]
+
+const faqs = pricingPage?.faqs?.length ? pricingPage.faqs : [
+  { question: 'Do you offer discounts for bulk or monthly work?', answer: 'Yes — the Agency tier is built around ongoing monthly volume. Get in touch for custom pricing.' },
+  { question: "What's included in a revision round?", answer: 'Any changes to pacing, color, music, captions, or graphics within the original project brief.' },
+  { question: 'Do you require payment upfront?', answer: "Typically 50% upfront and 50% on delivery for new clients. We can discuss what works for your project." },
+  { question: "What if my project doesn't fit a package?", answer: "Most projects do, but if yours is unique, just describe it in the contact form and I'll send a custom quote." },
+]
+
+// JSON-LD — Product/Offer schema for each fixed-price package
+const numericPackages = packages.filter((p: any) => /^\$[\d,.]+$/.test(p.price))
+const pricingSchema = numericPackages.map((p: any) => ({
+  '@context': 'https://schema.org',
+  '@type': 'Product',
+  name: `${p.title} Video Editing Package`,
+  description: p.description,
+  offers: {
+    '@type': 'Offer',
+    price: p.price.replace(/[^0-9.]/g, ''),
+    priceCurrency: 'USD',
+    availability: 'https://schema.org/InStock',
+  },
+}))
+---
+
+<MainLayout
+  title="Pricing — Video Editing Packages | adnan.yt"
+  description="Transparent pricing for YouTube, Shorts, and corporate video editing. Pick a package or get a custom quote."
+  schema={pricingSchema}
+>
+
+  <section class="py-20 border-b border-border text-center">
+    <div class="container max-w-2xl">
+      <h1 class="text-4xl md:text-5xl font-black text-text-white mb-4 tracking-tight">
+        Simple, Transparent <span class="text-gradient">Pricing</span>
+      </h1>
+      <p class="text-text-muted text-lg leading-relaxed">
+        Pick the package that fits your workflow, or get a custom quote for something different.
+      </p>
+    </div>
+  </section>
+
+  <!-- ══ PACKAGES ═══════════════════════════════════════════════════ -->
+  <section class="py-20 border-b border-border">
+    <div class="container">
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {packages.map((pkg: any) => (
+          <PricingCard
+            title={pkg.title}
+            price={pkg.price}
+            period={pkg.period}
+            description={pkg.description}
+            features={pkg.features}
+            featured={pkg.featured}
+            ctaLabel={pkg.price === 'Custom' ? 'Get a Custom Quote' : 'Get Started'}
+          />
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ ADD-ONS ════════════════════════════════════════════════════ -->
+  <section class="py-20 border-b border-border bg-bg-1">
+    <div class="container">
+      <h2 class="section-heading">Add-ons</h2>
+      <p class="text-text-muted mb-12 max-w-xl">
+        Extend any package with these à la carte options.
+      </p>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        {addOns.map((addOn: any) => (
+          <div class="card">
+            <div class="flex items-start justify-between gap-3 mb-2">
+              <h3 class="font-bold text-text-white">{addOn.name}</h3>
+              <span class="text-accent font-semibold text-sm whitespace-nowrap">{addOn.price}</span>
+            </div>
+            <p class="text-text-muted text-sm">{addOn.description}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ FAQs ═══════════════════════════════════════════════════════ -->
+  <section class="py-20 border-b border-border">
+    <div class="container max-w-2xl">
+      <h2 class="section-heading">Pricing FAQs</h2>
+      <FAQ items={faqs} />
+    </div>
+  </section>
+
+  <!-- ══ CTA ════════════════════════════════════════════════════════ -->
+  <CTA
+    heading="Not Sure Which Package Fits?"
+    subtext="Tell me about your project and I'll send a custom quote within 24 hours."
+    primaryCta={{ label: 'Get a Custom Quote →', href: '/contact' }}
+  />
+
+</MainLayout>

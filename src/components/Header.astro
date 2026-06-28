@@ -6,6 +6,7 @@ import ThemeToggle from './ThemeToggle.astro'
 const services = await fetchSanity<any[]>(SERVICES_LIST_QUERY).catch(() => [])
 
 const navLinks = [
+  { href: '/pricing', label: 'Pricing' },
   { href: '/portfolio', label: 'Portfolio' },
   { href: '/blog', label: 'Blog' },
   { href: '/tutorials', label: 'Tutorials' },
