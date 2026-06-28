@@ -5,28 +5,29 @@
    --color-accent → bg-accent, text-accent, border-accent, etc.
    ───────────────────────────────────────────────────────────────── */
 @theme {
-  --color-accent:       #4f46e5;
-  --color-accent-light: #818cf8;
-  --color-accent-dark:  #3730a3;
+  /* Palette adapted from viralcut1.framer.website — orange accent on near-black */
+  --color-accent:       #f28713;
+  --color-accent-light: #f7a548;
+  --color-accent-dark:  #c66c09;
   --color-gold:         #f59e0b;
   --color-gold-light:   #fcd34d;
   --color-gold-dark:    #d97706;
 
-  --color-bg:           #09090b;
-  --color-bg-1:         #111115;
-  --color-bg-2:         #18181f;
-  --color-bg-3:         #1f1f2a;
+  --color-bg:           #0d0d0d;
+  --color-bg-1:         #151515;
+  --color-bg-2:         #1c1c1c;
+  --color-bg-3:         #262626;
 
-  --color-border:       #1c1c24;
-  --color-border-light: #2a2a38;
+  --color-border:       #262626;
+  --color-border-light: #383838;
 
-  --color-text:         #e2e8f0;
-  --color-text-muted:   #64748b;
-  --color-text-white:   #f8fafc;
+  --color-text:         #e8e6e0;
+  --color-text-muted:   #8c8c87;
+  --color-text-white:   #fffdfa;
 
-  --color-success:      #22c55e;
-  --color-error:        #ef4444;
-  --color-warn:         #f59e0b;
+  --color-success:      #59d444;
+  --color-error:        #ed4046;
+  --color-warn:         #f28713;
 
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
   --font-mono: 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
@@ -37,8 +38,27 @@
 
   --width-site:  1120px;
 
-  --shadow-card: 0 0 0 1px #1c1c24, 0 4px 24px -6px rgba(0,0,0,.5);
+  --shadow-card: 0 0 0 1px var(--color-border), 0 4px 24px -6px rgba(0,0,0,.5);
   --shadow-glow: 0 0 24px color-mix(in oklch, var(--color-accent) 25%, transparent);
+}
+
+/* ── Light theme — toggled via `.light` class on <html> ─────────
+   Brand colors (accent/gold/success/error) stay constant; only
+   the neutral bg/text/border scale flips. See ThemeToggle.astro. */
+:root.light {
+  --color-bg:           #fffdfa;
+  --color-bg-1:         #f5f3ee;
+  --color-bg-2:         #ebe9e1;
+  --color-bg-3:         #ddd9cd;
+
+  --color-border:       #e3e1d6;
+  --color-border-light: #cfcdc0;
+
+  --color-text:         #3a3a35;
+  --color-text-muted:   #6b6b64;
+  --color-text-white:   #161613;
+
+  --shadow-card: 0 0 0 1px var(--color-border), 0 4px 24px -6px rgba(0,0,0,.08);
 }
 
 /* ── Base ─────────────────────────────────────────────────────── */
@@ -55,6 +75,7 @@
     color: var(--color-text);
     font-family: var(--font-sans);
     min-height: 100vh;
+    transition: background-color 200ms, color 200ms;
   }
 
   h1, h2, h3, h4, h5, h6 {

@@ -1,0 +1,103 @@
+---
+interface Props {
+  settings?: any
+}
+const { settings } = Astro.props as Props
+
+const year = new Date().getFullYear()
+
+const footerCols = [
+  {
+    title: 'Services',
+    links: [
+      { href: '/services', label: 'All Services' },
+      { href: '/services/youtube-video-editing', label: 'YouTube Editing' },
+      { href: '/services/shorts-reels-editing', label: 'Shorts & Reels' },
+      { href: '/services/podcast-editing', label: 'Podcast Editing' },
+    ],
+  },
+  {
+    title: 'Resources',
+    links: [
+      { href: '/blog', label: 'Blog' },
+      { href: '/tutorials', label: 'Tutorials' },
+      { href: '/portfolio', label: 'Portfolio' },
+      { href: '/shop', label: 'Shop' },
+    ],
+  },
+  {
+    title: 'Company',
+    links: [
+      { href: '/about', label: 'About' },
+      { href: '/pricing', label: 'Pricing' },
+      { href: '/contact', label: 'Contact' },
+    ],
+  },
+]
+
+const iconPaths: Record<string, string> = {
+  youtube: 'M23.498 6.186a2.97 2.97 0 0 0-2.088-2.088C19.692 3.5 12 3.5 12 3.5s-7.692 0-9.41.598A2.97 2.97 0 0 0 .502 6.186 31.6 31.6 0 0 0 0 12a31.6 31.6 0 0 0 .502 5.814 2.97 2.97 0 0 0 2.088 2.088C4.308 20.5 12 20.5 12 20.5s7.692 0 9.41-.598a2.97 2.97 0 0 0 2.088-2.088A31.6 31.6 0 0 0 24 12a31.6 31.6 0 0 0-.502-5.814ZM9.75 15.568V8.432L15.818 12 9.75 15.568Z',
+  instagram: 'M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069ZM12 0C8.741 0 8.332.014 7.052.072 2.695.272.273 2.69.073 7.052.014 8.332 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.332 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.668-.072-4.948-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0Zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324ZM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8Zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881Z',
+  tiktok: 'M16.6 5.82s.51.5 0 0A4.278 4.278 0 0 1 15.54 3h-3.09v12.4a2.59 2.59 0 1 1-1.82-2.47V9.4a5.92 5.92 0 1 0 5.07 5.85V8.5a7.5 7.5 0 0 0 4.5 1.5V7.2a4.6 4.6 0 0 1-3.6-1.38Z',
+  linkedin: 'M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.34V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29ZM5.34 7.43a2.07 2.07 0 1 1 0-4.14 2.07 2.07 0 0 1 0 4.14ZM7.12 20.45H3.56V9h3.56v11.45Z',
+  twitter: 'M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.451-6.231Z',
+}
+
+const socials = ['youtube', 'instagram', 'tiktok', 'linkedin', 'twitter']
+  .filter(key => settings?.socialLinks?.[key])
+  .map(key => ({ key, url: settings.socialLinks[key] }))
+---
+
+<footer class="border-t border-border bg-bg-1 mt-24">
+  <div class="container py-16">
+    <div class="grid md:grid-cols-[1.5fr_1fr_1fr_1fr] gap-10">
+      <div>
+        <a href="/" class="text-lg font-extrabold text-text-white tracking-tight">
+          adnan<span class="text-gradient">.yt</span>
+        </a>
+        <p class="text-text-muted text-sm mt-3 max-w-xs leading-relaxed">
+          {settings?.tagline ?? 'Professional video editing for YouTube creators, coaches, agencies, and brands.'}
+        </p>
+
+        <div class="mt-6">
+          <p class="text-text-white text-sm font-semibold mb-2">Get editing tips monthly</p>
+          <a href="/contact" class="btn-secondary text-sm">Join the Newsletter →</a>
+        </div>
+
+        {socials.length > 0 && (
+          <div class="flex items-center gap-3 mt-6">
+            {socials.map(({ key, url }) => (
+              <a
+                href={url} target="_blank" rel="noopener noreferrer" aria-label={key}
+                class="w-9 h-9 flex items-center justify-center rounded-pill bg-bg-2 border border-border text-text-muted hover:text-text-white hover:border-border-light transition-colors"
+              >
+                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d={iconPaths[key]} /></svg>
+              </a>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {footerCols.map(col => (
+        <div>
+          <div class="text-text-white font-semibold text-sm mb-4">{col.title}</div>
+          <ul class="space-y-2.5">
+            {col.links.map(l => (
+              <li><a href={l.href} class="text-text-muted text-sm hover:text-text-white transition-colors">{l.label}</a></li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+  </div>
+
+  <div class="border-t border-border">
+    <div class="container py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-text-muted">
+      <p>© {year} adnan.yt · Professional Video Editing Services</p>
+      <div class="flex gap-4">
+        <a href="/privacy-policy" class="hover:text-text-white">Privacy</a>
+        <a href="/affiliate-disclosure" class="hover:text-text-white">Affiliate Disclosure</a>
+      </div>
+    </div>
+  </div>
+</footer>
