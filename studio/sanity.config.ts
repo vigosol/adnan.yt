@@ -44,6 +44,10 @@ export default defineConfig({
             S.documentTypeListItem('service').title('🎬 Services'),
             S.divider(),
 
+            // Testimonials
+            S.documentTypeListItem('testimonial').title('⭐ Testimonials'),
+            S.divider(),
+
             // Content
             S.documentTypeListItem('blog').title('📝 Blog Posts'),
             S.documentTypeListItem('tutorial').title('🎓 Tutorials'),
@@ -52,7 +56,6 @@ export default defineConfig({
 
             // (uncomment as you add more schemas)
             // S.documentTypeListItem('portfolio').title('🖼️ Portfolio'),
-            // S.documentTypeListItem('testimonial').title('⭐ Testimonials'),
             // S.documentTypeListItem('product').title('🛒 Shop / Affiliates'),
           ]),
     }),
