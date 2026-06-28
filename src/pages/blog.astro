@@ -1,0 +1,87 @@
+---
+import MainLayout from '../layouts/MainLayout.astro'
+import BlogCard from '../components/BlogCard.astro'
+import { fetchSanity } from '../lib/sanity'
+import { BLOG_LIST_QUERY } from '../lib/queries'
+import { breadcrumbSchema } from '../lib/breadcrumbs'
+
+const posts = await fetchSanity<any[]>(BLOG_LIST_QUERY, { from: 0, to: 23 })
+
+const categories = ['All', ...new Set((posts ?? []).map((p: any) => p.category).filter(Boolean))]
+---
+
+<MainLayout
+  title="Blog — Video Editing Tips & Insights | adnan.yt"
+  description="Tutorials, comparisons, and practical tips for video editing, YouTube, and content creation."
+  schema={breadcrumbSchema([{ name: 'Home', url: '/' }, { name: 'Blog', url: '/blog' }])}
+>
+
+  <section class="py-20 border-b border-border text-center">
+    <div class="container max-w-2xl">
+      <h1 class="text-4xl md:text-5xl font-black text-text-white mb-4 tracking-tight">
+        The <span class="text-gradient">Blog</span>
+      </h1>
+      <p class="text-text-muted text-lg leading-relaxed">
+        Practical tips, comparisons, and behind-the-scenes lessons from real editing work.
+      </p>
+    </div>
+  </section>
+
+  <section class="py-20">
+    <div class="container">
+      {posts?.length ? (
+        <>
+          {categories.length > 2 && (
+            <div class="flex flex-wrap gap-2 justify-center mb-10" id="blog-filters">
+              {categories.map((c, i) => (
+                <button
+                  type="button"
+                  data-filter={c}
+                  class={`px-4 py-2 rounded-pill text-sm font-medium border border-border transition-colors ${i === 0 ? 'bg-accent text-white border-accent' : 'text-text-muted hover:text-text-white hover:border-border-light'}`}
+                >
+                  {c}
+                </button>
+              ))}
+            </div>
+          )}
+
+          <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5" id="blog-grid">
+            {posts.map((post: any) => (
+              <div data-category={post.category ?? 'All'}>
+                <BlogCard post={post} />
+              </div>
+            ))}
+          </div>
+        </>
+      ) : (
+        <p class="text-text-muted text-center">
+          Blog posts will appear here once published in Sanity Studio.
+        </p>
+      )}
+    </div>
+  </section>
+
+</MainLayout>
+
+<script>
+  const filterBtns = document.querySelectorAll<HTMLButtonElement>('#blog-filters [data-filter]')
+  const cards = document.querySelectorAll<HTMLElement>('#blog-grid [data-category]')
+
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const filter = btn.dataset.filter
+
+      filterBtns.forEach(b => {
+        b.classList.remove('bg-accent', 'text-white', 'border-accent')
+        b.classList.add('text-text-muted', 'hover:text-text-white', 'hover:border-border-light')
+      })
+      btn.classList.add('bg-accent', 'text-white', 'border-accent')
+      btn.classList.remove('text-text-muted', 'hover:text-text-white', 'hover:border-border-light')
+
+      cards.forEach(card => {
+        const show = filter === 'All' || card.dataset.category === filter
+        card.classList.toggle('hidden', !show)
+      })
+    })
+  })
+</script>

@@ -6,6 +6,8 @@ import pricingPage from './pricingPage'
 import pageSeo from './pageSeo'
 import service from './service'
 import testimonial from './testimonial'
+import portfolio from './portfolio'
+import caseStudy from './caseStudy'
 import { blogSchema, tutorialSchema, featuredVideoSchema } from './content'
 
 export const schemaTypes = [
@@ -17,6 +19,8 @@ export const schemaTypes = [
   pageSeo,
   service,
   testimonial,
+  portfolio,
+  caseStudy,
   blogSchema,
   tutorialSchema,
   featuredVideoSchema,

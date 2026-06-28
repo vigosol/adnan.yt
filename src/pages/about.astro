@@ -3,6 +3,7 @@ import MainLayout from '../layouts/MainLayout.astro'
 import CTA from '../components/CTA.astro'
 import { fetchSanity } from '../lib/sanity'
 import { ABOUT_PAGE_QUERY } from '../lib/queries'
+import { breadcrumbSchema } from '../lib/breadcrumbs'
 
 const about = await fetchSanity<any>(ABOUT_PAGE_QUERY)
 
@@ -42,6 +43,7 @@ const trustStats = about?.trustStats?.length ? about.trustStats : [
 <MainLayout
   title="About — Muhammad Adnan, Video Editor | adnan.yt"
   description="Meet Muhammad Adnan — a professional video editor working with YouTube creators, coaches, agencies, and brands worldwide."
+  schema={breadcrumbSchema([{ name: 'Home', url: '/' }, { name: 'About', url: '/about' }])}
 >
 
   <!-- ══ STORY ═══════════════════════════════════════════════════════ -->

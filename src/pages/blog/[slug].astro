@@ -1,0 +1,86 @@
+---
+import { toHTML } from '@portabletext/to-html'
+import MainLayout from '../../layouts/MainLayout.astro'
+import BlogCard from '../../components/BlogCard.astro'
+import CTA from '../../components/CTA.astro'
+import { fetchSanity } from '../../lib/sanity'
+import { BLOG_LIST_QUERY, BLOG_BY_SLUG_QUERY } from '../../lib/queries'
+import { breadcrumbSchema } from '../../lib/breadcrumbs'
+
+export async function getStaticPaths() {
+  const posts = await fetchSanity<any[]>(BLOG_LIST_QUERY, { from: 0, to: 999 })
+  return (posts ?? []).map((p: any) => ({ params: { slug: p.slug.current } }))
+}
+
+const { slug } = Astro.params
+const post = await fetchSanity<any>(BLOG_BY_SLUG_QUERY, { slug })
+
+if (!post) return Astro.redirect('/blog')
+
+const bodyHtml = post.body ? toHTML(post.body) : ''
+const date = post.publishedAt
+  ? new Date(post.publishedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+  : null
+
+const articleSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: post.title,
+  datePublished: post.publishedAt,
+  author: { '@type': 'Person', name: 'Muhammad Adnan' },
+  publisher: { '@type': 'Organization', name: 'adnan.yt' },
+  ...(post.thumbnail && { image: post.thumbnail }),
+}
+
+const breadcrumbs = breadcrumbSchema([
+  { name: 'Home', url: '/' },
+  { name: 'Blog', url: '/blog' },
+  { name: post.title, url: `/blog/${slug}` },
+])
+---
+
+<MainLayout
+  title={post.seoTitle ?? `${post.title} | adnan.yt Blog`}
+  description={post.seoDescription}
+  schema={[articleSchema, breadcrumbs]}
+>
+
+  <article class="py-20 border-b border-border">
+    <div class="container max-w-3xl">
+      <a href="/blog" class="text-accent-light text-sm font-semibold hover:underline">← All Posts</a>
+
+      <div class="flex items-center gap-3 mt-6 mb-4 text-sm text-text-muted">
+        {post.category && <span class="badge-accent text-xs">{post.category}</span>}
+        {date && <span>{date}</span>}
+      </div>
+
+      <h1 class="text-3xl md:text-4xl font-black text-text-white mb-8 tracking-tight">{post.title}</h1>
+
+      {post.thumbnail && (
+        <img src={post.thumbnail} alt={post.title} class="w-full rounded-card border border-border mb-10" />
+      )}
+
+      <div class="prose" set:html={bodyHtml} />
+    </div>
+  </article>
+
+  {post.relatedPosts?.length > 0 && (
+    <section class="py-20 border-b border-border bg-bg-1">
+      <div class="container">
+        <h2 class="section-heading">Related Posts</h2>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-8">
+          {post.relatedPosts.map((p: any) => (
+            <BlogCard post={p} />
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <CTA
+    heading="Need a Video Edited?"
+    subtext="Get a free, no-obligation quote within 24 hours."
+    primaryCta={{ label: 'Get a Free Quote →', href: '/contact' }}
+  />
+
+</MainLayout>

@@ -1,0 +1,87 @@
+---
+import MainLayout from '../layouts/MainLayout.astro'
+import TutorialCard from '../components/TutorialCard.astro'
+import { fetchSanity } from '../lib/sanity'
+import { TUTORIAL_LIST_QUERY } from '../lib/queries'
+import { breadcrumbSchema } from '../lib/breadcrumbs'
+
+const tutorials = await fetchSanity<any[]>(TUTORIAL_LIST_QUERY, { from: 0, to: 23 })
+
+const categories = ['All', ...new Set((tutorials ?? []).map((t: any) => t.category).filter(Boolean))]
+---
+
+<MainLayout
+  title="Tutorials — Learn Video Editing | adnan.yt"
+  description="Step-by-step video editing tutorials for Premiere Pro, After Effects, DaVinci Resolve, and CapCut."
+  schema={breadcrumbSchema([{ name: 'Home', url: '/' }, { name: 'Tutorials', url: '/tutorials' }])}
+>
+
+  <section class="py-20 border-b border-border text-center">
+    <div class="container max-w-2xl">
+      <h1 class="text-4xl md:text-5xl font-black text-text-white mb-4 tracking-tight">
+        Video Editing <span class="text-gradient">Tutorials</span>
+      </h1>
+      <p class="text-text-muted text-lg leading-relaxed">
+        Step-by-step guides to help you edit faster and better.
+      </p>
+    </div>
+  </section>
+
+  <section class="py-20">
+    <div class="container">
+      {tutorials?.length ? (
+        <>
+          {categories.length > 2 && (
+            <div class="flex flex-wrap gap-2 justify-center mb-10" id="tutorial-filters">
+              {categories.map((c, i) => (
+                <button
+                  type="button"
+                  data-filter={c}
+                  class={`px-4 py-2 rounded-pill text-sm font-medium border border-border transition-colors ${i === 0 ? 'bg-accent text-white border-accent' : 'text-text-muted hover:text-text-white hover:border-border-light'}`}
+                >
+                  {c}
+                </button>
+              ))}
+            </div>
+          )}
+
+          <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5" id="tutorial-grid">
+            {tutorials.map((t: any) => (
+              <div data-category={t.category ?? 'All'}>
+                <TutorialCard tutorial={t} />
+              </div>
+            ))}
+          </div>
+        </>
+      ) : (
+        <p class="text-text-muted text-center">
+          Tutorials will appear here once published in Sanity Studio.
+        </p>
+      )}
+    </div>
+  </section>
+
+</MainLayout>
+
+<script>
+  const filterBtns = document.querySelectorAll<HTMLButtonElement>('#tutorial-filters [data-filter]')
+  const cards = document.querySelectorAll<HTMLElement>('#tutorial-grid [data-category]')
+
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const filter = btn.dataset.filter
+
+      filterBtns.forEach(b => {
+        b.classList.remove('bg-accent', 'text-white', 'border-accent')
+        b.classList.add('text-text-muted', 'hover:text-text-white', 'hover:border-border-light')
+      })
+      btn.classList.add('bg-accent', 'text-white', 'border-accent')
+      btn.classList.remove('text-text-muted', 'hover:text-text-white', 'hover:border-border-light')
+
+      cards.forEach(card => {
+        const show = filter === 'All' || card.dataset.category === filter
+        card.classList.toggle('hidden', !show)
+      })
+    })
+  })
+</script>

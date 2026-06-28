@@ -4,6 +4,7 @@ import FAQ from '../../components/FAQ.astro'
 import CTA from '../../components/CTA.astro'
 import { fetchSanity } from '../../lib/sanity'
 import { SERVICES_LIST_QUERY, SERVICE_BY_SLUG_QUERY } from '../../lib/queries'
+import { breadcrumbSchema } from '../../lib/breadcrumbs'
 
 export async function getStaticPaths() {
   const services = await fetchSanity<any[]>(SERVICES_LIST_QUERY)
@@ -43,12 +44,18 @@ const faqSchema = service.faqs?.length ? {
     acceptedAnswer: { '@type': 'Answer', text: f.answer },
   })),
 } : null
+
+const breadcrumbs = breadcrumbSchema([
+  { name: 'Home', url: '/' },
+  { name: 'Services', url: '/services' },
+  { name: service.title, url: `/services/${slug}` },
+])
 ---
 
 <MainLayout
   title={service.seoTitle ?? `${service.title} | adnan.yt`}
   description={service.seoDescription ?? service.shortDescription}
-  schema={faqSchema ? [serviceSchema, faqSchema] : serviceSchema}
+  schema={faqSchema ? [serviceSchema, faqSchema, breadcrumbs] : [serviceSchema, breadcrumbs]}
 >
 
   <!-- ══ HEADER ═════════════════════════════════════════════════════ -->

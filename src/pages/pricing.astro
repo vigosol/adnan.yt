@@ -5,6 +5,7 @@ import FAQ from '../components/FAQ.astro'
 import CTA from '../components/CTA.astro'
 import { fetchSanity } from '../lib/sanity'
 import { PRICING_PAGE_QUERY } from '../lib/queries'
+import { breadcrumbSchema } from '../lib/breadcrumbs'
 
 const pricingPage = await fetchSanity<any>(PRICING_PAGE_QUERY)
 
@@ -65,7 +66,7 @@ const pricingSchema = numericPackages.map((p: any) => ({
 <MainLayout
   title="Pricing — Video Editing Packages | adnan.yt"
   description="Transparent pricing for YouTube, Shorts, and corporate video editing. Pick a package or get a custom quote."
-  schema={pricingSchema}
+  schema={[...pricingSchema, breadcrumbSchema([{ name: 'Home', url: '/' }, { name: 'Pricing', url: '/pricing' }])]}
 >
 
   <section class="py-20 border-b border-border text-center">

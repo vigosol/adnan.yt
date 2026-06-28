@@ -1,0 +1,93 @@
+---
+import { toHTML } from '@portabletext/to-html'
+import MainLayout from '../../layouts/MainLayout.astro'
+import TutorialCard from '../../components/TutorialCard.astro'
+import CTA from '../../components/CTA.astro'
+import { fetchSanity } from '../../lib/sanity'
+import { TUTORIAL_LIST_QUERY, TUTORIAL_BY_SLUG_QUERY } from '../../lib/queries'
+import { breadcrumbSchema } from '../../lib/breadcrumbs'
+
+export async function getStaticPaths() {
+  const tutorials = await fetchSanity<any[]>(TUTORIAL_LIST_QUERY, { from: 0, to: 999 })
+  return (tutorials ?? []).map((t: any) => ({ params: { slug: t.slug.current } }))
+}
+
+const { slug } = Astro.params
+const tutorial = await fetchSanity<any>(TUTORIAL_BY_SLUG_QUERY, { slug })
+
+if (!tutorial) return Astro.redirect('/tutorials')
+
+const bodyHtml = tutorial.body ? toHTML(tutorial.body) : ''
+const date = tutorial.publishedAt
+  ? new Date(tutorial.publishedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+  : null
+
+const howToSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'HowTo',
+  name: tutorial.title,
+  description: tutorial.seoDescription,
+  ...(tutorial.thumbnail && { image: tutorial.thumbnail }),
+}
+
+const breadcrumbs = breadcrumbSchema([
+  { name: 'Home', url: '/' },
+  { name: 'Tutorials', url: '/tutorials' },
+  { name: tutorial.title, url: `/tutorials/${slug}` },
+])
+---
+
+<MainLayout
+  title={tutorial.seoTitle ?? `${tutorial.title} | adnan.yt Tutorials`}
+  description={tutorial.seoDescription}
+  schema={[howToSchema, breadcrumbs]}
+>
+
+  <article class="py-20 border-b border-border">
+    <div class="container max-w-3xl">
+      <a href="/tutorials" class="text-accent-light text-sm font-semibold hover:underline">← All Tutorials</a>
+
+      <div class="flex items-center gap-3 mt-6 mb-4 text-sm text-text-muted">
+        {tutorial.category && <span class="badge-accent text-xs">{tutorial.category}</span>}
+        {tutorial.difficulty && <span class="badge text-xs bg-bg-2 border border-border">{tutorial.difficulty}</span>}
+        {date && <span>{date}</span>}
+      </div>
+
+      <h1 class="text-3xl md:text-4xl font-black text-text-white mb-8 tracking-tight">{tutorial.title}</h1>
+
+      {tutorial.youtubeVideoId ? (
+        <div class="aspect-video rounded-card overflow-hidden border border-border mb-10">
+          <iframe
+            src={`https://www.youtube.com/embed/${tutorial.youtubeVideoId}`}
+            class="w-full h-full" frameborder="0" allowfullscreen
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          />
+        </div>
+      ) : tutorial.thumbnail && (
+        <img src={tutorial.thumbnail} alt={tutorial.title} class="w-full rounded-card border border-border mb-10" />
+      )}
+
+      <div class="prose" set:html={bodyHtml} />
+    </div>
+  </article>
+
+  {tutorial.relatedTutorials?.length > 0 && (
+    <section class="py-20 border-b border-border bg-bg-1">
+      <div class="container">
+        <h2 class="section-heading">Related Tutorials</h2>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-8">
+          {tutorial.relatedTutorials.map((t: any) => (
+            <TutorialCard tutorial={t} />
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <CTA
+    heading="Want This Done For You?"
+    subtext="Skip the learning curve — get a free quote within 24 hours."
+    primaryCta={{ label: 'Get a Free Quote →', href: '/contact' }}
+  />
+
+</MainLayout>

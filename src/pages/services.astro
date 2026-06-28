@@ -4,6 +4,7 @@ import ServiceCard from '../components/ServiceCard.astro'
 import CTA from '../components/CTA.astro'
 import { fetchSanity } from '../lib/sanity'
 import { SERVICES_LIST_QUERY } from '../lib/queries'
+import { breadcrumbSchema } from '../lib/breadcrumbs'
 
 const services = await fetchSanity<any[]>(SERVICES_LIST_QUERY)
 
@@ -22,6 +23,7 @@ const list = services?.length ? services : fallbackServices
 <MainLayout
   title="Services — Video Editing for Creators & Brands | adnan.yt"
   description="YouTube, Shorts, podcast, and corporate video editing services. Pick the service that fits your project and get a free quote."
+  schema={breadcrumbSchema([{ name: 'Home', url: '/' }, { name: 'Services', url: '/services' }])}
 >
 
   <section class="py-20 border-b border-border text-center">

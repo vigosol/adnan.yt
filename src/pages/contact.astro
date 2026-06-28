@@ -3,6 +3,7 @@ import MainLayout from '../layouts/MainLayout.astro'
 import FAQ from '../components/FAQ.astro'
 import { fetchSanity } from '../lib/sanity'
 import { SITE_SETTINGS_QUERY, CONTACT_PAGE_QUERY, SERVICES_LIST_QUERY } from '../lib/queries'
+import { breadcrumbSchema } from '../lib/breadcrumbs'
 
 const [settings, contact, services] = await Promise.all([
   fetchSanity<any>(SITE_SETTINGS_QUERY),
@@ -35,6 +36,7 @@ const faqs = contact?.faqs?.length ? contact.faqs : [
 <MainLayout
   title="Contact — Get a Free Quote | adnan.yt"
   description="Tell me about your video project and get a free, no-obligation quote within 24 hours."
+  schema={breadcrumbSchema([{ name: 'Home', url: '/' }, { name: 'Contact', url: '/contact' }])}
 >
 
   <section class="py-20 border-b border-border">

@@ -1,0 +1,113 @@
+---
+import MainLayout from '../../layouts/MainLayout.astro'
+import CTA from '../../components/CTA.astro'
+import { fetchSanity } from '../../lib/sanity'
+import { CASE_STUDY_LIST_QUERY, CASE_STUDY_BY_SLUG_QUERY } from '../../lib/queries'
+import { breadcrumbSchema } from '../../lib/breadcrumbs'
+
+export async function getStaticPaths() {
+  const items = await fetchSanity<any[]>(CASE_STUDY_LIST_QUERY)
+  return (items ?? []).map((i: any) => ({ params: { slug: i.slug.current } }))
+}
+
+const { slug } = Astro.params
+const item = await fetchSanity<any>(CASE_STUDY_BY_SLUG_QUERY, { slug })
+
+if (!item) return Astro.redirect('/case-studies')
+
+function youtubeId(url?: string) {
+  if (!url) return null
+  const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]{11})/)
+  return match ? match[1] : null
+}
+const ytId = youtubeId(item.videoUrl)
+
+const breadcrumbs = breadcrumbSchema([
+  { name: 'Home', url: '/' },
+  { name: 'Case Studies', url: '/case-studies' },
+  { name: item.title, url: `/case-studies/${slug}` },
+])
+---
+
+<MainLayout
+  title={item.seoTitle ?? `${item.title} | adnan.yt`}
+  description={item.seoDescription ?? item.results ?? item.problem}
+  schema={breadcrumbs}
+>
+
+  <section class="py-20 border-b border-border">
+    <div class="container max-w-3xl">
+      <a href="/case-studies" class="text-accent-light text-sm font-semibold hover:underline">← All Case Studies</a>
+      <h1 class="text-4xl md:text-5xl font-black text-text-white mt-4 mb-4 tracking-tight">{item.title}</h1>
+      <div class="flex flex-wrap gap-2">
+        {item.platform && <span class="badge-accent text-xs">{item.platform}</span>}
+        {item.industry && <span class="badge text-xs bg-bg-2 text-text-muted border border-border">{item.industry}</span>}
+        {item.service && <span class="badge text-xs bg-bg-2 text-text-muted border border-border">{item.service}</span>}
+      </div>
+    </div>
+  </section>
+
+  <section class="py-20 border-b border-border">
+    <div class="container max-w-3xl space-y-10">
+      {ytId ? (
+        <div class="aspect-video rounded-card overflow-hidden border border-border">
+          <iframe
+            src={`https://www.youtube.com/embed/${ytId}`}
+            class="w-full h-full" frameborder="0" allowfullscreen
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          />
+        </div>
+      ) : item.thumbnail && (
+        <img src={item.thumbnail} alt={item.title} class="w-full rounded-card border border-border" />
+      )}
+
+      {item.problem && (
+        <div>
+          <h2 class="section-heading">The Problem</h2>
+          <p class="text-text-muted leading-relaxed">{item.problem}</p>
+        </div>
+      )}
+
+      {item.solution && (
+        <div>
+          <h2 class="section-heading">The Solution</h2>
+          <p class="text-text-muted leading-relaxed">{item.solution}</p>
+        </div>
+      )}
+
+      {item.toolsUsed?.length > 0 && (
+        <div>
+          <h2 class="section-heading">Tools Used</h2>
+          <div class="flex flex-wrap gap-2">
+            {item.toolsUsed.map((tool: string) => (
+              <span class="text-sm text-text bg-bg-2 border border-border rounded-pill px-3 py-1">{tool}</span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {item.results && (
+        <div class="callout-success">
+          <span class="callout-icon">📈</span>
+          <div><strong>Results:</strong> {item.results}</div>
+        </div>
+      )}
+
+      {item.testimonial?.quote && (
+        <blockquote class="card border-l-4 border-l-accent">
+          <p class="text-text text-lg leading-relaxed mb-4">"{item.testimonial.quote}"</p>
+          <div class="text-text-white font-semibold text-sm">{item.testimonial.name}</div>
+          {item.testimonial.role && <div class="text-text-muted text-xs">{item.testimonial.role}</div>}
+        </blockquote>
+      )}
+    </div>
+  </section>
+
+  <CTA
+    heading="Want Results Like This?"
+    subtext="Tell me about your project and get a free quote within 24 hours."
+    primaryCta={{ label: 'Get a Free Quote →', href: '/contact' }}
+    secondaryCta={{ label: 'View Case Studies', href: '/case-studies' }}
+  />
+
+</MainLayout>

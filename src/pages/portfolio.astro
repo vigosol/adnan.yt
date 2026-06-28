@@ -1,0 +1,94 @@
+---
+import MainLayout from '../layouts/MainLayout.astro'
+import PortfolioCard from '../components/PortfolioCard.astro'
+import CTA from '../components/CTA.astro'
+import { fetchSanity } from '../lib/sanity'
+import { PORTFOLIO_LIST_QUERY } from '../lib/queries'
+import { breadcrumbSchema } from '../lib/breadcrumbs'
+
+const items = await fetchSanity<any[]>(PORTFOLIO_LIST_QUERY)
+
+const platforms = ['All', ...new Set((items ?? []).map((i: any) => i.platform).filter(Boolean))]
+---
+
+<MainLayout
+  title="Portfolio — Video Editing Work | adnan.yt"
+  description="Real client results across YouTube, Instagram, TikTok, and more."
+  schema={breadcrumbSchema([{ name: 'Home', url: '/' }, { name: 'Portfolio', url: '/portfolio' }])}
+>
+
+  <section class="py-20 border-b border-border text-center">
+    <div class="container max-w-2xl">
+      <h1 class="text-4xl md:text-5xl font-black text-text-white mb-4 tracking-tight">
+        <span class="text-gradient">Portfolio</span>
+      </h1>
+      <p class="text-text-muted text-lg leading-relaxed">
+        Real edits, real clients, real results. Looking for the full story behind a project? Check out the <a href="/case-studies" class="text-accent-light hover:underline">Case Studies</a>.
+      </p>
+    </div>
+  </section>
+
+  <section class="py-20 border-b border-border">
+    <div class="container">
+      {items?.length ? (
+        <>
+          {platforms.length > 2 && (
+            <div class="flex flex-wrap gap-2 justify-center mb-10" id="portfolio-filters">
+              {platforms.map((p, i) => (
+                <button
+                  type="button"
+                  data-filter={p}
+                  class={`px-4 py-2 rounded-pill text-sm font-medium border border-border transition-colors ${i === 0 ? 'bg-accent text-white border-accent' : 'text-text-muted hover:text-text-white hover:border-border-light'}`}
+                >
+                  {p}
+                </button>
+              ))}
+            </div>
+          )}
+
+          <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5" id="portfolio-grid">
+            {items.map((item: any) => (
+              <div data-platform={item.platform ?? 'All'}>
+                <PortfolioCard item={item} />
+              </div>
+            ))}
+          </div>
+        </>
+      ) : (
+        <p class="text-text-muted text-center">
+          Portfolio items will appear here once added in Sanity Studio.
+        </p>
+      )}
+    </div>
+  </section>
+
+  <CTA
+    heading="Want Results Like These?"
+    subtext="Tell me about your project and get a free quote within 24 hours."
+    primaryCta={{ label: 'Get a Free Quote →', href: '/contact' }}
+  />
+
+</MainLayout>
+
+<script>
+  const filterBtns = document.querySelectorAll<HTMLButtonElement>('#portfolio-filters [data-filter]')
+  const cards = document.querySelectorAll<HTMLElement>('#portfolio-grid [data-platform]')
+
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const filter = btn.dataset.filter
+
+      filterBtns.forEach(b => {
+        b.classList.remove('bg-accent', 'text-white', 'border-accent')
+        b.classList.add('text-text-muted', 'hover:text-text-white', 'hover:border-border-light')
+      })
+      btn.classList.add('bg-accent', 'text-white', 'border-accent')
+      btn.classList.remove('text-text-muted', 'hover:text-text-white', 'hover:border-border-light')
+
+      cards.forEach(card => {
+        const show = filter === 'All' || card.dataset.platform === filter
+        card.classList.toggle('hidden', !show)
+      })
+    })
+  })
+</script>

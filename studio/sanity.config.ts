@@ -58,6 +58,14 @@ export default defineConfig({
             S.documentTypeListItem('testimonial').title('⭐ Testimonials'),
             S.divider(),
 
+            // Portfolio
+            S.documentTypeListItem('portfolio').title('🖼️ Portfolio'),
+            S.divider(),
+
+            // Case Studies
+            S.documentTypeListItem('caseStudy').title('📋 Case Studies'),
+            S.divider(),
+
             // Content
             S.documentTypeListItem('blog').title('📝 Blog Posts'),
             S.documentTypeListItem('tutorial').title('🎓 Tutorials'),
@@ -65,7 +73,6 @@ export default defineConfig({
             S.divider(),
 
             // (uncomment as you add more schemas)
-            // S.documentTypeListItem('portfolio').title('🖼️ Portfolio'),
             // S.documentTypeListItem('product').title('🛒 Shop / Affiliates'),
           ]),
     }),

@@ -95,12 +95,30 @@ export const PORTFOLIO_LIST_QUERY = `
   }
 `
 
-export const CASE_STUDY_BY_SLUG_QUERY = `
+export const PORTFOLIO_BY_SLUG_QUERY = `
   *[_type == "portfolio" && slug.current == $slug][0] {
     _id, title, slug, client, industry, platform, service,
-    problem, solution, toolsUsed[], results, testimonial,
+    problem, solution, toolsUsed, results, testimonial,
     videoUrl, "thumbnail": thumbnail.asset->url,
-    seoTitle, seoDescription, "ogImage": ogImage.asset->url
+    seoTitle, seoDescription
+  }
+`
+
+// ── Case Studies ──────────────────────────────────────────────
+export const CASE_STUDY_LIST_QUERY = `
+  *[_type == "caseStudy" && isActive == true] | order(_createdAt desc) {
+    _id, title, slug, industry, platform, service,
+    "thumbnail": thumbnail.asset->url,
+    shortResult
+  }
+`
+
+export const CASE_STUDY_BY_SLUG_QUERY = `
+  *[_type == "caseStudy" && slug.current == $slug][0] {
+    _id, title, slug, client, industry, platform, service,
+    problem, solution, toolsUsed, results, testimonial,
+    videoUrl, "thumbnail": thumbnail.asset->url,
+    seoTitle, seoDescription
   }
 `
 
@@ -108,19 +126,17 @@ export const CASE_STUDY_BY_SLUG_QUERY = `
 export const BLOG_LIST_QUERY = `
   *[_type == "blog" && isPublished == true] | order(publishedAt desc) [$from..$to] {
     _id, title, slug, publishedAt, category,
-    "excerpt": array::join(string::split((pt::text(body))[0..200], "")[0..200], ""),
-    "thumbnail": thumbnail.asset->url,
-    "author": author->{ name, "avatar": avatar.asset->url }
+    "excerpt": pt::text(body)[0..200],
+    "thumbnail": thumbnail.asset->url
   }
 `
 
 export const BLOG_BY_SLUG_QUERY = `
   *[_type == "blog" && slug.current == $slug][0] {
-    _id, title, slug, publishedAt, updatedAt, category, tags,
+    _id, title, slug, publishedAt, category,
     body, seoTitle, seoDescription,
-    "ogImage": ogImage.asset->url,
-    "author": author->{ name, bio, "avatar": avatar.asset->url },
-    "relatedPosts": *[_type == "blog" && category == ^.category && slug.current != $slug][0..2] {
+    "thumbnail": thumbnail.asset->url,
+    "relatedPosts": *[_type == "blog" && isPublished == true && category == ^.category && slug.current != $slug][0...3] {
       _id, title, slug, "thumbnail": thumbnail.asset->url
     }
   }
@@ -130,7 +146,7 @@ export const BLOG_BY_SLUG_QUERY = `
 export const TUTORIAL_LIST_QUERY = `
   *[_type == "tutorial" && isPublished == true] | order(publishedAt desc) [$from..$to] {
     _id, title, slug, publishedAt, category, difficulty,
-    "excerpt": array::join(string::split((pt::text(body))[0..200], "")[0..200], ""),
+    "excerpt": pt::text(body)[0..200],
     "thumbnail": thumbnail.asset->url,
     youtubeVideoId
   }
@@ -138,9 +154,12 @@ export const TUTORIAL_LIST_QUERY = `
 
 export const TUTORIAL_BY_SLUG_QUERY = `
   *[_type == "tutorial" && slug.current == $slug][0] {
-    _id, title, slug, publishedAt, category, difficulty, tags,
+    _id, title, slug, publishedAt, category, difficulty,
     body, youtubeVideoId, seoTitle, seoDescription,
-    "ogImage": ogImage.asset->url
+    "thumbnail": thumbnail.asset->url,
+    "relatedTutorials": *[_type == "tutorial" && isPublished == true && category == ^.category && slug.current != $slug][0...3] {
+      _id, title, slug, "thumbnail": thumbnail.asset->url
+    }
   }
 `
 

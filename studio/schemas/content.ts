@@ -23,6 +23,7 @@ export const tutorialSchema = defineType({
     defineField({ name: "slug", type: "slug", title: "Slug", options: { source: "title" }, validation: R => R.required() }),
     defineField({ name: "isPublished", type: "boolean", title: "Published?", initialValue: false }),
     defineField({ name: "publishedAt", type: "datetime", title: "Publish Date" }),
+    defineField({ name: "category", type: "string", title: "Category", options: { list: ["Premiere Pro","After Effects","DaVinci Resolve","CapCut","YouTube","AI Video Editing","Tips & Tricks","Freelancing"] } }),
     defineField({ name: "difficulty", type: "string", title: "Difficulty", options: { list: ["Beginner","Intermediate","Advanced"] } }),
     defineField({ name: "youtubeVideoId", type: "string", title: "YouTube Video ID" }),
     defineField({ name: "thumbnail", type: "image", title: "Thumbnail", options: { hotspot: true } }),
