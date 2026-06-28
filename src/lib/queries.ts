@@ -11,7 +11,10 @@ export const SITE_SETTINGS_QUERY = `
     defaultSeoTitle, defaultSeoDescription,
     defaultOgImage { asset->{ url } },
     socialLinks { youtube, instagram, tiktok, linkedin, twitter, pinterest },
-    enableWhatsapp, enableLiveChat, tawktoId
+    enableWhatsapp, enableLiveChat, tawktoId,
+    hero { badge, title, highlight, subtitle },
+    process[] { icon, title, description },
+    faqs[] { question, answer }
   }
 `
 
