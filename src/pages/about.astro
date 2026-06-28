@@ -1,0 +1,115 @@
+---
+import MainLayout from '../layouts/MainLayout.astro'
+import CTA from '../components/CTA.astro'
+import { fetchSanity } from '../lib/sanity'
+import { ABOUT_PAGE_QUERY } from '../lib/queries'
+
+const about = await fetchSanity<any>(ABOUT_PAGE_QUERY)
+
+// About content is CMS-managed via the About Page document — fall back
+// to launch-day defaults until that content is filled in.
+const story = about?.story?.length ? about.story : [
+  "I'm a professional video editor based in Pakistan, working with creators, coaches, agencies, and brands around the world. What started as editing my own YouTube experiments turned into editing for clients who needed their videos to actually perform — not just look polished.",
+  'Today I focus on YouTube long-form, Shorts and Reels, podcast video, and corporate edits — combining clean technical execution with an eye for pacing and retention, because a beautiful edit that loses viewers in the first ten seconds isn\'t doing its job.',
+  "I treat every project like it's for my own channel: tight story, clean sound, and a turnaround you can actually plan around.",
+]
+
+const tools = about?.tools?.length ? about.tools : [
+  { icon: '🎬', name: 'Adobe Premiere Pro' },
+  { icon: '✨', name: 'After Effects' },
+  { icon: '🎨', name: 'DaVinci Resolve' },
+  { icon: '📱', name: 'CapCut' },
+  { icon: '🎙️', name: 'Adobe Audition' },
+  { icon: '🖼️', name: 'Photoshop' },
+]
+
+const workflow = about?.workflow?.length ? about.workflow : [
+  { title: 'Discovery Call', description: "We talk through your goals, audience, and style — so every edit serves a purpose, not just looks good." },
+  { title: 'Footage Review', description: 'I review your raw footage and references before touching the timeline, to catch problems early.' },
+  { title: 'First Cut', description: 'A structured first pass: pacing, story, and selects — then color, sound, and motion graphics layered in.' },
+  { title: 'Revision & Polish', description: 'You get a private review link. One round of revisions is included to dial in every detail.' },
+  { title: 'Delivery', description: 'Final files delivered in whatever format and resolution your platform needs — ready to publish.' },
+]
+
+const trustStats = about?.trustStats?.length ? about.trustStats : [
+  { val: '100+', label: 'Videos Edited' },
+  { val: '50+',  label: 'Happy Clients' },
+  { val: '24h',  label: 'Avg. Turnaround' },
+  { val: '5★',   label: 'Average Rating' },
+]
+---
+
+<MainLayout
+  title="About — Muhammad Adnan, Video Editor | adnan.yt"
+  description="Meet Muhammad Adnan — a professional video editor working with YouTube creators, coaches, agencies, and brands worldwide."
+>
+
+  <!-- ══ STORY ═══════════════════════════════════════════════════════ -->
+  <section class="py-20 border-b border-border">
+    <div class="container max-w-3xl">
+      <h1 class="text-4xl md:text-5xl font-black text-text-white mb-6 tracking-tight">
+        Hi, I'm <span class="text-gradient">Muhammad Adnan</span>
+      </h1>
+      <div class="space-y-5 text-text-muted text-lg leading-relaxed">
+        {story.map((paragraph: string) => <p>{paragraph}</p>)}
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ TOOLS ═══════════════════════════════════════════════════════ -->
+  <section class="py-20 border-b border-border bg-bg-1">
+    <div class="container">
+      <h2 class="section-heading">Tools I Use</h2>
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mt-8">
+        {tools.map(tool => (
+          <div class="card text-center !py-6">
+            <div class="text-3xl mb-2">{tool.icon}</div>
+            <div class="text-text-white text-sm font-semibold">{tool.name}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ WORKFLOW ════════════════════════════════════════════════════ -->
+  <section class="py-20 border-b border-border">
+    <div class="container">
+      <h2 class="section-heading">How I Work</h2>
+      <p class="text-text-muted mb-12 max-w-xl">
+        A predictable process means fewer surprises for you and a better result for the video.
+      </p>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-6">
+        {workflow.map((step: any, i: number) => (
+          <div class="card relative">
+            <div class="text-4xl font-black text-border absolute top-4 right-4">{String(i + 1).padStart(2, '0')}</div>
+            <h3 class="font-bold text-text-white mb-2">{step.title}</h3>
+            <p class="text-text-muted text-sm">{step.description}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ TRUST SIGNALS ═══════════════════════════════════════════════ -->
+  <section class="py-20 border-b border-border bg-bg-1">
+    <div class="container">
+      <div class="flex flex-wrap gap-12 justify-center text-center">
+        {trustStats.map(({ val, label }) => (
+          <div>
+            <div class="text-4xl font-black text-gradient">{val}</div>
+            <div class="text-sm text-text-muted mt-1">{label}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ CTA ═════════════════════════════════════════════════════════ -->
+  <CTA
+    heading="Ready to Work Together?"
+    subtext="Tell me about your project and get a free quote within 24 hours."
+    primaryCta={{ label: 'Get a Free Quote →', href: '/contact' }}
+    secondaryCta={{ label: 'View Portfolio', href: '/portfolio' }}
+  />
+
+</MainLayout>

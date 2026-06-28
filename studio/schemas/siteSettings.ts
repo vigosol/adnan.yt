@@ -25,39 +25,6 @@ export default defineType({
       ],
     }),
     defineField({ name: "enableWhatsapp", type: "boolean", title: "Show WhatsApp Button?", initialValue: true }),
-
-    defineField({
-      name: "hero", title: "Homepage Hero", type: "object",
-      fields: [
-        { name: "badge", type: "string", title: "Badge Text" },
-        { name: "title", type: "string", title: "Headline — line 1" },
-        { name: "highlight", type: "string", title: "Headline — gradient line 2" },
-        { name: "subtitle", type: "text", title: "Subheadline", rows: 2 },
-      ],
-    }),
-    defineField({
-      name: "process", title: "Homepage — How It Works Steps", type: "array",
-      of: [{
-        type: "object", name: "step",
-        fields: [
-          { name: "icon", type: "string", title: "Emoji Icon" },
-          { name: "title", type: "string", title: "Step Title" },
-          { name: "description", type: "text", title: "Step Description", rows: 2 },
-        ],
-        preview: { select: { title: "title", subtitle: "description" } },
-      }],
-    }),
-    defineField({
-      name: "faqs", title: "Homepage FAQs", type: "array",
-      of: [{
-        type: "object", name: "faq",
-        fields: [
-          { name: "question", type: "string", title: "Question" },
-          { name: "answer", type: "text", title: "Answer", rows: 3 },
-        ],
-        preview: { select: { title: "question" } },
-      }],
-    }),
   ],
   preview: { select: { title: "siteName", subtitle: "email" } },
 })

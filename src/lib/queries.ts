@@ -3,7 +3,7 @@
 // Import the ones you need in each .astro page/component.
 // ─────────────────────────────────────────────────────────────────
 
-// ── Site Settings ─────────────────────────────────────────────
+// ── Site Settings (global defaults only) ───────────────────────
 export const SITE_SETTINGS_QUERY = `
   *[_type == "siteSettings"][0] {
     siteName, tagline, logoUrl, email, phone, whatsappNumber,
@@ -11,9 +11,34 @@ export const SITE_SETTINGS_QUERY = `
     defaultSeoTitle, defaultSeoDescription,
     defaultOgImage { asset->{ url } },
     socialLinks { youtube, instagram, tiktok, linkedin, twitter, pinterest },
-    enableWhatsapp, enableLiveChat, tawktoId,
+    enableWhatsapp, enableLiveChat, tawktoId
+  }
+`
+
+// ── Home Page ────────────────────────────────────────────────────
+export const HOME_PAGE_QUERY = `
+  *[_type == "homePage"][0] {
     hero { badge, title, highlight, subtitle },
+    trustStats[] { val, label },
     process[] { icon, title, description },
+    faqs[] { question, answer }
+  }
+`
+
+// ── About Page ───────────────────────────────────────────────────
+export const ABOUT_PAGE_QUERY = `
+  *[_type == "aboutPage"][0] {
+    story,
+    tools[] { icon, name },
+    workflow[] { title, description },
+    trustStats[] { val, label }
+  }
+`
+
+// ── Contact Page ─────────────────────────────────────────────────
+export const CONTACT_PAGE_QUERY = `
+  *[_type == "contactPage"][0] {
+    title, highlight, subtitle, responseTime,
     faqs[] { question, answer }
   }
 `

@@ -8,38 +8,46 @@ import FAQ from '../components/FAQ.astro'
 import CTA from '../components/CTA.astro'
 import { fetchSanity } from '../lib/sanity'
 import {
-  SITE_SETTINGS_QUERY, SERVICES_LIST_QUERY, TESTIMONIALS_QUERY, PORTFOLIO_LIST_QUERY,
+  SITE_SETTINGS_QUERY, HOME_PAGE_QUERY, SERVICES_LIST_QUERY, TESTIMONIALS_QUERY, PORTFOLIO_LIST_QUERY,
 } from '../lib/queries'
 
-const [settings, services, testimonials, portfolio] = await Promise.all([
+const [settings, home, services, testimonials, portfolio] = await Promise.all([
   fetchSanity<any>(SITE_SETTINGS_QUERY),
+  fetchSanity<any>(HOME_PAGE_QUERY),
   fetchSanity<any[]>(SERVICES_LIST_QUERY),
   fetchSanity<any[]>(TESTIMONIALS_QUERY),
   fetchSanity<any[]>(PORTFOLIO_LIST_QUERY),
 ])
 
-// Hero / Process / FAQs are CMS-managed via siteSettings — fall back to
-// launch-day defaults until that content is filled in.
+// Hero / Process / FAQs / Trust Stats are CMS-managed via the Home Page
+// document — fall back to launch-day defaults until that's filled in.
 const hero = {
-  badge: settings?.hero?.badge ?? 'Available for new projects',
-  title: settings?.hero?.title ?? 'Video Editing That',
-  highlight: settings?.hero?.highlight ?? 'Grows Your Channel',
-  subtitle: settings?.hero?.subtitle ??
+  badge: home?.hero?.badge ?? 'Available for new projects',
+  title: home?.hero?.title ?? 'Video Editing That',
+  highlight: home?.hero?.highlight ?? 'Grows Your Channel',
+  subtitle: home?.hero?.subtitle ??
     'Professional editing for YouTube creators, coaches, agencies, and brands. Fast delivery. Cinematic quality. Zero revision stress.',
 }
 
-const processSteps = settings?.process?.length ? settings.process : [
+const processSteps = home?.process?.length ? home.process : [
   { icon: '📋', title: 'Brief',   description: 'Fill out the project form with your goals, style references, and deadline.' },
   { icon: '📁', title: 'Upload',  description: 'Share your raw footage via Google Drive or WeTransfer.' },
   { icon: '✂️', title: 'Edit',    description: 'I edit, colour-grade, and add music/captions to your spec.' },
   { icon: '🚀', title: 'Deliver', description: 'Receive your polished video. One round of revisions included.' },
 ]
 
-const faqs = settings?.faqs?.length ? settings.faqs : [
+const faqs = home?.faqs?.length ? home.faqs : [
   { question: 'How fast is turnaround?', answer: 'Most projects are delivered within 24–48 hours, depending on length and complexity.' },
   { question: 'How many revisions are included?', answer: 'One round of revisions is included with every project. Additional rounds can be added on request.' },
   { question: 'What file formats do you accept?', answer: 'Any common format — MP4, MOV, or raw camera footage. Share it via Google Drive or WeTransfer.' },
   { question: 'Do you sign NDAs?', answer: 'Yes — happy to sign an NDA before you share any footage, just ask.' },
+]
+
+const trustStats = home?.trustStats?.length ? home.trustStats : [
+  { val: '100+', label: 'Videos Edited' },
+  { val: '50+',  label: 'Happy Clients' },
+  { val: '24h',  label: 'Avg. Turnaround' },
+  { val: '5★',   label: 'Average Rating' },
 ]
 
 // JSON-LD — Organization schema
@@ -85,12 +93,7 @@ const faqSchema = {
     title={hero.title}
     highlight={hero.highlight}
     subtitle={hero.subtitle}
-    stats={[
-      { val: '100+', label: 'Videos Edited' },
-      { val: '50+',  label: 'Happy Clients' },
-      { val: '24h',  label: 'Avg. Turnaround' },
-      { val: '5★',   label: 'Average Rating' },
-    ]}
+    stats={trustStats}
   />
 
   <!-- ══ SERVICES ═══════════════════════════════════════════════════ -->

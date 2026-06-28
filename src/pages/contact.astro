@@ -1,0 +1,177 @@
+---
+import MainLayout from '../layouts/MainLayout.astro'
+import FAQ from '../components/FAQ.astro'
+import { fetchSanity } from '../lib/sanity'
+import { SITE_SETTINGS_QUERY, CONTACT_PAGE_QUERY, SERVICES_LIST_QUERY } from '../lib/queries'
+
+const [settings, contact, services] = await Promise.all([
+  fetchSanity<any>(SITE_SETTINGS_QUERY),
+  fetchSanity<any>(CONTACT_PAGE_QUERY),
+  fetchSanity<any[]>(SERVICES_LIST_QUERY),
+])
+
+const serviceOptions = services?.length
+  ? services.map((s: any) => s.title)
+  : ['YouTube Video Editing', 'Shorts & Reels Editing', 'Podcast Video Editing', 'Motion Graphics', 'Corporate Video', 'Other']
+
+const budgetOptions = ['Under $200', '$200 – $500', '$500 – $1,000', '$1,000+', 'Not sure yet']
+
+// Contact page copy is CMS-managed via the Contact Page document — fall
+// back to launch-day defaults until that content is filled in.
+const contactCopy = {
+  title: contact?.title ?? "Let's Talk About Your",
+  highlight: contact?.highlight ?? 'Project',
+  subtitle: contact?.subtitle ?? 'Fill out the form below and get a free, no-obligation quote within 24 hours.',
+  responseTime: contact?.responseTime ?? 'within 24 hours, usually sooner.',
+}
+
+const faqs = contact?.faqs?.length ? contact.faqs : [
+  { question: 'How fast will you respond?', answer: "Within 24 hours, usually much sooner. You'll also get an automatic confirmation email right after submitting." },
+  { question: 'Do you sign NDAs?', answer: 'Yes — happy to sign an NDA before you share any footage, just mention it in your message.' },
+  { question: "What if I'm not sure which service I need?", answer: 'Pick "Other" or describe your project in the details field — I\'ll recommend the right service during the quote.' },
+]
+---
+
+<MainLayout
+  title="Contact — Get a Free Quote | adnan.yt"
+  description="Tell me about your video project and get a free, no-obligation quote within 24 hours."
+>
+
+  <section class="py-20 border-b border-border">
+    <div class="container text-center max-w-2xl">
+      <h1 class="text-4xl md:text-5xl font-black text-text-white mb-4 tracking-tight">
+        {contactCopy.title} <span class="text-gradient">{contactCopy.highlight}</span>
+      </h1>
+      <p class="text-text-muted text-lg leading-relaxed">
+        {contactCopy.subtitle}
+      </p>
+    </div>
+  </section>
+
+  <section class="py-20">
+    <div class="container grid lg:grid-cols-[1fr_360px] gap-12">
+      <!-- ── Inquiry form ── -->
+      <form id="contact-form" class="space-y-5" novalidate>
+        <div class="grid sm:grid-cols-2 gap-5">
+          <div>
+            <label for="name" class="label">Name</label>
+            <input id="name" name="name" type="text" required class="input" placeholder="Your name" />
+          </div>
+          <div>
+            <label for="email" class="label">Email</label>
+            <input id="email" name="email" type="email" required class="input" placeholder="you@example.com" />
+          </div>
+        </div>
+
+        <div class="grid sm:grid-cols-2 gap-5">
+          <div>
+            <label for="service" class="label">Service Interested In</label>
+            <select id="service" name="service" class="input">
+              {serviceOptions.map((s: string) => <option value={s}>{s}</option>)}
+            </select>
+          </div>
+          <div>
+            <label for="budget" class="label">Budget Range</label>
+            <select id="budget" name="budget" class="input">
+              {budgetOptions.map((b: string) => <option value={b}>{b}</option>)}
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label for="deadline" class="label">Deadline (optional)</label>
+          <input id="deadline" name="deadline" type="date" class="input" />
+        </div>
+
+        <div>
+          <label for="message" class="label">Project Details</label>
+          <textarea
+            id="message" name="message" rows="6" required class="input resize-none"
+            placeholder="Tell me about your project — goals, style references, footage length, anything else useful."
+          ></textarea>
+        </div>
+
+        <button type="submit" id="contact-submit" class="btn-primary w-full justify-center text-base py-3.5">
+          Send Project Details →
+        </button>
+
+        <p id="contact-status" class="text-sm hidden" role="status"></p>
+      </form>
+
+      <!-- ── Sidebar: direct contact + expectations ── -->
+      <aside class="space-y-6">
+        <div class="card">
+          <h3 class="text-text-white font-bold mb-3">Prefer to reach out directly?</h3>
+          <div class="space-y-3 text-sm">
+            {settings?.email && (
+              <a href={`mailto:${settings.email}`} class="flex items-center gap-2 text-text-muted hover:text-text-white transition-colors">
+                ✉️ {settings.email}
+              </a>
+            )}
+            {settings?.enableWhatsapp && settings?.whatsappNumber && (
+              <a
+                href={`https://wa.me/${settings.whatsappNumber}`} target="_blank" rel="noopener noreferrer"
+                class="flex items-center gap-2 text-text-muted hover:text-text-white transition-colors"
+              >
+                💬 Chat on WhatsApp
+              </a>
+            )}
+          </div>
+        </div>
+
+        <div class="callout-info">
+          <span class="callout-icon">⏱️</span>
+          <div><strong>Response time:</strong> {contactCopy.responseTime}</div>
+        </div>
+
+        <div>
+          <h3 class="text-text-white font-bold mb-3 text-sm">Quick Questions</h3>
+          <FAQ items={faqs} />
+        </div>
+      </aside>
+    </div>
+  </section>
+
+</MainLayout>
+
+<script>
+  const form = document.getElementById('contact-form') as HTMLFormElement
+  const submitBtn = document.getElementById('contact-submit') as HTMLButtonElement
+  const status = document.getElementById('contact-status') as HTMLParagraphElement
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault()
+
+    const data = Object.fromEntries(new FormData(form).entries())
+
+    submitBtn.disabled = true
+    submitBtn.textContent = 'Sending...'
+    status.classList.add('hidden')
+
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      })
+      const result = await res.json()
+
+      status.classList.remove('hidden')
+      if (result.success) {
+        status.textContent = "Thanks! Your message is in — I'll be in touch within 24 hours."
+        status.className = 'text-sm text-success'
+        form.reset()
+      } else {
+        status.textContent = result.error ?? 'Something went wrong. Please try again.'
+        status.className = 'text-sm text-error'
+      }
+    } catch {
+      status.classList.remove('hidden')
+      status.textContent = 'Network error — please check your connection and try again.'
+      status.className = 'text-sm text-error'
+    } finally {
+      submitBtn.disabled = false
+      submitBtn.textContent = 'Send Project Details →'
+    }
+  })
+</script>

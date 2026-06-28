@@ -1,7 +1,17 @@
 import { defineConfig } from 'sanity'
 import { structureTool } from 'sanity/structure'
+import type { StructureBuilder } from 'sanity/structure'
 import { visionTool } from '@sanity/vision'
 import { schemaTypes } from './schemas'
+
+// Singletons: exactly one document of this type should ever exist.
+const SINGLETON_TYPES = ['siteSettings', 'homePage', 'aboutPage', 'contactPage']
+
+const singleton = (S: StructureBuilder, schemaType: string, title: string) =>
+  S.listItem()
+    .title(title)
+    .id(schemaType)
+    .child(S.document().schemaType(schemaType).documentId(schemaType))
 
 export default defineConfig({
   name:      'adnan-yt-studio',
@@ -11,10 +21,10 @@ export default defineConfig({
   projectId: process.env.SANITY_STUDIO_PROJECT_ID ?? 'd54eszpi',
   dataset:   process.env.SANITY_STUDIO_DATASET    ?? 'production',
 
-  // Restrict the siteSettings singleton to publish only (no delete/duplicate/unpublish)
+  // Restrict singletons to publish only (no delete/duplicate/unpublish)
   document: {
     actions: (input, context) =>
-      context.schemaType === 'siteSettings'
+      SINGLETON_TYPES.includes(context.schemaType)
         ? input.filter(({ action }) => action === 'publish')
         : input,
   },
@@ -25,15 +35,14 @@ export default defineConfig({
         S.list()
           .title('Content')
           .items([
-            // Singleton: Site Settings
-            S.listItem()
-              .title('⚙️  Site Settings')
-              .id('siteSettings')
-              .child(
-                S.document()
-                  .schemaType('siteSettings')
-                  .documentId('siteSettings')
-              ),
+            // Page content — each page is its own document, edited separately
+            singleton(S, 'homePage', '🏠 Home Page'),
+            singleton(S, 'aboutPage', '👤 About Page'),
+            singleton(S, 'contactPage', '📞 Contact Page'),
+            S.divider(),
+
+            // Site-wide defaults only (name, contact info, social links, SEO defaults)
+            singleton(S, 'siteSettings', '⚙️  Site Settings'),
             S.divider(),
 
             // Page SEO
