@@ -1,0 +1,43 @@
+---
+interface Props {
+  product: {
+    title: string
+    slug: { current: string } | string
+    category?: string
+    price?: string
+    thumbnail?: string
+    shortDescription?: string
+    rating?: number
+  }
+}
+const { product } = Astro.props as Props
+const slug = typeof product.slug === 'string' ? product.slug : product.slug.current
+---
+
+<a href={`/shop/${slug}`} class="card-hover group !p-0 overflow-hidden">
+  <div class="aspect-square bg-bg-2 overflow-hidden">
+    {product.thumbnail ? (
+      <img
+        src={product.thumbnail} alt={product.title} loading="lazy"
+        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+      />
+    ) : (
+      <div class="w-full h-full flex items-center justify-center text-4xl">🛒</div>
+    )}
+  </div>
+  <div class="p-5">
+    {product.category && (
+      <span class="text-text-muted text-xs uppercase tracking-wide">{product.category}</span>
+    )}
+    <h3 class="text-text-white font-bold mt-1 mb-1 group-hover:text-accent-light transition-colors">
+      {product.title}
+    </h3>
+    {product.rating && (
+      <div class="text-gold text-sm mb-1">{'★'.repeat(Math.round(product.rating))}</div>
+    )}
+    {product.shortDescription && (
+      <p class="text-text-muted text-sm mb-3 line-clamp-2">{product.shortDescription}</p>
+    )}
+    {product.price && <div class="text-accent font-semibold text-sm">{product.price}</div>}
+  </div>
+</a>

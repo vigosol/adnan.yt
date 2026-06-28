@@ -1,0 +1,49 @@
+---
+interface Props {
+  title: string
+  price: string
+  period?: string
+  description?: string
+  features: string[]
+  ctaLabel?: string
+  ctaHref?: string
+  featured?: boolean
+}
+const {
+  title,
+  price,
+  period,
+  description,
+  features,
+  ctaLabel = 'Get Started',
+  ctaHref = '/contact',
+  featured = false,
+} = Astro.props as Props
+---
+
+<div class={`card relative flex flex-col ${featured ? 'border-accent' : ''}`}>
+  {featured && (
+    <div class="badge-accent absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap">Most Popular</div>
+  )}
+
+  <h3 class="text-text-white font-bold text-xl mb-1">{title}</h3>
+  {description && <p class="text-text-muted text-sm mb-4">{description}</p>}
+
+  <div class="flex items-baseline gap-1 mb-6">
+    <span class="text-4xl font-black text-text-white">{price}</span>
+    {period && <span class="text-text-muted text-sm">{period}</span>}
+  </div>
+
+  <ul class="space-y-2.5 mb-8 flex-1">
+    {features.map(f => (
+      <li class="flex items-start gap-2.5 text-sm text-text">
+        <svg class="w-4 h-4 mt-0.5 shrink-0 text-success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        {f}
+      </li>
+    ))}
+  </ul>
+
+  <a href={ctaHref} class={`w-full justify-center ${featured ? 'btn-primary' : 'btn-secondary'}`}>{ctaLabel}</a>
+</div>

@@ -1,0 +1,26 @@
+---
+interface Props {
+  service: {
+    title: string
+    slug: { current: string } | string
+    icon?: string
+    shortDescription?: string
+    price?: string
+  }
+}
+const { service } = Astro.props as Props
+const slug = typeof service.slug === 'string' ? service.slug : service.slug.current
+---
+
+<a href={`/services/${slug}`} class="card-hover group">
+  <div class="text-2xl mb-3">{service.icon ?? '🎬'}</div>
+  <h3 class="text-text-white font-bold text-lg mb-2 group-hover:text-accent-light transition-colors">
+    {service.title}
+  </h3>
+  {service.shortDescription && (
+    <p class="text-text-muted text-sm leading-relaxed">{service.shortDescription}</p>
+  )}
+  {service.price && (
+    <div class="mt-4 text-accent font-semibold text-sm">Starting from {service.price}</div>
+  )}
+</a>

@@ -1,0 +1,71 @@
+---
+interface CtaLink {
+  label: string
+  href: string
+}
+interface Stat {
+  val: string
+  label: string
+}
+interface Props {
+  badge?: string
+  title: string
+  highlight: string
+  subtitle: string
+  primaryCta?: CtaLink
+  secondaryCta?: CtaLink
+  stats?: Stat[]
+}
+const {
+  badge = 'Available for new projects',
+  title,
+  highlight,
+  subtitle,
+  primaryCta = { label: 'Get a Free Quote →', href: '/contact' },
+  secondaryCta = { label: 'View Portfolio', href: '/portfolio' },
+  stats = [],
+} = Astro.props as Props
+---
+
+<section class="relative min-h-[90vh] flex items-center overflow-hidden">
+  <div class="absolute inset-0 bg-gradient-site pointer-events-none" />
+  <div class="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-accent/5 rounded-full blur-3xl" />
+
+  <div class="container relative z-10 py-24 text-center">
+    {badge && (
+      <div class="inline-flex items-center gap-2 badge-accent mb-6 text-sm">
+        <span class="w-2 h-2 rounded-full bg-success animate-pulse"></span>
+        {badge}
+      </div>
+    )}
+
+    <h1 class="text-4xl md:text-6xl lg:text-7xl font-black leading-[1.05] mb-6 tracking-tight">
+      {title}<br />
+      <span class="text-gradient">{highlight}</span>
+    </h1>
+
+    <p class="text-lg md:text-xl text-text-muted max-w-2xl mx-auto mb-10 leading-relaxed">
+      {subtitle}
+    </p>
+
+    <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+      {primaryCta && (
+        <a href={primaryCta.href} class="btn-primary text-base px-8 py-4">{primaryCta.label}</a>
+      )}
+      {secondaryCta && (
+        <a href={secondaryCta.href} class="btn-secondary text-base px-8 py-4">{secondaryCta.label}</a>
+      )}
+    </div>
+
+    {stats.length > 0 && (
+      <div class="flex flex-wrap gap-8 justify-center mt-16 text-center">
+        {stats.map(({ val, label }) => (
+          <div>
+            <div class="text-3xl font-black text-gradient">{val}</div>
+            <div class="text-sm text-text-muted mt-1">{label}</div>
+          </div>
+        ))}
+      </div>
+    )}
+  </div>
+</section>

@@ -1,0 +1,32 @@
+---
+interface Props {
+  item: {
+    title: string
+    slug: { current: string } | string
+    industry?: string
+    platform?: string
+    thumbnail?: string
+    shortResult?: string
+  }
+}
+const { item } = Astro.props as Props
+const slug = typeof item.slug === 'string' ? item.slug : item.slug.current
+---
+
+<a href={`/portfolio/${slug}`} class="card-hover group !p-0 overflow-hidden">
+  <div class="aspect-video bg-bg-2 overflow-hidden">
+    {item.thumbnail ? (
+      <img
+        src={item.thumbnail} alt={item.title} loading="lazy"
+        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+      />
+    ) : (
+      <div class="w-full h-full flex items-center justify-center text-4xl">🎬</div>
+    )}
+  </div>
+  <div class="p-5">
+    {item.platform && <span class="badge-accent text-xs mb-2 inline-block">{item.platform}</span>}
+    <h3 class="text-text-white font-bold mb-1 group-hover:text-accent-light transition-colors">{item.title}</h3>
+    {item.shortResult && <p class="text-text-muted text-sm">{item.shortResult}</p>}
+  </div>
+</a>
