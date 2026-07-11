@@ -3,10 +3,6 @@ interface CtaLink {
   label: string
   href: string
 }
-interface Stat {
-  val: string
-  label: string
-}
 interface Props {
   badge?: string
   title: string
@@ -14,58 +10,117 @@ interface Props {
   subtitle: string
   primaryCta?: CtaLink
   secondaryCta?: CtaLink
-  stats?: Stat[]
+  reelThumbnail?: string
+  reelVideoUrl?: string
 }
 const {
-  badge = 'Available for new projects',
+  badge = 'Remote Video Editing Partner',
   title,
   highlight,
   subtitle,
-  primaryCta = { label: 'Get a Free Quote →', href: '/contact' },
-  secondaryCta = { label: 'View Portfolio', href: '/portfolio' },
-  stats = [],
+  primaryCta = { label: 'Start a Project', href: '/contact' },
+  secondaryCta = { label: 'Watch The Reel', href: '#reel' },
+  reelThumbnail,
+  reelVideoUrl,
 } = Astro.props as Props
+
+const watchHref = reelVideoUrl ?? secondaryCta.href
+
+// Extract a YouTube video ID from watch/youtu.be/embed/shorts URLs so the
+// reel can be managed from Sanity with just a link — no thumbnail upload required.
+const youtubeMatch = reelVideoUrl?.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/)
+const youtubeId = youtubeMatch?.[1] ?? null
+const autoThumbnail = youtubeId ? `https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg` : undefined
+const thumbnailSrc = reelThumbnail ?? autoThumbnail
+const embedUrl = youtubeId ? `https://www.youtube.com/embed/${youtubeId}?autoplay=1&rel=0` : null
 ---
 
-<section class="relative min-h-[90vh] flex items-center overflow-hidden">
-  <div class="absolute inset-0 bg-gradient-site pointer-events-none" />
-  <div class="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-accent/5 rounded-full blur-3xl" />
+<section class="relative overflow-hidden">
+  <div class="container md:border-x md:border-border-light py-16 md:py-24 text-center">
+    <div class="max-w-[980px] mx-auto flex flex-col items-center gap-6 md:gap-8">
 
-  <div class="container relative z-10 py-24 text-center">
-    {badge && (
-      <div class="inline-flex items-center gap-2 badge-accent mb-6 text-sm">
-        <span class="w-2 h-2 rounded-full bg-success animate-pulse"></span>
-        {badge}
+      {badge && (
+        <div class="hero-badge inline-flex items-center gap-2 bg-bg-1 border border-border-light rounded-full px-3 py-1.5">
+          <span class="relative flex w-4 h-4 shrink-0 items-center justify-center -ml-1">
+            <span class="absolute inset-0 m-auto h-full w-full rounded-full bg-accent/60 animate-ping [animation-duration:2.4s]"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-accent"></span>
+          </span>
+          <span class="hero-badge-text text-sm font-medium text-text-muted">{badge}</span>
+        </div>
+      )}
+
+      <div class="flex flex-col items-center gap-4 md:gap-6">
+        <h1 class="text-4xl sm:text-5xl md:text-6xl lg:text-[72px] font-bold leading-[1.1] lg:leading-[90px] tracking-tight lg:tracking-[-1.44px] text-text-white max-w-[980px]">
+          {title}{' '}<span class="text-accent">{highlight}</span>
+        </h1>
+
+        <p class="text-lg md:text-xl leading-relaxed md:leading-[30px] text-text-muted max-w-[590px]">
+          {subtitle}
+        </p>
       </div>
-    )}
 
-    <h1 class="text-4xl md:text-6xl lg:text-7xl font-black leading-[1.05] mb-6 tracking-tight">
-      {title}<br />
-      <span class="text-gradient">{highlight}</span>
-    </h1>
+      <div class="flex flex-col sm:flex-row gap-6 items-center">
+        {primaryCta && (
+          <a href={primaryCta.href} class="inline-flex items-center justify-center gap-2 bg-accent hover:bg-accent-dark text-white font-medium text-base px-5 py-3 transition-colors">
+            {primaryCta.label}
+          </a>
+        )}
+        {secondaryCta && (
+          <a href={watchHref} class="inline-flex items-center justify-center gap-2 text-text-muted hover:text-text-white font-medium text-base transition-colors">
+            <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+              <circle cx="12" cy="12" r="9.25" />
+              <path d="M10.5 9l4.5 3-4.5 3V9z" fill="currentColor" stroke="none" />
+            </svg>
+            {secondaryCta.label}
+          </a>
+        )}
+      </div>
 
-    <p class="text-lg md:text-xl text-text-muted max-w-2xl mx-auto mb-10 leading-relaxed">
-      {subtitle}
-    </p>
-
-    <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
-      {primaryCta && (
-        <a href={primaryCta.href} class="btn-primary text-base px-8 py-4">{primaryCta.label}</a>
-      )}
-      {secondaryCta && (
-        <a href={secondaryCta.href} class="btn-secondary text-base px-8 py-4">{secondaryCta.label}</a>
-      )}
     </div>
-
-    {stats.length > 0 && (
-      <div class="flex flex-wrap gap-8 justify-center mt-16 text-center">
-        {stats.map(({ val, label }) => (
-          <div>
-            <div class="text-3xl font-black text-gradient">{val}</div>
-            <div class="text-sm text-text-muted mt-1">{label}</div>
-          </div>
-        ))}
-      </div>
-    )}
   </div>
+
+  {thumbnailSrc && (
+    <div id="reel" class="container md:border-x md:border-border-light">
+      <div
+        class="relative max-w-[1218px] mx-auto overflow-hidden bg-bg-2 shadow-[0_4px_6px_-2px_rgba(18,26,43,0.1),0_2px_4px_-2px_rgba(18,26,43,0.06)] scroll-mt-24"
+        data-reel-player
+        data-embed-url={embedUrl ?? ''}
+      >
+        <img src={thumbnailSrc} alt="Watch the reel" class="w-full aspect-[1218/714] object-cover" loading="lazy" />
+        <div class="absolute inset-0 bg-black/15"></div>
+        {embedUrl ? (
+          <button type="button" class="absolute inset-0 flex items-center justify-center group cursor-pointer" aria-label="Play the reel" data-reel-play>
+            <img src="/play-btn.svg" alt="" class="w-[90px] h-[90px] md:w-[142px] md:h-[142px] drop-shadow-lg group-hover:scale-105 transition-transform" />
+          </button>
+        ) : reelVideoUrl ? (
+          <a
+            href={reelVideoUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="absolute inset-0 flex items-center justify-center group cursor-pointer"
+            aria-label="Play the reel"
+          >
+            <img src="/play-btn.svg" alt="" class="w-[90px] h-[90px] md:w-[142px] md:h-[142px] drop-shadow-lg group-hover:scale-105 transition-transform" />
+          </a>
+        ) : null}
+      </div>
+    </div>
+  )}
 </section>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-reel-player]').forEach(container => {
+    const playBtn = container.querySelector('[data-reel-play]')
+    const embedUrl = container.dataset.embedUrl
+    playBtn?.addEventListener('click', () => {
+      if (!embedUrl) return
+      const iframe = document.createElement('iframe')
+      iframe.src = embedUrl
+      iframe.className = 'w-full aspect-[1218/714]'
+      iframe.setAttribute('frameborder', '0')
+      iframe.setAttribute('allow', 'autoplay; encrypted-media; picture-in-picture')
+      iframe.setAttribute('allowfullscreen', 'true')
+      container.replaceChildren(iframe)
+    })
+  })
+</script>

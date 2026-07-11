@@ -1,64 +1,107 @@
 @import "tailwindcss";
 
+/* ── Self-hosted Euclid Circular A ─────────────────────────────── */
+@font-face {
+  font-family: 'Euclid Circular A';
+  src: url('/fonts/EuclidCircularA-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Euclid Circular A';
+  src: url('/fonts/EuclidCircularA-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Euclid Circular A';
+  src: url('/fonts/EuclidCircularA-SemiBold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Euclid Circular A';
+  src: url('/fonts/EuclidCircularA-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* ─────────────────────────────────────────────────────────────────
    Design tokens — auto-generates utility classes from these values
    --color-accent → bg-accent, text-accent, border-accent, etc.
    ───────────────────────────────────────────────────────────────── */
 @theme {
-  /* Palette adapted from viralcut1.framer.website — orange accent on near-black */
-  --color-accent:       #f28713;
-  --color-accent-light: #f7a548;
-  --color-accent-dark:  #c66c09;
+  /* Brand accent — from Figma (red-500), stays constant in both themes */
+  --color-accent:       #ef4444;
+  --color-accent-light: #f87171;
+  --color-accent-dark:  #dc2626;
   --color-gold:         #f59e0b;
   --color-gold-light:   #fcd34d;
   --color-gold-dark:    #d97706;
 
-  --color-bg:           #0d0d0d;
-  --color-bg-1:         #151515;
-  --color-bg-2:         #1c1c1c;
-  --color-bg-3:         #262626;
+  /* Light theme (default) */
+  --color-bg:           #ffffff;
+  --color-bg-1:         #ffffff;
+  --color-bg-2:         #f3f4f6;
+  --color-bg-3:         #e5e7eb;
 
-  --color-border:       #262626;
-  --color-border-light: #383838;
+  --color-border:       #e5e7eb;
+  --color-border-light: #e5e7eb;
 
-  --color-text:         #e8e6e0;
-  --color-text-muted:   #8c8c87;
-  --color-text-white:   #fffdfa;
+  --color-text:         #4b5563;
+  --color-text-muted:   #6b7280;
+  --color-text-white:   #111827;
 
-  --color-success:      #59d444;
-  --color-error:        #ed4046;
+  --color-success:      #16a34a;
+  --color-error:        #dc2626;
   --color-warn:         #f28713;
 
-  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-sans: 'Euclid Circular A', system-ui, -apple-system, sans-serif;
   --font-mono: 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
 
   --radius-card: 12px;
   --radius-btn:  8px;
   --radius-pill: 9999px;
 
-  --width-site:  1120px;
+  --width-site:  1216px;
 
-  --shadow-card: 0 0 0 1px var(--color-border), 0 4px 24px -6px rgba(0,0,0,.5);
+  --shadow-card: 0 0 0 1px var(--color-border), 0 4px 16px -4px rgba(0,0,0,.08);
   --shadow-glow: 0 0 24px color-mix(in oklch, var(--color-accent) 25%, transparent);
 }
 
-/* ── Light theme — toggled via `.light` class on <html> ─────────
-   Brand colors (accent/gold/success/error) stay constant; only
-   the neutral bg/text/border scale flips. See ThemeToggle.astro. */
-:root.light {
-  --color-bg:           #fffdfa;
-  --color-bg-1:         #f5f3ee;
-  --color-bg-2:         #ebe9e1;
-  --color-bg-3:         #ddd9cd;
+/* ── Dark theme — toggled via `.dark` class on <html> ───────────
+   Brand colors stay constant; only the neutral scale flips. */
+:root.dark {
+  --color-bg:           #111827;
+  --color-bg-1:         #151515;
+  --color-bg-2:         #1c1c1c;
+  --color-bg-3:         #262626;
 
-  --color-border:       #e3e1d6;
-  --color-border-light: #cfcdc0;
+  --color-border:       rgba(255,255,255,.12);
+  --color-border-light: rgba(255,255,255,.12);
 
-  --color-text:         #3a3a35;
-  --color-text-muted:   #6b6b64;
-  --color-text-white:   #161613;
+  --color-text:         #e8e6e0;
+  --color-text-muted:   #8c8c87;
+  --color-text-white:   #fffdfa;
 
-  --shadow-card: 0 0 0 1px var(--color-border), 0 4px 24px -6px rgba(0,0,0,.08);
+  --shadow-card: 0 0 0 1px var(--color-border), 0 4px 24px -6px rgba(0,0,0,.5);
+}
+
+/* Top-level navbar menu items — white by default in dark mode (not just on hover) */
+:root.dark header nav {
+  color: var(--color-text-white);
+}
+
+/* Hero badge — white-on-translucent in dark mode instead of the near-black card bg */
+:root.dark .hero-badge {
+  background-color: rgba(255,255,255,.08);
+}
+:root.dark .hero-badge-text {
+  color: var(--color-text-white);
 }
 
 /* ── Base ─────────────────────────────────────────────────────── */
@@ -175,6 +218,31 @@
     border-color: var(--color-border-light);
     color: var(--color-text-white);
   }
+
+  .btn-dark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    background-color: #111827;
+    color: #fff;
+    font-weight: 500;
+    padding: 0.5rem 0.875rem;
+    border-radius: 0;
+    transition: background-color 200ms;
+    text-decoration: none;
+    cursor: pointer;
+    font-size: 1.125rem;
+    white-space: nowrap;
+    border: none;
+    line-height: 1.75rem;
+  }
+  .btn-dark:hover { background-color: #1f2937; }
+
+  :root.dark .btn-dark {
+    background-color: var(--color-accent);
+  }
+  :root.dark .btn-dark:hover { background-color: var(--color-accent-dark); }
 
   .btn-ghost {
     display: inline-flex;
@@ -346,6 +414,11 @@
     font-size: 0.875em;
   }
 }
+
+/* ── Logo theme switching ─────────────────────────────────────── */
+.logo-dark  { display: none; }
+:root.dark .logo-dark  { display: block; }
+:root.dark .logo-light { display: none; }
 
 /* ── Custom utilities ─────────────────────────────────────────── */
 @utility text-gradient {

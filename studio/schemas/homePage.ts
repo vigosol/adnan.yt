@@ -12,6 +12,18 @@ export default defineType({
         { name: "title", type: "string", title: "Headline — line 1" },
         { name: "highlight", type: "string", title: "Headline — gradient line 2" },
         { name: "subtitle", type: "text", title: "Subheadline", rows: 2 },
+        { name: "primaryCtaLabel", type: "string", title: "Primary Button Label" },
+        { name: "secondaryCtaLabel", type: "string", title: "Secondary Button Label" },
+        { name: "reelThumbnail", type: "image", title: "Reel Thumbnail", options: { hotspot: true }, description: "Preview image shown in the video showcase below the hero text." },
+        { name: "reelVideoUrl", type: "url", title: "Reel Video URL", description: "YouTube/Vimeo link or direct video file opened when the play button is clicked." },
+      ],
+    }),
+    defineField({
+      name: "aboutTeaser", title: "About Teaser", type: "object",
+      description: "Short bio excerpt shown between the trust stats and the rest of the homepage, linking to the full About page.",
+      fields: [
+        { name: "quote", type: "text", title: "Quote / Bio Excerpt", rows: 4 },
+        { name: "ctaLabel", type: "string", title: "Button Label" },
       ],
     }),
     defineField({

@@ -18,7 +18,8 @@ export const SITE_SETTINGS_QUERY = `
 // ── Home Page ────────────────────────────────────────────────────
 export const HOME_PAGE_QUERY = `
   *[_type == "homePage"][0] {
-    hero { badge, title, highlight, subtitle },
+    hero { badge, title, highlight, subtitle, primaryCtaLabel, secondaryCtaLabel, reelThumbnail, reelVideoUrl },
+    aboutTeaser { quote, ctaLabel },
     trustStats[] { val, label },
     process[] { icon, title, description },
     faqs[] { question, answer }

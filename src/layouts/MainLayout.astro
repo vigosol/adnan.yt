@@ -39,15 +39,15 @@ const schemas = schema ? (Array.isArray(schema) ? schema : [schema]) : []
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#0d0d0d" />
+  <meta name="theme-color" content="#fafaf9" />
 
   <!-- Apply saved/preferred theme before first paint to avoid a flash -->
   <script is:inline>
     (function () {
       var stored = localStorage.getItem('theme');
-      var prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
-      var isLight = stored === 'light' || (!stored && prefersLight);
-      if (isLight) document.documentElement.classList.add('light');
+      var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      var isDark = stored === 'dark' || (!stored && prefersDark);
+      if (isDark) document.documentElement.classList.add('dark');
     })();
   </script>
 
@@ -71,10 +71,9 @@ const schemas = schema ? (Array.isArray(schema) ? schema : [schema]) : []
   <meta name="twitter:description" content={description} />
   <meta name="twitter:image"       content={ogImage} />
 
-  <!-- Fonts (self-hosted or Google — swap as needed) -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" />
+  <!-- Fonts preloaded from /public/fonts (Euclid Circular A) -->
+  <link rel="preload" href="/fonts/EuclidCircularA-Regular.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="/fonts/EuclidCircularA-Medium.woff2" as="font" type="font/woff2" crossorigin />
 
   <!-- Favicon -->
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />

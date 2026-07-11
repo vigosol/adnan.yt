@@ -1,0 +1,29 @@
+---
+interface Stat {
+  val: string
+  label: string
+}
+interface Props {
+  stats: Stat[]
+}
+const { stats } = Astro.props as Props
+---
+
+{stats?.length > 0 && (
+  <section class="border-y border-border-light">
+    <div class="container md:border-x md:border-border-light">
+      <div class="grid grid-cols-2 gap-8 py-12 md:flex md:gap-0 md:py-0 md:divide-x md:divide-border-light">
+        {stats.map(({ val, label }) => (
+          <div class="flex flex-col items-center justify-center gap-1 text-center md:flex-1 md:h-[211px] md:px-6">
+            <div class="text-4xl sm:text-5xl md:text-6xl lg:text-[72px] font-semibold tracking-tight lg:tracking-[-1.44px] leading-none lg:leading-[90px] text-text-white">
+              {val}
+            </div>
+            <div class="text-sm md:text-lg leading-relaxed md:leading-[28px] text-text-muted uppercase tracking-wide">
+              {label}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+)}

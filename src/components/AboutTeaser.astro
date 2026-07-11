@@ -1,0 +1,104 @@
+---
+interface Props {
+  quote: string
+  ctaLabel?: string
+  ctaHref?: string
+}
+const {
+  quote,
+  ctaLabel = 'Read the story',
+  ctaHref = '/about',
+} = Astro.props as Props
+
+const words = quote.trim().split(/\s+/)
+---
+
+<section>
+  <div class="container md:border-x md:border-border-light md:px-0 pb-16 md:pb-24">
+    <div class="about-box bg-bg-1 border-x border-y border-border-light md:border-x-0 px-6 py-10 md:px-[75px] md:py-[52px]">
+      <div class="flex flex-col items-start gap-8">
+        <img src="/about-logo.svg"      alt="adnan.yt" class="logo-light h-6 md:h-[26px] w-auto" />
+        <img src="/about-logo-dark.svg" alt="adnan.yt" class="logo-dark  h-6 md:h-[26px] w-auto" />
+
+        <p class="about-quote text-2xl md:text-[32px] leading-snug md:leading-[48px] font-medium max-w-4xl" data-scroll-text>
+          {words.map((word, i) => (
+            <span class="about-word" data-i={i}>{word}{i < words.length - 1 ? ' ' : ''}</span>
+          ))}
+        </p>
+
+        <a
+          href={ctaHref}
+          class="about-cta inline-flex items-center gap-2 border-b-2 border-current pb-[2px] text-lg font-medium text-text-muted hover:text-text-white transition-colors"
+        >
+          {ctaLabel}
+          <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M7 17L17 7M9 7h8v8" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .about-word {
+    color: var(--color-border-light);
+    transition: color 300ms;
+  }
+  .about-word.is-active {
+    color: var(--color-text-white);
+  }
+
+  :root.dark .about-box {
+    background-color: var(--color-bg);
+  }
+
+  :root.dark .about-cta {
+    color: var(--color-accent);
+  }
+  :root.dark .about-cta:hover {
+    color: var(--color-accent-dark);
+  }
+</style>
+
+<script>
+  function initScrollText() {
+    const paragraphs = document.querySelectorAll<HTMLElement>('[data-scroll-text]')
+    if (!paragraphs.length) return
+
+    const state = Array.from(paragraphs).map(p => ({
+      el: p,
+      words: Array.from(p.querySelectorAll<HTMLElement>('.about-word')),
+    }))
+
+    let ticking = false
+
+    function update() {
+      const vh = window.innerHeight
+      const start = vh * 0.9   // word 0 activates when paragraph top crosses here
+      const end = vh * 0.4     // all words active once paragraph top crosses here
+
+      state.forEach(({ el, words }) => {
+        const rect = el.getBoundingClientRect()
+        const progress = (start - rect.top) / (start - end)
+        const clamped = Math.max(0, Math.min(1, progress))
+        const activeCount = Math.round(clamped * words.length)
+        words.forEach((w, i) => w.classList.toggle('is-active', i < activeCount))
+      })
+      ticking = false
+    }
+
+    function onScroll() {
+      if (!ticking) {
+        requestAnimationFrame(update)
+        ticking = true
+      }
+    }
+
+    update()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onScroll)
+  }
+
+  initScrollText()
+</script>

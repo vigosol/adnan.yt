@@ -1,13 +1,16 @@
 ---
 import MainLayout from '../layouts/MainLayout.astro'
 import Hero from '../components/Hero.astro'
+import Metrics from '../components/Metrics.astro'
+import Spacer from '../components/Spacer.astro'
+import AboutTeaser from '../components/AboutTeaser.astro'
 import ServiceCard from '../components/ServiceCard.astro'
 import PricingCard from '../components/PricingCard.astro'
 import TestimonialCard from '../components/TestimonialCard.astro'
 import PortfolioCard from '../components/PortfolioCard.astro'
 import FAQ from '../components/FAQ.astro'
 import CTA from '../components/CTA.astro'
-import { fetchSanity } from '../lib/sanity'
+import { fetchSanity, urlFor } from '../lib/sanity'
 import {
   SITE_SETTINGS_QUERY, HOME_PAGE_QUERY, SERVICES_HOMEPAGE_QUERY, TESTIMONIALS_QUERY, PORTFOLIO_LIST_QUERY,
   PRICING_PAGE_QUERY,
@@ -25,11 +28,21 @@ const [settings, home, services, testimonials, portfolio, pricingPage] = await P
 // Hero / Process / FAQs / Trust Stats are CMS-managed via the Home Page
 // document — fall back to launch-day defaults until that's filled in.
 const hero = {
-  badge: home?.hero?.badge ?? 'Available for new projects',
-  title: home?.hero?.title ?? 'Video Editing That',
-  highlight: home?.hero?.highlight ?? 'Grows Your Channel',
+  badge: home?.hero?.badge ?? 'Remote Video Editing Partner',
+  title: home?.hero?.title ?? 'I turn your footage into video people',
+  highlight: home?.hero?.highlight ?? 'actually finish.',
   subtitle: home?.hero?.subtitle ??
-    'Professional editing for YouTube creators, coaches, agencies, and brands. Fast delivery. Cinematic quality. Zero revision stress.',
+    'Retention first editing for YouTubers, founders, and brands. You film it. I turn it into videos people watch till the last second.',
+  primaryCtaLabel: home?.hero?.primaryCtaLabel ?? 'Start a Project',
+  secondaryCtaLabel: home?.hero?.secondaryCtaLabel ?? 'Watch The Reel',
+  reelThumbnail: home?.hero?.reelThumbnail ? urlFor(home.hero.reelThumbnail).width(1218).height(714).url() : undefined,
+  reelVideoUrl: home?.hero?.reelVideoUrl,
+}
+
+const aboutTeaser = {
+  quote: home?.aboutTeaser?.quote ??
+    'I help creators, founders, and brands turn raw footage into premium videos that audiences actually finish watching. Through thoughtful storytelling, cinematic pacing, sound design, and motion graphics, I create content that strengthens authority, increases engagement, and helps businesses grow through video.',
+  ctaLabel: home?.aboutTeaser?.ctaLabel ?? 'Read the story',
 }
 
 const processSteps = home?.process?.length ? home.process : [
@@ -47,10 +60,10 @@ const faqs = home?.faqs?.length ? home.faqs : [
 ]
 
 const trustStats = home?.trustStats?.length ? home.trustStats : [
-  { val: '100+', label: 'Videos Edited' },
-  { val: '50+',  label: 'Happy Clients' },
-  { val: '24h',  label: 'Avg. Turnaround' },
-  { val: '5★',   label: 'Average Rating' },
+  { val: '400+',   label: 'Videos Edited' },
+  { val: '60+',    label: 'Creators & Brands' },
+  { val: '24-72h', label: 'Avg. Turnaround' },
+  { val: '4.9',    label: 'Client Rating' },
 ]
 
 // Same packages shown on /pricing — kept here without add-ons/FAQs for a quick preview
@@ -118,11 +131,22 @@ const faqSchema = {
     title={hero.title}
     highlight={hero.highlight}
     subtitle={hero.subtitle}
-    stats={trustStats}
+    primaryCta={{ label: hero.primaryCtaLabel, href: '/contact' }}
+    secondaryCta={{ label: hero.secondaryCtaLabel, href: '#reel' }}
+    reelThumbnail={hero.reelThumbnail}
+    reelVideoUrl={hero.reelVideoUrl}
   />
 
+  <!-- ══ METRICS ═══════════════════════════════════════════════════ -->
+  <Spacer />
+  <Metrics stats={trustStats} />
+  <Spacer />
+
+  <!-- ══ ABOUT TEASER ═══════════════════════════════════════════════ -->
+  <AboutTeaser quote={aboutTeaser.quote} ctaLabel={aboutTeaser.ctaLabel} />
+
   <!-- ══ SERVICES ═══════════════════════════════════════════════════ -->
-  <section class="py-24 border-t border-border">
+  <section class="py-24">
     <div class="container">
       <h2 class="section-heading">Services</h2>
       <p class="text-text-muted mb-12 max-w-xl">

@@ -10,12 +10,14 @@ const { class: className = '' } = Astro.props as Props
   data-theme-toggle
   aria-label="Toggle dark / light theme"
   aria-pressed="false"
-  class={`flex items-center justify-center w-11 h-11 rounded-pill border border-border text-text-muted hover:text-text-white hover:border-border-light transition-colors ${className}`}
+  class={`flex items-center justify-center w-11 h-11 rounded-pill text-text-muted hover:text-text-white transition-colors cursor-pointer ${className}`}
 >
-  <svg data-icon-sun class="w-4.5 h-4.5 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+  <!-- Sun: shown in dark mode (click to go light) -->
+  <svg data-icon-sun class="w-4.5 h-4.5 hidden text-text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
     <circle cx="12" cy="12" r="4" />
     <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" stroke-linecap="round" />
   </svg>
+  <!-- Moon: shown in light mode (click to go dark) -->
   <svg data-icon-moon class="w-4.5 h-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
     <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" stroke-linecap="round" stroke-linejoin="round" />
   </svg>
@@ -26,18 +28,18 @@ const { class: className = '' } = Astro.props as Props
   const buttons = document.querySelectorAll<HTMLButtonElement>('[data-theme-toggle]')
 
   function applyState(btn: HTMLButtonElement) {
-    const isLight = root.classList.contains('light')
-    btn.setAttribute('aria-pressed', String(isLight))
-    btn.querySelector('[data-icon-sun]')?.classList.toggle('hidden', !isLight)
-    btn.querySelector('[data-icon-moon]')?.classList.toggle('hidden', isLight)
+    const isDark = root.classList.contains('dark')
+    btn.setAttribute('aria-pressed', String(isDark))
+    btn.querySelector('[data-icon-sun]')?.classList.toggle('hidden', !isDark)
+    btn.querySelector('[data-icon-moon]')?.classList.toggle('hidden', isDark)
   }
 
   buttons.forEach(btn => {
     applyState(btn)
     btn.addEventListener('click', () => {
-      const isLight = root.classList.toggle('light')
-      localStorage.setItem('theme', isLight ? 'light' : 'dark')
-      document.querySelector('meta[name="theme-color"]')?.setAttribute('content', isLight ? '#fffdfa' : '#0d0d0d')
+      const isDark = root.classList.toggle('dark')
+      localStorage.setItem('theme', isDark ? 'dark' : 'light')
+      document.querySelector('meta[name="theme-color"]')?.setAttribute('content', isDark ? '#0d0d0d' : '#fafaf9')
       buttons.forEach(applyState)
     })
   })
