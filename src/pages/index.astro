@@ -4,7 +4,7 @@ import Hero from '../components/Hero.astro'
 import Metrics from '../components/Metrics.astro'
 import Spacer from '../components/Spacer.astro'
 import AboutTeaser from '../components/AboutTeaser.astro'
-import ServiceCard from '../components/ServiceCard.astro'
+import ServicesShowcase from '../components/ServicesShowcase.astro'
 import PricingCard from '../components/PricingCard.astro'
 import TestimonialCard from '../components/TestimonialCard.astro'
 import PortfolioCard from '../components/PortfolioCard.astro'
@@ -45,6 +45,19 @@ const aboutTeaser = {
   ctaLabel: home?.aboutTeaser?.ctaLabel ?? 'Read the story',
 }
 
+const servicesSection = {
+  badge: home?.servicesSection?.badge ?? 'Services',
+  heading: home?.servicesSection?.heading ?? 'Everything your content needs, after the record button.',
+  viewAllLabel: home?.servicesSection?.viewAllLabel ?? 'View all Services',
+  tags: home?.servicesSection?.tags?.length ? home.servicesSection.tags : [
+    'Youtube Video Editing', 'Podcast Editing', 'Youtube Shorts Editing', 'Instagram Reels Editing',
+    'Tiktok Video Editing', 'Corporate Video Editing', 'Medical Video Editing', 'Real Estate Video Editing',
+    'Event Video Editing', 'Interview Video Editing', 'Talking Head Video Editing', 'Social Media Video Editing',
+    'Ecommerce Video Editing', 'Explainer Video Editing', 'Audio Enhancement', 'Video Color Grading',
+    'Video Repurposing', 'Subtitle and Caption Editing',
+  ],
+}
+
 const processSteps = home?.process?.length ? home.process : [
   { icon: '📋', title: 'Brief',   description: 'Fill out the project form with your goals, style references, and deadline.' },
   { icon: '📁', title: 'Upload',  description: 'Share your raw footage via Google Drive or WeTransfer.' },
@@ -60,10 +73,10 @@ const faqs = home?.faqs?.length ? home.faqs : [
 ]
 
 const trustStats = home?.trustStats?.length ? home.trustStats : [
-  { val: '400+',   label: 'Videos Edited' },
-  { val: '60+',    label: 'Creators & Brands' },
-  { val: '24-72h', label: 'Avg. Turnaround' },
-  { val: '4.9',    label: 'Client Rating' },
+  { val: '400+',   label: 'Projects delivered', description: 'Delivered high-performing videos across multiple industries and content formats.' },
+  { val: '60+',    label: 'Creators & Brands',  description: 'Trusted by creators, startups, businesses, and growing personal brands worldwide.' },
+  { val: '24-72h', label: 'Average Turaround',  description: 'Fast delivery without compromising storytelling, quality, or viewer retention.' },
+  { val: '4.9',    label: 'Client Rating',      description: 'Consistently rated highly for communication, quality, and reliability.' },
 ]
 
 // Same packages shown on /pricing — kept here without add-ons/FAQs for a quick preview
@@ -137,44 +150,22 @@ const faqSchema = {
     reelVideoUrl={hero.reelVideoUrl}
   />
 
-  <!-- ══ METRICS ═══════════════════════════════════════════════════ -->
+  <!-- ══ ABOUT TEASER ═══════════════════════════════════════════════ -->
   <Spacer />
+  <AboutTeaser quote={aboutTeaser.quote} ctaLabel={aboutTeaser.ctaLabel} />
+
+  <!-- ══ METRICS ═══════════════════════════════════════════════════ -->
   <Metrics stats={trustStats} />
   <Spacer />
 
-  <!-- ══ ABOUT TEASER ═══════════════════════════════════════════════ -->
-  <AboutTeaser quote={aboutTeaser.quote} ctaLabel={aboutTeaser.ctaLabel} />
-
   <!-- ══ SERVICES ═══════════════════════════════════════════════════ -->
-  <section class="py-24">
-    <div class="container">
-      <h2 class="section-heading">Services</h2>
-      <p class="text-text-muted mb-12 max-w-xl">
-        Everything you need to produce scroll-stopping video content — from raw footage to publish-ready.
-      </p>
-
-      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-        {services?.length ? services.map((service: any) => (
-          <ServiceCard service={service} />
-        )) : (
-          <>
-            {['YouTube Video Editing', 'Shorts & Reels Editing', 'Podcast Video Editing',
-              'Motion Graphics', 'Corporate Video', 'Social Media Packages'].map(name => (
-              <div class="card">
-                <div class="text-2xl mb-3">🎬</div>
-                <h3 class="text-text-white font-bold text-lg mb-2">{name}</h3>
-                <p class="text-text-muted text-sm">Add service details in Sanity Studio.</p>
-              </div>
-            ))}
-          </>
-        )}
-      </div>
-
-      <div class="text-center mt-10">
-        <a href="/services" class="btn-secondary">View All Services →</a>
-      </div>
-    </div>
-  </section>
+  <ServicesShowcase
+    badge={servicesSection.badge}
+    heading={servicesSection.heading}
+    viewAllLabel={servicesSection.viewAllLabel}
+    services={services ?? []}
+    tags={servicesSection.tags}
+  />
 
   <!-- ══ FEATURED WORK ═════════════════════════════════════════════ -->
   <section class="py-24 border-t border-border bg-bg-1">

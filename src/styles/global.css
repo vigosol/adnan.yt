@@ -67,7 +67,7 @@
   --radius-btn:  8px;
   --radius-pill: 9999px;
 
-  --width-site:  1216px;
+  --width-site:  1280px;
 
   --shadow-card: 0 0 0 1px var(--color-border), 0 4px 16px -4px rgba(0,0,0,.08);
   --shadow-glow: 0 0 24px color-mix(in oklch, var(--color-accent) 25%, transparent);
@@ -136,7 +136,7 @@
 @layer components {
 
   .container {
-    max-width: var(--width-site);
+    max-width: var(--width-site) !important;
     margin-left: auto;
     margin-right: auto;
     padding-left: 1.25rem;
@@ -228,21 +228,30 @@
     color: #fff;
     font-weight: 500;
     padding: 0.5rem 0.875rem;
-    border-radius: 0;
-    transition: background-color 200ms;
+    border-radius: 4px;
+    transition: background-color 200ms, color 200ms, border-color 200ms;
     text-decoration: none;
     cursor: pointer;
     font-size: 1.125rem;
     white-space: nowrap;
-    border: none;
+    border: 2px solid transparent;
+    box-sizing: border-box;
     line-height: 1.75rem;
   }
-  .btn-dark:hover { background-color: #1f2937; }
+  .btn-dark:hover {
+    background-color: #fff;
+    color: #111827;
+    border-color: #111827;
+  }
 
   :root.dark .btn-dark {
     background-color: var(--color-accent);
   }
-  :root.dark .btn-dark:hover { background-color: var(--color-accent-dark); }
+  :root.dark .btn-dark:hover {
+    background-color: #fff;
+    color: #111827;
+    border-color: #111827;
+  }
 
   .btn-ghost {
     display: inline-flex;

@@ -20,7 +20,8 @@ export const HOME_PAGE_QUERY = `
   *[_type == "homePage"][0] {
     hero { badge, title, highlight, subtitle, primaryCtaLabel, secondaryCtaLabel, reelThumbnail, reelVideoUrl },
     aboutTeaser { quote, ctaLabel },
-    trustStats[] { val, label },
+    servicesSection { badge, heading, viewAllLabel, tags },
+    trustStats[] { val, label, description },
     process[] { icon, title, description },
     faqs[] { question, answer }
   }
@@ -65,6 +66,7 @@ export const PAGE_SEO_QUERY = `
 export const SERVICES_LIST_QUERY = `
   *[_type == "service" && isActive == true] | order(order asc) {
     _id, title, slug, shortDescription, icon, price,
+    "iconImageUrl": iconImage.asset->url,
     "thumbnail": thumbnail.asset->url
   }
 `
@@ -74,6 +76,7 @@ export const SERVICES_LIST_QUERY = `
 export const SERVICES_HOMEPAGE_QUERY = `
   *[_type == "service" && isActive == true && showOnHomepage == true] | order(order asc) [0...6] {
     _id, title, slug, shortDescription, icon, price,
+    "iconImageUrl": iconImage.asset->url,
     "thumbnail": thumbnail.asset->url
   }
 `

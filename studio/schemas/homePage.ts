@@ -27,13 +27,28 @@ export default defineType({
       ],
     }),
     defineField({
+      name: "servicesSection", title: "Services Section", type: "object",
+      description: "The red services showcase block — badge, heading, and the scrolling tag rows beneath the service grid. The service cards themselves come from the Services list (toggle 'Show on homepage' on each service).",
+      fields: [
+        { name: "badge", type: "string", title: "Badge Text" },
+        { name: "heading", type: "text", title: "Heading", rows: 2 },
+        { name: "viewAllLabel", type: "string", title: "\"View All\" Link Label" },
+        {
+          name: "tags", title: "Scrolling Tags", type: "array",
+          description: "Auto-splits evenly into 3 horizontally auto-scrolling rows (alternating direction).",
+          of: [{ type: "string" }],
+        },
+      ],
+    }),
+    defineField({
       name: "trustStats", title: "Trust Stats", type: "array",
-      description: "Shown beneath the hero CTA buttons.",
+      description: "Shown in the Metrics section below the About teaser.",
       of: [{
         type: "object", name: "stat",
         fields: [
-          { name: "val", type: "string", title: "Value", description: "e.g. 100+" },
-          { name: "label", type: "string", title: "Label", description: "e.g. Videos Edited" },
+          { name: "val", type: "string", title: "Value", description: "e.g. 400+" },
+          { name: "label", type: "string", title: "Label", description: "e.g. Projects delivered" },
+          { name: "description", type: "text", title: "Description", rows: 2, description: "Short supporting line shown below the label." },
         ],
         preview: { select: { title: "val", subtitle: "label" } },
       }],

@@ -2,28 +2,94 @@
 interface Stat {
   val: string
   label: string
+  description?: string
 }
 interface Props {
   stats: Stat[]
 }
 const { stats } = Astro.props as Props
+
+// Parse each value into [prefix][number][suffix] so we can count 0 → number
+// on scroll while leaving any surrounding text (+, h, ★, ranges, etc.) static.
+function parseStat(val: string) {
+  const match = val.match(/^([^\d]*)(\d+(?:\.\d+)?)(.*)$/)
+  if (!match) return { prefix: '', target: null, decimals: 0, suffix: val }
+  const [, prefix, numberStr, suffix] = match
+  const decimals = numberStr.includes('.') ? numberStr.split('.')[1].length : 0
+  return { prefix, target: parseFloat(numberStr), decimals, suffix }
+}
+
+const parsed = stats.map(s => ({ ...s, ...parseStat(s.val) }))
 ---
 
 {stats?.length > 0 && (
   <section class="border-y border-border-light">
     <div class="container md:border-x md:border-border-light">
-      <div class="grid grid-cols-2 gap-8 py-12 md:flex md:gap-0 md:py-0 md:divide-x md:divide-border-light">
-        {stats.map(({ val, label }) => (
-          <div class="flex flex-col items-center justify-center gap-1 text-center md:flex-1 md:h-[211px] md:px-6">
-            <div class="text-4xl sm:text-5xl md:text-6xl lg:text-[72px] font-semibold tracking-tight lg:tracking-[-1.44px] leading-none lg:leading-[90px] text-text-white">
-              {val}
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:flex md:gap-0 md:divide-x md:divide-border-light">
+        {parsed.map(({ val, label, description, prefix, target, decimals, suffix }) => (
+          <div class="flex flex-col gap-3 text-left md:flex-1 px-6 py-8 md:px-8 md:py-10">
+            <div
+              class="metric-val text-4xl md:text-5xl lg:text-[56px] font-semibold tracking-tight leading-none text-text-white"
+              data-prefix={prefix}
+              data-target={target !== null ? target : undefined}
+              data-decimals={decimals}
+              data-suffix={suffix}
+            >
+              {target !== null ? `${prefix}0${suffix}` : val}
             </div>
-            <div class="text-sm md:text-lg leading-relaxed md:leading-[28px] text-text-muted uppercase tracking-wide">
+            <div class="text-lg font-normal text-text-white">
               {label}
             </div>
+            {description && (
+              <div class="border-t border-border-light pt-3">
+                <p class="text-sm text-text-muted leading-relaxed">{description}</p>
+              </div>
+            )}
           </div>
         ))}
       </div>
     </div>
   </section>
 )}
+
+<script>
+  function easeOutCubic(t: number) {
+    return 1 - Math.pow(1 - t, 3)
+  }
+
+  function animateValue(el: HTMLElement) {
+    const target = parseFloat(el.dataset.target ?? '')
+    if (Number.isNaN(target)) return
+
+    const prefix = el.dataset.prefix ?? ''
+    const suffix = el.dataset.suffix ?? ''
+    const decimals = Number(el.dataset.decimals ?? '0')
+    const duration = 1800
+    const start = performance.now()
+
+    function tick(now: number) {
+      const t = Math.min(1, (now - start) / duration)
+      const eased = easeOutCubic(t)
+      const current = target * eased
+      el.textContent = `${prefix}${current.toFixed(decimals)}${suffix}`
+      if (t < 1) requestAnimationFrame(tick)
+    }
+    requestAnimationFrame(tick)
+  }
+
+  const metrics = document.querySelectorAll<HTMLElement>('.metric-val[data-target]')
+  if (metrics.length) {
+    const observer = new IntersectionObserver(
+      (entries, obs) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            animateValue(entry.target as HTMLElement)
+            obs.unobserve(entry.target)
+          }
+        })
+      },
+      { threshold: 0.4 }
+    )
+    metrics.forEach(el => observer.observe(el))
+  }
+</script>

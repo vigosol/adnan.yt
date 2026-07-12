@@ -7,7 +7,11 @@ export default defineType({
   fields: [
     defineField({ name: "title", type: "string", title: "Service Name", validation: R => R.required() }),
     defineField({ name: "slug", type: "slug", title: "Slug", options: { source: "title" }, validation: R => R.required() }),
-    defineField({ name: "icon", type: "string", title: "Emoji Icon" }),
+    defineField({ name: "icon", type: "string", title: "Emoji Icon", description: "Used in the Services nav dropdown." }),
+    defineField({
+      name: "iconImage", type: "image", title: "Icon Image",
+      description: "SVG/PNG icon shown on the homepage Services showcase. Falls back to a generic icon if not set.",
+    }),
     defineField({ name: "order", type: "number", title: "Display Order" }),
     defineField({ name: "isActive", type: "boolean", title: "Active?", initialValue: true }),
     defineField({
