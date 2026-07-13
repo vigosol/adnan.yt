@@ -243,9 +243,13 @@ const faqSchema = {
   )}
 
   <!-- ══ FAQs ═══════════════════════════════════════════════════════ -->
-  <section class="py-24 border-t border-border bg-bg-1">
-    <div class="container max-w-2xl">
-      <h2 class="section-heading">Frequently Asked Questions</h2>
+  <Spacer />
+  <section>
+    <div class="container md:border-x md:border-t md:border-border-light md:px-0">
+      <div class="px-6 md:pl-[30px] md:pr-8 py-10 md:py-14">
+        <span class="inline-block border border-border-light rounded-full text-xs font-semibold px-3 py-1 text-text-muted mb-4">FAQs</span>
+        <h2 class="text-4xl md:text-5xl font-bold text-text-white">Frequently Asked Questions</h2>
+      </div>
       <FAQ items={faqs} />
     </div>
   </section>

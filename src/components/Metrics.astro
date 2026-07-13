@@ -24,7 +24,7 @@ const parsed = stats.map(s => ({ ...s, ...parseStat(s.val) }))
 
 {stats?.length > 0 && (
   <section class="border-y border-border-light">
-    <div class="container md:border-x md:border-border-light">
+    <div class="container md:border-x md:border-border-light md:px-0">
       <div class="grid grid-cols-1 sm:grid-cols-2 md:flex md:gap-0 md:divide-x md:divide-border-light">
         {parsed.map(({ val, label, description, prefix, target, decimals, suffix }) => (
           <div class="flex flex-col gap-3 text-left md:flex-1 px-6 py-8 md:px-8 md:py-10">
