@@ -2,9 +2,10 @@
 import { toHTML } from '@portabletext/to-html'
 import MainLayout from '../../layouts/MainLayout.astro'
 import TutorialCard from '../../components/TutorialCard.astro'
+import PostNav from '../../components/PostNav.astro'
 import CTA from '../../components/CTA.astro'
 import { fetchSanity } from '../../lib/sanity'
-import { TUTORIAL_LIST_QUERY, TUTORIAL_BY_SLUG_QUERY } from '../../lib/queries'
+import { TUTORIAL_LIST_QUERY, TUTORIAL_BY_SLUG_QUERY, TUTORIAL_SLUGS_QUERY } from '../../lib/queries'
 import { breadcrumbSchema } from '../../lib/breadcrumbs'
 
 export async function getStaticPaths() {
@@ -16,6 +17,11 @@ const { slug } = Astro.params
 const tutorial = await fetchSanity<any>(TUTORIAL_BY_SLUG_QUERY, { slug })
 
 if (!tutorial) return Astro.redirect('/tutorials')
+
+const allSlugs = await fetchSanity<any[]>(TUTORIAL_SLUGS_QUERY)
+const currentIndex = allSlugs.findIndex((t: any) => t.slug.current === slug)
+const prevTutorial = currentIndex > 0 ? allSlugs[currentIndex - 1] : null
+const nextTutorial = currentIndex >= 0 && currentIndex < allSlugs.length - 1 ? allSlugs[currentIndex + 1] : null
 
 const bodyHtml = tutorial.body ? toHTML(tutorial.body) : ''
 const date = tutorial.publishedAt
@@ -68,6 +74,8 @@ const breadcrumbs = breadcrumbSchema([
       )}
 
       <div class="prose" set:html={bodyHtml} />
+
+      <PostNav prev={prevTutorial} next={nextTutorial} basePath="/tutorials" />
     </div>
   </article>
 

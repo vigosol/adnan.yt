@@ -1,8 +1,9 @@
 ---
 import MainLayout from '../../layouts/MainLayout.astro'
+import PostNav from '../../components/PostNav.astro'
 import CTA from '../../components/CTA.astro'
 import { fetchSanity } from '../../lib/sanity'
-import { PORTFOLIO_LIST_QUERY, PORTFOLIO_BY_SLUG_QUERY } from '../../lib/queries'
+import { PORTFOLIO_LIST_QUERY, PORTFOLIO_BY_SLUG_QUERY, PORTFOLIO_SLUGS_QUERY } from '../../lib/queries'
 import { breadcrumbSchema } from '../../lib/breadcrumbs'
 
 export async function getStaticPaths() {
@@ -14,6 +15,11 @@ const { slug } = Astro.params
 const item = await fetchSanity<any>(PORTFOLIO_BY_SLUG_QUERY, { slug })
 
 if (!item) return Astro.redirect('/portfolio')
+
+const allSlugs = await fetchSanity<any[]>(PORTFOLIO_SLUGS_QUERY)
+const currentIndex = allSlugs.findIndex((p: any) => p.slug.current === slug)
+const prevItem = currentIndex > 0 ? allSlugs[currentIndex - 1] : null
+const nextItem = currentIndex >= 0 && currentIndex < allSlugs.length - 1 ? allSlugs[currentIndex + 1] : null
 
 function youtubeId(url?: string) {
   if (!url) return null
@@ -100,6 +106,8 @@ const breadcrumbs = breadcrumbSchema([
           {item.testimonial.role && <div class="text-text-muted text-xs">{item.testimonial.role}</div>}
         </blockquote>
       )}
+
+      <PostNav prev={prevItem} next={nextItem} basePath="/portfolio" />
     </div>
   </section>
 

@@ -2,9 +2,10 @@
 import { toHTML } from '@portabletext/to-html'
 import MainLayout from '../../layouts/MainLayout.astro'
 import BlogCard from '../../components/BlogCard.astro'
+import PostNav from '../../components/PostNav.astro'
 import CTA from '../../components/CTA.astro'
 import { fetchSanity } from '../../lib/sanity'
-import { BLOG_LIST_QUERY, BLOG_BY_SLUG_QUERY } from '../../lib/queries'
+import { BLOG_LIST_QUERY, BLOG_BY_SLUG_QUERY, BLOG_SLUGS_QUERY } from '../../lib/queries'
 import { breadcrumbSchema } from '../../lib/breadcrumbs'
 
 export async function getStaticPaths() {
@@ -16,6 +17,11 @@ const { slug } = Astro.params
 const post = await fetchSanity<any>(BLOG_BY_SLUG_QUERY, { slug })
 
 if (!post) return Astro.redirect('/blog')
+
+const allSlugs = await fetchSanity<any[]>(BLOG_SLUGS_QUERY)
+const currentIndex = allSlugs.findIndex((p: any) => p.slug.current === slug)
+const prevPost = currentIndex > 0 ? allSlugs[currentIndex - 1] : null
+const nextPost = currentIndex >= 0 && currentIndex < allSlugs.length - 1 ? allSlugs[currentIndex + 1] : null
 
 const bodyHtml = post.body ? toHTML(post.body) : ''
 const date = post.publishedAt
@@ -61,6 +67,8 @@ const breadcrumbs = breadcrumbSchema([
       )}
 
       <div class="prose" set:html={bodyHtml} />
+
+      <PostNav prev={prevPost} next={nextPost} basePath="/blog" />
     </div>
   </article>
 

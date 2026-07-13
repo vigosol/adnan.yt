@@ -104,6 +104,11 @@ export const PORTFOLIO_LIST_QUERY = `
   }
 `
 
+// Lightweight ordered list (just title/slug) used to compute prev/next nav
+export const PORTFOLIO_SLUGS_QUERY = `
+  *[_type == "portfolio" && isActive == true] | order(_createdAt desc) { title, slug }
+`
+
 export const PORTFOLIO_BY_SLUG_QUERY = `
   *[_type == "portfolio" && slug.current == $slug][0] {
     _id, title, slug, client, industry, platform, service,
@@ -122,6 +127,10 @@ export const CASE_STUDY_LIST_QUERY = `
   }
 `
 
+export const CASE_STUDY_SLUGS_QUERY = `
+  *[_type == "caseStudy" && isActive == true] | order(_createdAt desc) { title, slug }
+`
+
 export const CASE_STUDY_BY_SLUG_QUERY = `
   *[_type == "caseStudy" && slug.current == $slug][0] {
     _id, title, slug, client, industry, platform, service,
@@ -138,6 +147,10 @@ export const BLOG_LIST_QUERY = `
     "excerpt": pt::text(body)[0..200],
     "thumbnail": thumbnail.asset->url
   }
+`
+
+export const BLOG_SLUGS_QUERY = `
+  *[_type == "blog" && isPublished == true] | order(publishedAt desc) { title, slug }
 `
 
 export const BLOG_BY_SLUG_QUERY = `
@@ -159,6 +172,10 @@ export const TUTORIAL_LIST_QUERY = `
     "thumbnail": thumbnail.asset->url,
     youtubeVideoId
   }
+`
+
+export const TUTORIAL_SLUGS_QUERY = `
+  *[_type == "tutorial" && isPublished == true] | order(publishedAt desc) { title, slug }
 `
 
 export const TUTORIAL_BY_SLUG_QUERY = `
