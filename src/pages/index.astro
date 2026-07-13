@@ -5,7 +5,7 @@ import Metrics from '../components/Metrics.astro'
 import Spacer from '../components/Spacer.astro'
 import AboutTeaser from '../components/AboutTeaser.astro'
 import ServicesShowcase from '../components/ServicesShowcase.astro'
-import PricingCard from '../components/PricingCard.astro'
+import PricingShowcase from '../components/PricingShowcase.astro'
 import TestimonialCard from '../components/TestimonialCard.astro'
 import PortfolioCard from '../components/PortfolioCard.astro'
 import FAQ from '../components/FAQ.astro'
@@ -13,16 +13,14 @@ import CTA from '../components/CTA.astro'
 import { fetchSanity, urlFor } from '../lib/sanity'
 import {
   SITE_SETTINGS_QUERY, HOME_PAGE_QUERY, SERVICES_HOMEPAGE_QUERY, TESTIMONIALS_QUERY, PORTFOLIO_LIST_QUERY,
-  PRICING_PAGE_QUERY,
 } from '../lib/queries'
 
-const [settings, home, services, testimonials, portfolio, pricingPage] = await Promise.all([
+const [settings, home, services, testimonials, portfolio] = await Promise.all([
   fetchSanity<any>(SITE_SETTINGS_QUERY),
   fetchSanity<any>(HOME_PAGE_QUERY),
   fetchSanity<any[]>(SERVICES_HOMEPAGE_QUERY),
   fetchSanity<any[]>(TESTIMONIALS_QUERY),
   fetchSanity<any[]>(PORTFOLIO_LIST_QUERY),
-  fetchSanity<any>(PRICING_PAGE_QUERY),
 ])
 
 // Hero / Process / FAQs / Trust Stats are CMS-managed via the Home Page
@@ -79,27 +77,42 @@ const trustStats = home?.trustStats?.length ? home.trustStats : [
   { val: '4.9',    label: 'Client Rating',      description: 'Consistently rated highly for communication, quality, and reliability.' },
 ]
 
-// Same packages shown on /pricing — kept here without add-ons/FAQs for a quick preview
-const packages = pricingPage?.packages?.length ? pricingPage.packages : [
-  {
-    title: 'Starter', price: '$99', period: '/video',
-    description: 'For single videos and quick turnarounds.',
-    features: ['Up to 5 min final video', '1 round of revisions', 'Basic color grading', 'Captions included', '48h turnaround'],
-    featured: false,
+const pricingSection = {
+  badge: home?.pricingSection?.badge ?? 'Pricing',
+  heading: home?.pricingSection?.heading ?? 'Choose the best package for you',
+  subtitle: home?.pricingSection?.subtitle ?? 'Transparent pricing. No hidden costs. Just results.',
+  packages: home?.pricingSection?.packages?.length ? home.pricingSection.packages : [
+    {
+      title: 'Single Edit', price: '199', period: 'video',
+      description: 'A single short or long form video edit',
+      ctaLabel: 'Book a Call',
+      featured: false,
+      features: [
+        'One fully-edited video (short or long-form)', 'Fast 3-5 day turnaround', 'Captions/subtitles included',
+        'Color grading & sound mixing', '2 round of revisions', 'Thumbnail poster included',
+        'Short up to 60 sec, Long up to 2 mins',
+      ],
+    },
+    {
+      title: 'Regular Edit', price: '1999', period: 'month',
+      description: 'Growing brands aiming for post regularly',
+      ctaLabel: 'Subscribe Now',
+      featured: true,
+      features: [
+        'Up to 15 edited videos per month', 'Priority 2-3 day turnaround', 'Unlimited revisions',
+        'Regular updates', 'Strategy support for content', 'Thumbnail poster included', 'One video at a time',
+      ],
+    },
+  ],
+  helpPanel: {
+    block1Heading: home?.pricingSection?.helpPanel?.block1Heading ?? "Still can't decide?",
+    block1Subtext: home?.pricingSection?.helpPanel?.block1Subtext ?? "Let's figure out what you need",
+    block1CtaLabel: home?.pricingSection?.helpPanel?.block1CtaLabel ?? "Let's Talk",
+    block2Heading: home?.pricingSection?.helpPanel?.block2Heading ?? 'Get a free quote',
+    block2Subtext: home?.pricingSection?.helpPanel?.block2Subtext ?? 'Free quote, no obligation.',
+    block2CtaLabel: home?.pricingSection?.helpPanel?.block2CtaLabel ?? 'Get Quote',
   },
-  {
-    title: 'Growth', price: '$249', period: '/video',
-    description: 'For creators publishing regularly.',
-    features: ['Up to 15 min final video', '2 rounds of revisions', 'Color grading + sound design', 'Motion graphics titles', '24h turnaround'],
-    featured: true,
-  },
-  {
-    title: 'Agency', price: 'Custom', period: '',
-    description: 'For ongoing or bulk monthly volume.',
-    features: ['Dedicated editor', 'Unlimited revisions', 'Priority turnaround', 'Monthly retainer pricing'],
-    featured: false,
-  },
-]
+}
 
 // JSON-LD — Organization schema
 const orgSchema = {
@@ -167,6 +180,28 @@ const faqSchema = {
     tags={servicesSection.tags}
   />
 
+  <!-- ══ PRICING ════════════════════════════════════════════════════ -->
+  <Spacer borderBottom />
+  <PricingShowcase
+    badge={pricingSection.badge}
+    heading={pricingSection.heading}
+    subtitle={pricingSection.subtitle}
+    packages={pricingSection.packages}
+    helpPanel={pricingSection.helpPanel}
+  />
+
+  <!-- ══ FAQs ═══════════════════════════════════════════════════════ -->
+  <Spacer borderTop />
+  <section>
+    <div class="container md:border-x md:border-t md:border-border-light md:px-0">
+      <div class="px-6 md:pl-[30px] md:pr-8 py-10 md:py-14">
+        <span class="inline-block border border-border-light rounded-full text-xs font-normal px-3 py-1 text-text-muted mb-4">FAQs</span>
+        <h2 class="text-4xl md:text-5xl font-bold text-text-white">Frequently Asked Questions</h2>
+      </div>
+      <FAQ items={faqs} />
+    </div>
+  </section>
+
   <!-- ══ FEATURED WORK ═════════════════════════════════════════════ -->
   <section class="py-24 border-t border-border bg-bg-1">
     <div class="container">
@@ -208,26 +243,6 @@ const faqSchema = {
     </div>
   </section>
 
-  <!-- ══ PRICING ════════════════════════════════════════════════════ -->
-  <section class="py-24 border-t border-border bg-bg-1">
-    <div class="container">
-      <h2 class="section-heading">Pricing</h2>
-      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
-        {packages.map((pkg: any) => (
-          <PricingCard
-            title={pkg.title}
-            price={pkg.price}
-            period={pkg.period}
-            description={pkg.description}
-            features={pkg.features}
-            featured={pkg.featured}
-            ctaLabel={pkg.price === 'Custom' ? 'Get a Custom Quote' : 'Get Started'}
-          />
-        ))}
-      </div>
-    </div>
-  </section>
-
   <!-- ══ TESTIMONIALS ═══════════════════════════════════════════════ -->
   {testimonials?.length > 0 && (
     <section class="py-24 border-t border-border">
@@ -241,18 +256,6 @@ const faqSchema = {
       </div>
     </section>
   )}
-
-  <!-- ══ FAQs ═══════════════════════════════════════════════════════ -->
-  <Spacer />
-  <section>
-    <div class="container md:border-x md:border-t md:border-border-light md:px-0">
-      <div class="px-6 md:pl-[30px] md:pr-8 py-10 md:py-14">
-        <span class="inline-block border border-border-light rounded-full text-xs font-semibold px-3 py-1 text-text-muted mb-4">FAQs</span>
-        <h2 class="text-4xl md:text-5xl font-bold text-text-white">Frequently Asked Questions</h2>
-      </div>
-      <FAQ items={faqs} />
-    </div>
-  </section>
 
   <!-- ══ CTA BANNER ════════════════════════════════════════════════ -->
   <CTA

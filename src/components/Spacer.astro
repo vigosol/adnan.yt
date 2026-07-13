@@ -1,7 +1,19 @@
 ---
+interface Props {
+  borderTop?: boolean
+  borderBottom?: boolean
+}
+const { borderTop = false, borderBottom = false } = Astro.props as Props
 ---
 
-<div class="container md:border-x md:border-border-light md:px-0" aria-hidden="true">
+<div
+  class:list={[
+    'container md:border-x md:border-border-light md:px-0',
+    borderTop && 'md:border-t',
+    borderBottom && 'md:border-b',
+  ]}
+  aria-hidden="true"
+>
   <div
     class="h-10 md:h-24"
     style="background-image: repeating-linear-gradient(to right, var(--color-border-light) 0, var(--color-border-light) 1px, transparent 1px, transparent 9px); background-size: 9px 100%; background-repeat: repeat-x;"

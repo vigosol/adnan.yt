@@ -21,6 +21,11 @@ export const HOME_PAGE_QUERY = `
     hero { badge, title, highlight, subtitle, primaryCtaLabel, secondaryCtaLabel, reelThumbnail, reelVideoUrl },
     aboutTeaser { quote, ctaLabel },
     servicesSection { badge, heading, viewAllLabel, tags },
+    pricingSection {
+      badge, heading, subtitle,
+      packages[] { title, description, price, period, ctaLabel, featured, features },
+      helpPanel { block1Heading, block1Subtext, block1CtaLabel, block2Heading, block2Subtext, block2CtaLabel }
+    },
     trustStats[] { val, label, description },
     process[] { icon, title, description },
     faqs[] { question, answer }

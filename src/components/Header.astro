@@ -24,8 +24,8 @@ const navLinks = [
       <img src="/logo-white.svg" alt="adnan.yt" class="logo-dark  h-8 w-auto" />
     </a>
 
-    <!-- Nav — flex-1, centered, 32px gaps, 18px font -->
-    <nav class="hidden md:flex flex-1 items-center justify-center gap-8 text-[18px] font-normal text-text-muted" aria-label="Main">
+    <!-- Nav — flex-1, centered, 20px gaps, 16px font -->
+    <nav class="hidden md:flex flex-1 items-center justify-center gap-5 text-[16px] font-normal text-text-muted" aria-label="Main">
       <!-- Services dropdown -->
       <div class="relative group">
         <button
@@ -87,7 +87,7 @@ const navLinks = [
 
   <!-- Mobile menu -->
   <div id="mobile-menu" class="hidden md:hidden border-t border-border bg-bg">
-    <div class="container py-4 flex flex-col gap-1 text-[18px] font-normal">
+    <div class="container py-4 flex flex-col gap-1 text-[16px] font-normal">
       <a href="/services" class="px-2 py-2.5 rounded-btn hover:bg-bg-2 text-text-white">Services</a>
       {services?.slice(0, 5).map((s: any) => (
         <a href={`/services/${s.slug.current}`} class="px-4 py-2.5 rounded-btn hover:bg-bg-2 text-text-muted text-sm">

@@ -1,0 +1,123 @@
+---
+interface Package {
+  title: string
+  description?: string
+  price: string
+  period?: string
+  ctaLabel?: string
+  featured?: boolean
+  features?: string[]
+}
+interface HelpPanel {
+  block1Heading?: string
+  block1Subtext?: string
+  block1CtaLabel?: string
+  block2Heading?: string
+  block2Subtext?: string
+  block2CtaLabel?: string
+}
+interface Props {
+  badge?: string
+  heading?: string
+  subtitle?: string
+  packages: Package[]
+  helpPanel?: HelpPanel
+}
+const {
+  badge = 'Pricing',
+  heading = 'Choose the best package for you',
+  subtitle = 'Transparent pricing. No hidden costs. Just results.',
+  packages,
+  helpPanel = {},
+} = Astro.props as Props
+
+const {
+  block1Heading = "Still can't decide?",
+  block1Subtext = "Let's figure out what you need",
+  block1CtaLabel = "Let's Talk",
+  block2Heading = 'Get a free quote',
+  block2Subtext = 'Free quote, no obligation.',
+  block2CtaLabel = 'Get Quote',
+} = helpPanel
+---
+
+<section>
+  <div class="container md:border-x md:border-border-light md:px-0">
+    <div class="px-6 md:pl-[30px] md:pr-8 py-10 md:py-14">
+      <span class="inline-block border border-border-light rounded-full text-xs font-normal px-3 py-1 text-text-muted mb-4">{badge}</span>
+      <h2 class="text-4xl md:text-5xl font-bold text-text-white mb-3">{heading}</h2>
+      {subtitle && <p class="text-text-muted text-lg">{subtitle}</p>}
+    </div>
+
+    <div class="border-t border-border-light grid grid-cols-1 md:grid-cols-3 md:divide-x md:divide-border-light">
+      {packages.map(pkg => (
+        <div class={`p-8 md:p-10 flex flex-col border-b md:border-b-0 border-border-light ${pkg.featured ? 'bg-accent' : 'bg-bg-1'}`}>
+          <div class="flex items-center gap-2 mb-2">
+            <h3 class={`font-bold text-2xl ${pkg.featured ? 'text-white' : 'text-text-white'}`}>{pkg.title}</h3>
+            {pkg.featured && (
+              <span class="inline-block bg-white text-accent text-xs font-normal rounded-full px-3 py-1 whitespace-nowrap">Most Popular</span>
+            )}
+          </div>
+          {pkg.description && (
+            <p class={`text-sm mb-6 ${pkg.featured ? 'text-white/80' : 'text-text-muted'}`}>{pkg.description}</p>
+          )}
+
+          <div class={`flex items-baseline gap-1 mb-6 ${pkg.featured ? 'text-white' : 'text-text-white'}`}>
+            <span class="text-lg self-start mt-1">$</span>
+            <span class="text-5xl font-bold tracking-tight">{pkg.price}</span>
+            {pkg.period && <span class={`text-sm ${pkg.featured ? 'text-white/80' : 'text-text-muted'}`}>/{pkg.period.replace(/^\/+/, '')}</span>}
+          </div>
+
+          <a
+            href="/contact"
+            class={`group inline-flex items-center justify-center gap-2 rounded-[4px] px-5 py-3 font-semibold text-base transition-colors mb-8 ${
+              pkg.featured ? 'bg-white text-accent hover:bg-bg-2' : 'bg-accent text-white hover:bg-accent-dark'
+            }`}
+          >
+            {pkg.ctaLabel ?? 'Get Started'}
+            <svg class="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </a>
+
+          {pkg.features?.length > 0 && (
+            <ul class="space-y-3">
+              {pkg.features.map(f => (
+                <li class={`flex items-start gap-2.5 text-sm ${pkg.featured ? 'text-white' : 'text-text'}`}>
+                  <svg class={`w-4 h-4 mt-0.5 shrink-0 ${pkg.featured ? 'text-white' : 'text-accent'}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                  {f}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      ))}
+
+      <div class="p-8 md:p-10 flex flex-col justify-between bg-bg-1">
+        <div>
+          <h3 class="font-bold text-2xl text-text-white mb-2">{block1Heading}</h3>
+          <p class="text-text-muted text-sm mb-6">{block1Subtext}</p>
+          <a href="/contact" class="group inline-flex items-center justify-center gap-2 rounded-[4px] border-2 border-transparent bg-[#111827] hover:bg-white text-white hover:text-[#111827] hover:border-[#111827] px-5 py-3 font-semibold text-base transition-colors w-full">
+            {block1CtaLabel}
+            <svg class="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </a>
+        </div>
+
+        <div class="mt-12">
+          <h3 class="font-bold text-2xl text-text-white mb-2">{block2Heading}</h3>
+          <p class="text-text-muted text-sm mb-6">{block2Subtext}</p>
+          <a href="/contact" class="group inline-flex items-center justify-center gap-2 rounded-[4px] border-2 border-transparent bg-[#111827] hover:bg-white text-white hover:text-[#111827] hover:border-[#111827] px-5 py-3 font-semibold text-base transition-colors w-full">
+            {block2CtaLabel}
+            <svg class="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

@@ -36,6 +36,10 @@ const embedUrl = youtubeId ? `https://www.youtube.com/embed/${youtubeId}?autopla
 ---
 
 <section class="relative overflow-hidden">
+  <div class="hero-grid container md:px-0 absolute inset-0 -z-10 h-full" aria-hidden="true"></div>
+  <div class="hero-glow bg-gradient-site absolute inset-0 -z-10" aria-hidden="true"></div>
+  <div class="hero-grain absolute inset-0 -z-10" aria-hidden="true"></div>
+
   <div class="container md:border-x md:border-border-light py-16 md:py-24 text-center">
     <div class="max-w-[980px] mx-auto flex flex-col items-center gap-6 md:gap-8">
 
@@ -107,6 +111,45 @@ const embedUrl = youtubeId ? `https://www.youtube.com/embed/${youtubeId}?autopla
     </div>
   )}
 </section>
+
+<style>
+  .hero-grid {
+    background-image:
+      linear-gradient(to right, var(--color-border-light) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--color-border-light) 1px, transparent 1px);
+    background-size: 64px 64px;
+    background-position: 0 0;
+    opacity: 0.35;
+    mask-image: linear-gradient(to bottom, black, transparent);
+    -webkit-mask-image: linear-gradient(to bottom, black, transparent);
+  }
+
+  .hero-grain {
+    opacity: 0.1;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* multiply darkens against a light base but is invisible against a near-black
+     one — screen does the opposite, so swap blend mode per theme. Everything
+     also needs noticeably higher intensity in dark mode: the same opacity
+     value reads much fainter against a near-black background than against
+     white. */
+  :root.dark .hero-grid {
+    opacity: 0.8;
+  }
+  :root.dark .hero-grain {
+    opacity: 0.18;
+    mix-blend-mode: screen;
+  }
+  :root.dark .hero-glow {
+    background: radial-gradient(
+      ellipse 80% 50% at 50% -10%,
+      color-mix(in oklch, var(--color-accent) 30%, transparent),
+      transparent
+    );
+  }
+</style>
 
 <script>
   document.querySelectorAll<HTMLElement>('[data-reel-player]').forEach(container => {

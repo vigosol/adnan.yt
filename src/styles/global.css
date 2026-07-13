@@ -104,6 +104,12 @@
   color: var(--color-text-white);
 }
 
+/* Text selection — theme accent color site-wide */
+::selection {
+  background-color: var(--color-accent);
+  color: #fff;
+}
+
 /* ── Base ─────────────────────────────────────────────────────── */
 @layer base {
   *, *::before, *::after { box-sizing: border-box; }
@@ -224,10 +230,11 @@
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
+    height: 40px;
     background-color: #111827;
     color: #fff;
     font-weight: 500;
-    padding: 0.5rem 0.875rem;
+    padding: 0 0.875rem;
     border-radius: 4px;
     transition: background-color 200ms, color 200ms, border-color 200ms;
     text-decoration: none;

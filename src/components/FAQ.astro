@@ -11,14 +11,97 @@ const { items } = Astro.props as Props
 
 <div class="border-t border-border-light">
   {items.map((item, i) => (
-    <details class={`group border-border-light ${i < items.length - 1 ? 'border-b' : ''}`} name="faq-accordion" open={i === 0}>
+    <details
+      class={`group faq-item border-border-light ${i < items.length - 1 ? 'border-b' : ''} ${i === 0 ? 'is-open' : ''}`}
+      name="faq-accordion"
+      open={i === 0}
+    >
       <summary class="flex items-center justify-between gap-4 px-6 md:px-8 py-6 cursor-pointer list-none font-semibold text-text-white text-lg">
         {item.question}
-        <svg class="w-5 h-5 shrink-0 transition-transform group-open:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <svg class="faq-chevron w-5 h-5 shrink-0 transition-transform duration-250" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round" />
         </svg>
       </summary>
-      <div class="px-6 md:px-8 pb-6 -mt-2 text-text-muted leading-relaxed">{item.answer}</div>
+      <div class="faq-content px-6 md:px-8 pb-6 -mt-2 text-text-muted leading-relaxed">{item.answer}</div>
     </details>
   ))}
 </div>
+
+<style>
+  .faq-item.is-open .faq-chevron {
+    transform: rotate(180deg);
+  }
+</style>
+
+<script>
+  function initFaqAccordion() {
+    const items = Array.from(document.querySelectorAll<HTMLDetailsElement>('.faq-item'))
+    if (!items.length) return
+
+    const animations = new WeakMap<HTMLDetailsElement, Animation>()
+    const DURATION = 250
+    const EASING = 'ease-out'
+
+    function shrink(details: HTMLDetailsElement) {
+      const summary = details.querySelector('summary')
+      if (!summary) return
+
+      details.classList.remove('is-open')
+      details.style.overflow = 'hidden'
+      const startHeight = `${details.offsetHeight}px`
+      const endHeight = `${summary.offsetHeight}px`
+
+      animations.get(details)?.cancel()
+      const anim = details.animate({ height: [startHeight, endHeight] }, { duration: DURATION, easing: EASING })
+      animations.set(details, anim)
+      anim.onfinish = () => {
+        details.open = false
+        details.style.height = ''
+        details.style.overflow = ''
+        animations.delete(details)
+      }
+    }
+
+    function grow(details: HTMLDetailsElement) {
+      const summary = details.querySelector('summary')
+      const content = details.querySelector<HTMLElement>('.faq-content')
+      if (!summary || !content) return
+
+      details.classList.add('is-open')
+      details.style.overflow = 'hidden'
+      details.style.height = `${details.offsetHeight}px`
+      details.open = true
+
+      requestAnimationFrame(() => {
+        const startHeight = `${details.offsetHeight}px`
+        const endHeight = `${summary.offsetHeight + content.offsetHeight}px`
+
+        animations.get(details)?.cancel()
+        const anim = details.animate({ height: [startHeight, endHeight] }, { duration: DURATION, easing: EASING })
+        animations.set(details, anim)
+        anim.onfinish = () => {
+          details.style.height = ''
+          details.style.overflow = ''
+          animations.delete(details)
+        }
+      })
+    }
+
+    items.forEach(details => {
+      const summary = details.querySelector('summary')
+      summary?.addEventListener('click', e => {
+        e.preventDefault()
+        if (details.open) {
+          shrink(details)
+        } else {
+          items.forEach(other => {
+            if (other !== details && other.open) shrink(other)
+          })
+          grow(details)
+        }
+      })
+    })
+  }
+
+  initFaqAccordion()
+</script>
