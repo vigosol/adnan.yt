@@ -3,7 +3,7 @@ interface Props {
   item: {
     title: string
     slug: { current: string } | string
-    industry?: string
+    service?: string
     platform?: string
     thumbnail?: string
     shortResult?: string
@@ -13,20 +13,31 @@ const { item } = Astro.props as Props
 const slug = typeof item.slug === 'string' ? item.slug : item.slug.current
 ---
 
-<a href={`/portfolio/${slug}`} class="card-hover group !p-0 overflow-hidden">
-  <div class="aspect-video bg-bg-2 overflow-hidden">
-    {item.thumbnail ? (
+<a href={`/portfolio/${slug}`} class="group relative block aspect-[3/4] overflow-hidden bg-bg-2">
+  {item.service && (
+    <span class="absolute top-3 left-3 z-10 bg-accent text-white text-xs font-medium px-2.5 py-1 rounded">
+      {item.service}
+    </span>
+  )}
+
+  {item.thumbnail && (
+    <>
       <img
         src={item.thumbnail} alt={item.title} loading="lazy"
-        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+        class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
       />
-    ) : (
-      <div class="w-full h-full flex items-center justify-center text-4xl">🎬</div>
-    )}
-  </div>
-  <div class="p-5">
-    {item.platform && <span class="badge-accent text-xs mb-2 inline-block">{item.platform}</span>}
-    <h3 class="text-text-white font-bold mb-1 group-hover:text-accent-light transition-colors">{item.title}</h3>
-    {item.shortResult && <p class="text-text-muted text-sm">{item.shortResult}</p>}
-  </div>
+
+      <div class="absolute inset-0 bg-black/55 group-hover:opacity-0 transition-opacity duration-300"></div>
+
+      <div class="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
+      <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+        <img src="/play-btn.svg" alt="" class="w-14 h-14 drop-shadow-lg" />
+      </div>
+
+      <div class="absolute inset-x-0 bottom-0 p-4 opacity-0 translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
+        <h3 class="text-white font-semibold text-sm group-hover:text-base group-hover:mb-2 leading-snug transition-all duration-300">{item.title}</h3>
+      </div>
+    </>
+  )}
 </a>

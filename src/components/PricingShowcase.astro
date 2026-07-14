@@ -45,7 +45,7 @@ const {
   <div class="container md:border-x md:border-border-light md:px-0">
     <div class="px-6 md:pl-[30px] md:pr-8 py-10 md:py-14">
       <span class="inline-block border border-border-light rounded-full text-xs font-normal px-3 py-1 text-text-muted mb-4">{badge}</span>
-      <h2 class="text-4xl md:text-5xl font-bold text-text-white mb-3">{heading}</h2>
+      <h2 class="text-4xl md:text-5xl font-bold text-text-white mb-3 max-w-[800px]">{heading}</h2>
       {subtitle && <p class="text-text-muted text-lg">{subtitle}</p>}
     </div>
 
@@ -59,7 +59,7 @@ const {
             )}
           </div>
           {pkg.description && (
-            <p class={`text-sm mb-6 ${pkg.featured ? 'text-white/80' : 'text-text-muted'}`}>{pkg.description}</p>
+            <p class={`text-base mb-6 ${pkg.featured ? 'text-white/80' : 'text-text-muted'}`}>{pkg.description}</p>
           )}
 
           <div class={`flex items-baseline gap-1 mb-6 ${pkg.featured ? 'text-white' : 'text-text-white'}`}>
@@ -83,7 +83,7 @@ const {
           {pkg.features?.length > 0 && (
             <ul class="space-y-3">
               {pkg.features.map(f => (
-                <li class={`flex items-start gap-2.5 text-sm ${pkg.featured ? 'text-white' : 'text-text'}`}>
+                <li class={`flex items-start gap-2.5 text-base ${pkg.featured ? 'text-white' : 'text-text'}`}>
                   <svg class={`w-4 h-4 mt-0.5 shrink-0 ${pkg.featured ? 'text-white' : 'text-accent'}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                     <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" />
                   </svg>
@@ -98,7 +98,7 @@ const {
       <div class="p-8 md:p-10 flex flex-col justify-between bg-bg-1">
         <div>
           <h3 class="font-bold text-2xl text-text-white mb-2">{block1Heading}</h3>
-          <p class="text-text-muted text-sm mb-6">{block1Subtext}</p>
+          <p class="text-text-muted text-base mb-6">{block1Subtext}</p>
           <a href="/contact" class="group inline-flex items-center justify-center gap-2 rounded-[4px] border-2 border-transparent bg-[#111827] hover:bg-white text-white hover:text-[#111827] hover:border-[#111827] px-5 py-3 font-semibold text-base transition-colors w-full">
             {block1CtaLabel}
             <svg class="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -109,13 +109,13 @@ const {
 
         <div class="mt-12">
           <h3 class="font-bold text-2xl text-text-white mb-2">{block2Heading}</h3>
-          <p class="text-text-muted text-sm mb-6">{block2Subtext}</p>
-          <a href="/contact" class="group inline-flex items-center justify-center gap-2 rounded-[4px] border-2 border-transparent bg-[#111827] hover:bg-white text-white hover:text-[#111827] hover:border-[#111827] px-5 py-3 font-semibold text-base transition-colors w-full">
+          <p class="text-text-muted text-base mb-6">{block2Subtext}</p>
+          <button type="button" data-open-quote-modal class="group inline-flex items-center justify-center gap-2 rounded-[4px] border-2 border-transparent bg-[#111827] hover:bg-white text-white hover:text-[#111827] hover:border-[#111827] px-5 py-3 font-semibold text-base transition-colors w-full">
             {block2CtaLabel}
             <svg class="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
-          </a>
+          </button>
         </div>
       </div>
     </div>

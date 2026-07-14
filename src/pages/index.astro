@@ -6,21 +6,26 @@ import Spacer from '../components/Spacer.astro'
 import AboutTeaser from '../components/AboutTeaser.astro'
 import ServicesShowcase from '../components/ServicesShowcase.astro'
 import PricingShowcase from '../components/PricingShowcase.astro'
-import TestimonialCard from '../components/TestimonialCard.astro'
+import ProcessSection from '../components/ProcessSection.astro'
+import TestimonialsShowcase from '../components/TestimonialsShowcase.astro'
 import PortfolioCard from '../components/PortfolioCard.astro'
+import BlogSection from '../components/BlogSection.astro'
+import NewsletterSection from '../components/NewsletterSection.astro'
 import FAQ from '../components/FAQ.astro'
 import CTA from '../components/CTA.astro'
 import { fetchSanity, urlFor } from '../lib/sanity'
 import {
   SITE_SETTINGS_QUERY, HOME_PAGE_QUERY, SERVICES_HOMEPAGE_QUERY, TESTIMONIALS_QUERY, PORTFOLIO_LIST_QUERY,
+  BLOG_HOMEPAGE_QUERY,
 } from '../lib/queries'
 
-const [settings, home, services, testimonials, portfolio] = await Promise.all([
+const [settings, home, services, testimonials, portfolio, blogPosts] = await Promise.all([
   fetchSanity<any>(SITE_SETTINGS_QUERY),
   fetchSanity<any>(HOME_PAGE_QUERY),
   fetchSanity<any[]>(SERVICES_HOMEPAGE_QUERY),
   fetchSanity<any[]>(TESTIMONIALS_QUERY),
   fetchSanity<any[]>(PORTFOLIO_LIST_QUERY),
+  fetchSanity<any[]>(BLOG_HOMEPAGE_QUERY),
 ])
 
 // Hero / Process / FAQs / Trust Stats are CMS-managed via the Home Page
@@ -46,6 +51,8 @@ const aboutTeaser = {
 const servicesSection = {
   badge: home?.servicesSection?.badge ?? 'Services',
   heading: home?.servicesSection?.heading ?? 'Everything your content needs, after the record button.',
+  subtitle: home?.servicesSection?.subtitle ??
+    'From first cut to final export, every service is built to keep your content polished and consistent.',
   viewAllLabel: home?.servicesSection?.viewAllLabel ?? 'View all Services',
   tags: home?.servicesSection?.tags?.length ? home.servicesSection.tags : [
     'Youtube Video Editing', 'Podcast Editing', 'Youtube Shorts Editing', 'Instagram Reels Editing',
@@ -56,12 +63,56 @@ const servicesSection = {
   ],
 }
 
+const processSection = {
+  badge: home?.processSection?.badge ?? 'How It Works',
+  heading: home?.processSection?.heading ?? 'From raw footage to finished video, in four steps.',
+  highlightPhrase: home?.processSection?.highlightPhrase ?? 'finished video',
+  subtitle: home?.processSection?.subtitle ??
+    'A simple, transparent process. You stay focused on filming — I handle everything after the record button.',
+}
+
 const processSteps = home?.process?.length ? home.process : [
-  { icon: '📋', title: 'Brief',   description: 'Fill out the project form with your goals, style references, and deadline.' },
-  { icon: '📁', title: 'Upload',  description: 'Share your raw footage via Google Drive or WeTransfer.' },
-  { icon: '✂️', title: 'Edit',    description: 'I edit, colour-grade, and add music/captions to your spec.' },
-  { icon: '🚀', title: 'Deliver', description: 'Receive your polished video. One round of revisions included.' },
+  { title: 'Share your footage', description: 'Upload raw clips via Drive or Dropbox with a short brief on your goals and style.' },
+  { title: 'We cut & design',    description: 'Retention-first editing, sound design, motion graphics, and color grading applied to every frame.' },
+  { title: 'Review & refine',    description: 'Leave time-stamped comments and get revisions until the edit feels exactly right.' },
+  { title: 'Publish & grow',     description: 'Receive the final video, thumbnail posters, and platform-ready exports within 24-48h.' },
 ]
+
+const testimonialsSection = {
+  badge: home?.testimonialsSection?.badge ?? 'Testimonials',
+  heading: home?.testimonialsSection?.heading ?? 'Creators and brands who trust the process.',
+  subtitle: home?.testimonialsSection?.subtitle ?? 'Real feedback from real clients — see why they keep coming back.',
+  viewAllLabel: home?.testimonialsSection?.viewAllLabel ?? 'View all Reviews',
+}
+
+const blogSection = {
+  badge: home?.blogSection?.badge ?? 'Blog',
+  heading: home?.blogSection?.heading ?? 'Insights on editing & growth.',
+  highlightPhrase: home?.blogSection?.highlightPhrase ?? '& growth.',
+  subtitle: home?.blogSection?.subtitle ??
+    'Practical breakdowns on editing, retention, and growth — drawn from real client projects.',
+  viewAllLabel: home?.blogSection?.viewAllLabel ?? 'View all Posts',
+}
+
+const newsletterSection = {
+  badge: home?.newsletterSection?.badge ?? 'Newsletter',
+  heading: home?.newsletterSection?.heading ?? 'Sharper videos, straight to your inbox.',
+  highlightPhrase: home?.newsletterSection?.highlightPhrase ?? 'your inbox.',
+  subtitle: home?.newsletterSection?.subtitle ??
+    'One email a month with editing tips, retention insights, and behind-the-scenes breakdowns of real projects.',
+  placeholder: home?.newsletterSection?.placeholder ?? 'Enter your email address',
+  buttonLabel: home?.newsletterSection?.buttonLabel ?? 'Subscribe →',
+  disclaimer: home?.newsletterSection?.disclaimer ?? 'No spam, unsubscribe anytime.',
+}
+
+const ctaSection = {
+  badge: home?.ctaSection?.badge ?? '🔥 Limited slots each month',
+  heading: home?.ctaSection?.heading ?? 'Ready to Elevate Your Videos?',
+  highlightPhrase: home?.ctaSection?.highlightPhrase ?? 'Your Videos?',
+  subtext: home?.ctaSection?.subtext ?? "Let's talk about your project. Free quote, no obligation.",
+  primaryCtaLabel: home?.ctaSection?.primaryCtaLabel ?? 'Get Your Free Quote →',
+  secondaryCtaLabel: home?.ctaSection?.secondaryCtaLabel ?? 'View Pricing',
+}
 
 const faqs = home?.faqs?.length ? home.faqs : [
   { question: 'How fast is turnaround?', answer: 'Most projects are delivered within 24–48 hours, depending on length and complexity.' },
@@ -175,13 +226,50 @@ const faqSchema = {
   <ServicesShowcase
     badge={servicesSection.badge}
     heading={servicesSection.heading}
+    subtitle={servicesSection.subtitle}
     viewAllLabel={servicesSection.viewAllLabel}
     services={services ?? []}
     tags={servicesSection.tags}
   />
 
+  <!-- ══ FEATURED WORK ═════════════════════════════════════════════ -->
+  <Spacer borderTop borderBottom />
+  <section>
+    <div class="container md:border-x md:border-border-light md:px-0">
+      <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-6 px-6 md:pl-[30px] md:pr-8 py-10 md:py-14">
+        <div>
+          <span class="inline-block border border-border-light rounded-full text-xs font-normal px-3 py-1 text-text-muted mb-4">Portfolio</span>
+          <h2 class="text-4xl md:text-5xl font-bold text-text-white mb-3 max-w-[800px]">
+            Work that keeps people <span class="text-accent">watching.</span>
+          </h2>
+          <p class="text-text-muted text-lg max-w-xl">
+            A selection of recent edits across long form, shorts, motion graphics, and commercials — each one built for retention.
+          </p>
+        </div>
+        <a href="/portfolio" class="group shrink-0 inline-flex items-center gap-2 border-b border-current pb-1 text-text-white font-medium">
+          View all Work
+          <svg class="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </a>
+      </div>
+
+      {portfolio?.length ? (
+        <div class="border-t border-border-light grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-5 px-6 md:px-[30px] pt-8 pb-10 md:pb-14">
+          {portfolio.slice(0, 8).map((item: any) => (
+            <PortfolioCard item={item} />
+          ))}
+        </div>
+      ) : (
+        <p class="text-text-muted text-sm border-t border-border-light px-6 md:px-[30px] py-10">
+          Portfolio items will appear here once added in Sanity Studio.
+        </p>
+      )}
+    </div>
+  </section>
+
   <!-- ══ PRICING ════════════════════════════════════════════════════ -->
-  <Spacer borderBottom />
+  <Spacer borderTop borderBottom />
   <PricingShowcase
     badge={pricingSection.badge}
     heading={pricingSection.heading}
@@ -190,79 +278,69 @@ const faqSchema = {
     helpPanel={pricingSection.helpPanel}
   />
 
+  <!-- ══ PROCESS ════════════════════════════════════════════════════ -->
+  <Spacer borderTop borderBottom />
+  <ProcessSection
+    badge={processSection.badge}
+    heading={processSection.heading}
+    highlightPhrase={processSection.highlightPhrase}
+    subtitle={processSection.subtitle}
+    steps={processSteps}
+  />
+
+  <!-- ══ TESTIMONIALS ═══════════════════════════════════════════════ -->
+  <Spacer borderTop borderBottom />
+  <TestimonialsShowcase
+    badge={testimonialsSection.badge}
+    heading={testimonialsSection.heading}
+    subtitle={testimonialsSection.subtitle}
+    viewAllLabel={testimonialsSection.viewAllLabel}
+    testimonials={testimonials ?? []}
+  />
+
   <!-- ══ FAQs ═══════════════════════════════════════════════════════ -->
   <Spacer borderTop />
   <section>
     <div class="container md:border-x md:border-t md:border-border-light md:px-0">
       <div class="px-6 md:pl-[30px] md:pr-8 py-10 md:py-14">
         <span class="inline-block border border-border-light rounded-full text-xs font-normal px-3 py-1 text-text-muted mb-4">FAQs</span>
-        <h2 class="text-4xl md:text-5xl font-bold text-text-white">Frequently Asked Questions</h2>
+        <h2 class="text-4xl md:text-5xl font-bold text-text-white max-w-[800px]">Frequently Asked Questions</h2>
       </div>
       <FAQ items={faqs} />
     </div>
   </section>
 
-  <!-- ══ FEATURED WORK ═════════════════════════════════════════════ -->
-  <section class="py-24 border-t border-border bg-bg-1">
-    <div class="container">
-      <h2 class="section-heading">Featured Work</h2>
-      <p class="text-text-muted mb-12 max-w-xl">
-        Real results for real clients — see the edits in action.
-      </p>
+  <!-- ══ BLOG ═══════════════════════════════════════════════════════ -->
+  <Spacer borderTop borderBottom />
+  <BlogSection
+    badge={blogSection.badge}
+    heading={blogSection.heading}
+    highlightPhrase={blogSection.highlightPhrase}
+    subtitle={blogSection.subtitle}
+    viewAllLabel={blogSection.viewAllLabel}
+    posts={blogPosts ?? []}
+  />
 
-      {portfolio?.length ? (
-        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {portfolio.slice(0, 6).map((item: any) => (
-            <PortfolioCard item={item} />
-          ))}
-        </div>
-      ) : (
-        <p class="text-text-muted text-sm">Portfolio items will appear here once added in Sanity Studio.</p>
-      )}
-
-      <div class="text-center mt-10">
-        <a href="/portfolio" class="btn-secondary">View Full Portfolio →</a>
-      </div>
-    </div>
-  </section>
-
-  <!-- ══ PROCESS ════════════════════════════════════════════════════ -->
-  <section class="py-24 border-t border-border">
-    <div class="container">
-      <h2 class="section-heading">How It Works</h2>
-      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
-        {processSteps.map((step: any, i: number) => (
-          <div class="card relative">
-            <div class="text-4xl font-black text-border absolute top-4 right-4">{String(i + 1).padStart(2, '0')}</div>
-            <div class="text-3xl mb-3">{step.icon}</div>
-            <h3 class="font-bold text-text-white mb-2">{step.title}</h3>
-            <p class="text-text-muted text-sm">{step.description}</p>
-          </div>
-        ))}
-      </div>
-    </div>
-  </section>
-
-  <!-- ══ TESTIMONIALS ═══════════════════════════════════════════════ -->
-  {testimonials?.length > 0 && (
-    <section class="py-24 border-t border-border">
-      <div class="container">
-        <h2 class="section-heading">Client Results</h2>
-        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5 mt-8">
-          {testimonials.slice(0, 6).map((t: any) => (
-            <TestimonialCard testimonial={t} />
-          ))}
-        </div>
-      </div>
-    </section>
-  )}
+  <!-- ══ NEWSLETTER ═════════════════════════════════════════════════ -->
+  <Spacer borderTop borderBottom />
+  <NewsletterSection
+    badge={newsletterSection.badge}
+    heading={newsletterSection.heading}
+    highlightPhrase={newsletterSection.highlightPhrase}
+    subtitle={newsletterSection.subtitle}
+    placeholder={newsletterSection.placeholder}
+    buttonLabel={newsletterSection.buttonLabel}
+    disclaimer={newsletterSection.disclaimer}
+  />
 
   <!-- ══ CTA BANNER ════════════════════════════════════════════════ -->
   <CTA
-    heading="Ready to Elevate Your Videos?"
-    subtext="Let's talk about your project. Free quote, no obligation."
-    primaryCta={{ label: 'Get Your Free Quote →', href: '/contact' }}
-    secondaryCta={{ label: 'View Pricing', href: '/pricing' }}
+    badge={ctaSection.badge}
+    heading={ctaSection.heading}
+    highlightPhrase={ctaSection.highlightPhrase}
+    subtext={ctaSection.subtext}
+    primaryCta={{ label: ctaSection.primaryCtaLabel, href: '/contact' }}
+    secondaryCta={{ label: ctaSection.secondaryCtaLabel, href: '/pricing' }}
   />
 
 </MainLayout>

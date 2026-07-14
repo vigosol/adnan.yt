@@ -8,6 +8,8 @@ import service from './service'
 import testimonial from './testimonial'
 import portfolio from './portfolio'
 import caseStudy from './caseStudy'
+import newsletterSubscriber from './newsletterSubscriber'
+import quoteRequest from './quoteRequest'
 import { blogSchema, tutorialSchema, featuredVideoSchema } from './content'
 
 export const schemaTypes = [
@@ -21,6 +23,8 @@ export const schemaTypes = [
   testimonial,
   portfolio,
   caseStudy,
+  newsletterSubscriber,
+  quoteRequest,
   blogSchema,
   tutorialSchema,
   featuredVideoSchema,

@@ -5,6 +5,7 @@ import { SITE_SETTINGS_QUERY } from '../lib/queries'
 import Header from '../components/Header.astro'
 import Footer from '../components/Footer.astro'
 import WhatsAppButton from '../components/WhatsAppButton.astro'
+import QuoteModal from '../components/QuoteModal.astro'
 
 interface Props {
   title?:       string
@@ -136,6 +137,9 @@ const schemas = schema ? (Array.isArray(schema) ? schema : [schema]) : []
 
   <!-- ── WhatsApp Float ── -->
   <WhatsAppButton settings={settings} />
+
+  <!-- ── Get a Free Quote modal (opened by any [data-open-quote-modal] trigger) ── -->
+  <QuoteModal settings={settings} />
 
   <!-- ── Scripts slot ── -->
   <slot name="scripts" />

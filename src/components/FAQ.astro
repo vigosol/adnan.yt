@@ -22,7 +22,7 @@ const { items } = Astro.props as Props
           <path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round" />
         </svg>
       </summary>
-      <div class="faq-content px-6 md:px-8 pb-6 -mt-2 text-text-muted leading-relaxed">{item.answer}</div>
+      <div class="faq-content px-6 md:px-8 pb-6 -mt-2 text-text-muted leading-6">{item.answer}</div>
     </details>
   ))}
 </div>
@@ -63,21 +63,22 @@ const { items } = Astro.props as Props
     }
 
     function grow(details: HTMLDetailsElement) {
-      const summary = details.querySelector('summary')
-      const content = details.querySelector<HTMLElement>('.faq-content')
-      if (!summary || !content) return
+      const startHeight = details.offsetHeight
 
       details.classList.add('is-open')
       details.style.overflow = 'hidden'
-      details.style.height = `${details.offsetHeight}px`
       details.open = true
 
-      requestAnimationFrame(() => {
-        const startHeight = `${details.offsetHeight}px`
-        const endHeight = `${summary.offsetHeight + content.offsetHeight}px`
+      // Measure the real natural height now that content is visible (scrollHeight
+      // correctly accounts for the answer's negative top-margin and padding —
+      // manually summing summary/content offsetHeights doesn't), then pin back
+      // to the start height before animating so there's no flash.
+      const endHeight = details.scrollHeight
+      details.style.height = `${startHeight}px`
 
+      requestAnimationFrame(() => {
         animations.get(details)?.cancel()
-        const anim = details.animate({ height: [startHeight, endHeight] }, { duration: DURATION, easing: EASING })
+        const anim = details.animate({ height: [`${startHeight}px`, `${endHeight}px`] }, { duration: DURATION, easing: EASING })
         animations.set(details, anim)
         anim.onfinish = () => {
           details.style.height = ''

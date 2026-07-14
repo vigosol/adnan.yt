@@ -11,7 +11,9 @@ export const SITE_SETTINGS_QUERY = `
     defaultSeoTitle, defaultSeoDescription,
     defaultOgImage { asset->{ url } },
     socialLinks { youtube, instagram, tiktok, linkedin, twitter, pinterest },
-    enableWhatsapp, enableLiveChat, tawktoId
+    enableWhatsapp, enableLiveChat, tawktoId,
+    footerHours, footerAvailability,
+    quoteModal { badge, heading, highlightPhrase, subtitle, serviceOptions, budgetOptions, disclaimer, ctaLabel }
   }
 `
 
@@ -20,14 +22,19 @@ export const HOME_PAGE_QUERY = `
   *[_type == "homePage"][0] {
     hero { badge, title, highlight, subtitle, primaryCtaLabel, secondaryCtaLabel, reelThumbnail, reelVideoUrl },
     aboutTeaser { quote, ctaLabel },
-    servicesSection { badge, heading, viewAllLabel, tags },
+    servicesSection { badge, heading, subtitle, viewAllLabel, tags },
     pricingSection {
       badge, heading, subtitle,
       packages[] { title, description, price, period, ctaLabel, featured, features },
       helpPanel { block1Heading, block1Subtext, block1CtaLabel, block2Heading, block2Subtext, block2CtaLabel }
     },
     trustStats[] { val, label, description },
-    process[] { icon, title, description },
+    processSection { badge, heading, highlightPhrase, subtitle },
+    process[] { icon, "iconImageUrl": iconImage.asset->url, title, description },
+    testimonialsSection { badge, heading, highlightPhrase, subtitle, viewAllLabel },
+    blogSection { badge, heading, highlightPhrase, subtitle, viewAllLabel },
+    newsletterSection { badge, heading, highlightPhrase, subtitle, placeholder, buttonLabel, disclaimer },
+    ctaSection { badge, heading, highlightPhrase, subtext, primaryCtaLabel, secondaryCtaLabel },
     faqs[] { question, answer }
   }
 `
@@ -98,7 +105,7 @@ export const SERVICE_BY_SLUG_QUERY = `
 // ── Portfolio ─────────────────────────────────────────────────
 export const PORTFOLIO_LIST_QUERY = `
   *[_type == "portfolio" && isActive == true] | order(_createdAt desc) {
-    _id, title, slug, industry, platform, service,
+    _id, title, slug, industry, platform, "service": service->title,
     "thumbnail": thumbnail.asset->url,
     shortResult
   }
@@ -111,9 +118,9 @@ export const PORTFOLIO_SLUGS_QUERY = `
 
 export const PORTFOLIO_BY_SLUG_QUERY = `
   *[_type == "portfolio" && slug.current == $slug][0] {
-    _id, title, slug, client, industry, platform, service,
+    _id, title, slug, client, industry, platform, "service": service->title,
     problem, solution, toolsUsed, results, testimonial,
-    videoUrl, "thumbnail": thumbnail.asset->url,
+    videoUrl, "detailImage": detailImage.asset->url,
     seoTitle, seoDescription
   }
 `
@@ -135,16 +142,27 @@ export const CASE_STUDY_BY_SLUG_QUERY = `
   *[_type == "caseStudy" && slug.current == $slug][0] {
     _id, title, slug, client, industry, platform, service,
     problem, solution, toolsUsed, results, testimonial,
-    videoUrl, "thumbnail": thumbnail.asset->url,
+    videoUrl, "detailImage": detailImage.asset->url,
     seoTitle, seoDescription
   }
 `
 
 // ── Blog ──────────────────────────────────────────────────────
+// bodyText is the full plain-text body — sliced into an excerpt in JS at the
+// call site, since GROQ string-slicing a pt::text() function result (e.g.
+// pt::text(body)[0..200]) silently returns null on this API version.
+export const BLOG_HOMEPAGE_QUERY = `
+  *[_type == "blog" && isPublished == true] | order(publishedAt desc) [0...4] {
+    _id, title, slug, publishedAt, category,
+    "bodyText": pt::text(body),
+    "thumbnail": thumbnail.asset->url
+  }
+`
+
 export const BLOG_LIST_QUERY = `
   *[_type == "blog" && isPublished == true] | order(publishedAt desc) [$from..$to] {
     _id, title, slug, publishedAt, category,
-    "excerpt": pt::text(body)[0..200],
+    "bodyText": pt::text(body),
     "thumbnail": thumbnail.asset->url
   }
 `
@@ -168,7 +186,7 @@ export const BLOG_BY_SLUG_QUERY = `
 export const TUTORIAL_LIST_QUERY = `
   *[_type == "tutorial" && isPublished == true] | order(publishedAt desc) [$from..$to] {
     _id, title, slug, publishedAt, category, difficulty,
-    "excerpt": pt::text(body)[0..200],
+    "bodyText": pt::text(body),
     "thumbnail": thumbnail.asset->url,
     youtubeVideoId
   }
@@ -217,7 +235,9 @@ export const PRODUCT_BY_SLUG_QUERY = `
 // ── Testimonials ──────────────────────────────────────────────
 export const TESTIMONIALS_QUERY = `
   *[_type == "testimonial" && isActive == true] | order(order asc) {
-    _id, name, company, role, quote, rating,
-    "avatar": avatar.asset->url
+    _id, reviewType, name, company, role, quote, rating,
+    "avatar": avatar.asset->url,
+    videoUrl, duration,
+    "videoThumbnail": videoThumbnail.asset->url
   }
 `

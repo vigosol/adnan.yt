@@ -19,6 +19,8 @@ const {
   ctaHref = '/contact',
   featured = false,
 } = Astro.props as Props
+
+const isQuoteCta = /quote/i.test(ctaLabel)
 ---
 
 <div class={`card relative flex flex-col ${featured ? 'border-accent' : ''}`}>
@@ -27,7 +29,7 @@ const {
   )}
 
   <h3 class="text-text-white font-bold text-xl mb-1">{title}</h3>
-  {description && <p class="text-text-muted text-sm mb-4">{description}</p>}
+  {description && <p class="text-text-muted text-base mb-4">{description}</p>}
 
   <div class="flex items-baseline gap-1 mb-6">
     <span class="text-4xl font-black text-text-white">{price}</span>
@@ -36,7 +38,7 @@ const {
 
   <ul class="space-y-2.5 mb-8 flex-1">
     {features.map(f => (
-      <li class="flex items-start gap-2.5 text-sm text-text">
+      <li class="flex items-start gap-2.5 text-base text-text">
         <svg class="w-4 h-4 mt-0.5 shrink-0 text-success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
           <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" />
         </svg>
@@ -45,5 +47,9 @@ const {
     ))}
   </ul>
 
-  <a href={ctaHref} class={`w-full justify-center ${featured ? 'btn-primary' : 'btn-secondary'}`}>{ctaLabel}</a>
+  {isQuoteCta ? (
+    <button type="button" data-open-quote-modal class={`w-full justify-center ${featured ? 'btn-primary' : 'btn-secondary'}`}>{ctaLabel}</button>
+  ) : (
+    <a href={ctaHref} class={`w-full justify-center ${featured ? 'btn-primary' : 'btn-secondary'}`}>{ctaLabel}</a>
+  )}
 </div>

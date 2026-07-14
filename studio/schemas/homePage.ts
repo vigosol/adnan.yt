@@ -32,6 +32,7 @@ export default defineType({
       fields: [
         { name: "badge", type: "string", title: "Badge Text" },
         { name: "heading", type: "text", title: "Heading", rows: 2 },
+        { name: "subtitle", type: "string", title: "Subtitle" },
         { name: "viewAllLabel", type: "string", title: "\"View All\" Link Label" },
         {
           name: "tags", title: "Scrolling Tags", type: "array",
@@ -90,16 +91,92 @@ export default defineType({
       }],
     }),
     defineField({
+      name: "processSection", title: "How It Works Section", type: "object",
+      description: "Header for the 4-step process block.",
+      fields: [
+        { name: "badge", type: "string", title: "Badge Text" },
+        { name: "heading", type: "string", title: "Heading" },
+        {
+          name: "highlightPhrase", type: "string", title: "Highlighted Phrase",
+          description: "A word or phrase from the Heading above to color in accent red (must match exactly, e.g. \"finished video\").",
+        },
+        { name: "subtitle", type: "string", title: "Subtitle" },
+      ],
+    }),
+    defineField({
+      name: "testimonialsSection", title: "Testimonials Section", type: "object",
+      description: "Header for the testimonials block — video reviews row and text quote slider come from the Testimonials list.",
+      fields: [
+        { name: "badge", type: "string", title: "Badge Text" },
+        { name: "heading", type: "string", title: "Heading" },
+        {
+          name: "highlightPhrase", type: "string", title: "Highlighted Phrase",
+          description: "A word or phrase from the Heading above to render bold/emphasized (must match exactly).",
+        },
+        { name: "subtitle", type: "string", title: "Subtitle" },
+        { name: "viewAllLabel", type: "string", title: "\"View All\" Link Label" },
+      ],
+    }),
+    defineField({
       name: "process", title: "How It Works — Steps", type: "array",
       of: [{
         type: "object", name: "step",
         fields: [
-          { name: "icon", type: "string", title: "Emoji Icon" },
+          { name: "icon", type: "string", title: "Emoji Icon", description: "Fallback only — used if no Icon Image is set." },
+          {
+            name: "iconImage", type: "image", title: "Icon Image",
+            description: "Line icon shown on the step card. Falls back to a generic icon if not set.",
+          },
           { name: "title", type: "string", title: "Step Title" },
           { name: "description", type: "text", title: "Step Description", rows: 2 },
         ],
         preview: { select: { title: "title", subtitle: "description" } },
       }],
+    }),
+    defineField({
+      name: "blogSection", title: "Blog Section", type: "object",
+      description: "Header for the homepage blog preview — the 3 posts shown are always the latest published Blog Posts.",
+      fields: [
+        { name: "badge", type: "string", title: "Badge Text" },
+        { name: "heading", type: "string", title: "Heading" },
+        {
+          name: "highlightPhrase", type: "string", title: "Highlighted Phrase",
+          description: "A word or phrase from the Heading above to color in accent red (must match exactly, e.g. \"& growth.\").",
+        },
+        { name: "subtitle", type: "string", title: "Subtitle" },
+        { name: "viewAllLabel", type: "string", title: "\"View All\" Link Label" },
+      ],
+    }),
+    defineField({
+      name: "newsletterSection", title: "Newsletter Section", type: "object",
+      description: "The email signup block between the Blog preview and the closing CTA.",
+      fields: [
+        { name: "badge", type: "string", title: "Badge Text" },
+        { name: "heading", type: "string", title: "Heading" },
+        {
+          name: "highlightPhrase", type: "string", title: "Highlighted Phrase",
+          description: "A word or phrase from the Heading above to color in accent red (must match exactly, e.g. \"your inbox.\").",
+        },
+        { name: "subtitle", type: "string", title: "Subtitle" },
+        { name: "placeholder", type: "string", title: "Email Input Placeholder" },
+        { name: "buttonLabel", type: "string", title: "Button Label" },
+        { name: "disclaimer", type: "string", title: "Fine Print", description: "e.g. \"No spam, unsubscribe anytime.\"" },
+      ],
+    }),
+    defineField({
+      name: "ctaSection", title: "Closing CTA Section", type: "object",
+      description: "The final dark banner before the footer.",
+      fields: [
+        { name: "badge", type: "string", title: "Badge Text", description: "e.g. \"🔥 Limited slots each month\"" },
+        { name: "heading", type: "string", title: "Heading" },
+        {
+          name: "highlightPhrase", type: "string", title: "Highlighted Phrase",
+          description: "A word or phrase from the Heading above to color in accent red (must match exactly, e.g. \"Your Videos?\").",
+        },
+        { name: "subtext", type: "string", title: "Subtext" },
+        { name: "primaryCtaLabel", type: "string", title: "Primary Button Label" },
+        { name: "secondaryCtaLabel", type: "string", title: "Secondary Button Label" },
+      ],
     }),
     defineField({
       name: "faqs", title: "FAQs", type: "array",

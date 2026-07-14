@@ -1,0 +1,205 @@
+---
+interface Props {
+  settings?: any
+}
+const { settings } = Astro.props as Props
+
+const qm = settings?.quoteModal ?? {}
+
+const badge = qm.badge ?? 'Free Quote'
+const heading = qm.heading ?? 'Tell me about your project.'
+const highlightPhrase = qm.highlightPhrase ?? 'your project.'
+const subtitle = qm.subtitle ?? 'Share a few details and get a quote within 24 hours. No obligation.'
+const serviceOptions = qm.serviceOptions?.length ? qm.serviceOptions : [
+  'Short Form Editing', 'Long Form Editing', 'Motion Graphics', 'Color Grading', 'Video Clipping', 'Full Package',
+]
+const budgetOptions = qm.budgetOptions?.length ? qm.budgetOptions : [
+  'Under $500', '$500 – $1,000', '$1,000 – $2,500', '$2,500+', 'Not sure yet',
+]
+const disclaimer = qm.disclaimer ?? 'Replies within 24h, Mon-Sat. Your details stay private.'
+const ctaLabel = qm.ctaLabel ?? 'Request my quote →'
+
+function splitHeading(text: string, phrase?: string) {
+  if (!phrase) return [{ text, accent: false }]
+  const idx = text.indexOf(phrase)
+  if (idx === -1) return [{ text, accent: false }]
+  return [
+    { text: text.slice(0, idx), accent: false },
+    { text: text.slice(idx, idx + phrase.length), accent: true },
+    { text: text.slice(idx + phrase.length), accent: false },
+  ].filter(part => part.text.length > 0)
+}
+const headingParts = splitHeading(heading, highlightPhrase)
+---
+
+<div id="quote-modal-overlay" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/60 p-4">
+  <div id="quote-modal-box" role="dialog" aria-modal="true" aria-labelledby="quote-modal-heading" class="bg-bg-1 rounded-card w-full max-w-[640px] max-h-[90vh] overflow-y-auto p-6 md:p-8">
+    <div class="flex items-center justify-between mb-6">
+      <span class="inline-flex items-center gap-1.5 bg-bg-2 text-text-muted text-xs font-medium px-3 py-1.5 rounded-full">
+        <span class="w-1.5 h-1.5 rounded-full bg-accent"></span>
+        {badge}
+      </span>
+      <button type="button" id="quote-modal-close" aria-label="Close" class="w-9 h-9 rounded-full border border-border flex items-center justify-center text-text-muted hover:text-text-white hover:border-border-light transition-colors cursor-pointer">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 6L6 18M6 6l12 12" stroke-linecap="round" />
+        </svg>
+      </button>
+    </div>
+
+    <h2 id="quote-modal-heading" class="text-3xl md:text-4xl font-black text-text-white mb-3">
+      {headingParts.map(part => part.accent ? <span class="text-accent">{part.text}</span> : part.text)}
+    </h2>
+    <p class="text-text-muted mb-8">{subtitle}</p>
+
+    <form id="quote-form" class="space-y-5" novalidate>
+      <div>
+        <div class="label uppercase text-xs tracking-wide mb-3">
+          What do you need? <span class="font-normal normal-case text-text-muted">(pick one or more)</span>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3" id="quote-service-chips">
+          {serviceOptions.map((service: string) => (
+            <button
+              type="button" data-service={service}
+              class="quote-chip border border-border rounded-btn px-4 py-3 text-sm font-medium text-text hover:border-border-light transition-colors cursor-pointer"
+            >
+              {service}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div class="grid sm:grid-cols-2 gap-5">
+        <div>
+          <label for="quote-name" class="label uppercase text-xs tracking-wide">Name</label>
+          <input id="quote-name" name="name" type="text" required class="input" placeholder="Your name" />
+        </div>
+        <div>
+          <label for="quote-email" class="label uppercase text-xs tracking-wide">Email</label>
+          <input id="quote-email" name="email" type="email" required class="input" placeholder="you@example.com" />
+        </div>
+      </div>
+
+      <div class="grid sm:grid-cols-2 gap-5">
+        <div>
+          <label for="quote-channel" class="label uppercase text-xs tracking-wide">Channel / Brand Link <span class="font-normal normal-case text-text-muted">(optional)</span></label>
+          <input id="quote-channel" name="channel" type="text" class="input" placeholder="youtube.com/@yourchannel" />
+        </div>
+        <div>
+          <label for="quote-budget" class="label uppercase text-xs tracking-wide">Monthly Budget</label>
+          <select id="quote-budget" name="budget" class="input">
+            {budgetOptions.map((b: string) => <option value={b}>{b}</option>)}
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label for="quote-message" class="label uppercase text-xs tracking-wide">About Your Project</label>
+        <textarea
+          id="quote-message" name="message" rows="4" required class="input resize-none"
+          placeholder="What are you making, how often do you publish, and what does success look like?"
+        ></textarea>
+      </div>
+
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-2">
+        <p class="text-text-muted text-xs">{disclaimer}</p>
+        <button type="submit" id="quote-submit" class="btn-primary shrink-0 justify-center px-6">{ctaLabel}</button>
+      </div>
+
+      <p id="quote-status" class="text-sm hidden" role="status"></p>
+    </form>
+  </div>
+</div>
+
+<style>
+  .quote-chip.is-selected {
+    background-color: var(--color-accent);
+    border-color: var(--color-accent);
+    color: #fff;
+  }
+</style>
+
+<script>
+  const overlay = document.getElementById('quote-modal-overlay') as HTMLDivElement
+  const box = document.getElementById('quote-modal-box') as HTMLDivElement
+  const closeBtn = document.getElementById('quote-modal-close') as HTMLButtonElement
+  const form = document.getElementById('quote-form') as HTMLFormElement
+  const submitBtn = document.getElementById('quote-submit') as HTMLButtonElement
+  const status = document.getElementById('quote-status') as HTMLParagraphElement
+  const defaultLabel = submitBtn?.textContent ?? 'Request my quote →'
+  const chipsContainer = document.getElementById('quote-service-chips') as HTMLDivElement
+
+  function openModal() {
+    overlay.classList.remove('hidden')
+    overlay.classList.add('flex')
+    document.body.style.overflow = 'hidden'
+  }
+
+  function closeModal() {
+    overlay.classList.add('hidden')
+    overlay.classList.remove('flex')
+    document.body.style.overflow = ''
+  }
+
+  document.addEventListener('click', (e) => {
+    const trigger = (e.target as HTMLElement).closest('[data-open-quote-modal]')
+    if (trigger) {
+      e.preventDefault()
+      openModal()
+    }
+  })
+
+  closeBtn?.addEventListener('click', closeModal)
+
+  overlay?.addEventListener('click', (e) => {
+    if (e.target === overlay) closeModal()
+  })
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !overlay.classList.contains('hidden')) closeModal()
+  })
+
+  chipsContainer?.addEventListener('click', (e) => {
+    const chip = (e.target as HTMLElement).closest('.quote-chip')
+    if (chip) chip.classList.toggle('is-selected')
+  })
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault()
+
+    const data = Object.fromEntries(new FormData(form).entries()) as Record<string, string>
+    const services = Array.from(chipsContainer?.querySelectorAll('.quote-chip.is-selected') ?? [])
+      .map(chip => chip.getAttribute('data-service'))
+
+    submitBtn.disabled = true
+    submitBtn.textContent = 'Sending...'
+    status.classList.add('hidden')
+
+    try {
+      const res = await fetch('/api/quote', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...data, services }),
+      })
+      const result = await res.json()
+
+      status.classList.remove('hidden')
+      if (result.success) {
+        status.textContent = "Thanks! Your quote request is in — I'll be in touch within 24 hours."
+        status.className = 'text-sm text-success'
+        form.reset()
+        chipsContainer?.querySelectorAll('.quote-chip.is-selected').forEach(c => c.classList.remove('is-selected'))
+        setTimeout(closeModal, 2000)
+      } else {
+        status.textContent = result.error ?? 'Something went wrong. Please try again.'
+        status.className = 'text-sm text-error'
+      }
+    } catch {
+      status.classList.remove('hidden')
+      status.textContent = 'Network error — please check your connection and try again.'
+      status.className = 'text-sm text-error'
+    } finally {
+      submitBtn.disabled = false
+      submitBtn.textContent = defaultLabel
+    }
+  })
+</script>

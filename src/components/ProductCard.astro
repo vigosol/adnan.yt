@@ -36,7 +36,7 @@ const slug = typeof product.slug === 'string' ? product.slug : product.slug.curr
       <div class="text-gold text-sm mb-1">{'★'.repeat(Math.round(product.rating))}</div>
     )}
     {product.shortDescription && (
-      <p class="text-text-muted text-sm mb-3 line-clamp-2">{product.shortDescription}</p>
+      <p class="text-text-muted text-base mb-3 line-clamp-2">{product.shortDescription}</p>
     )}
     {product.price && <div class="text-accent font-semibold text-sm">{product.price}</div>}
   </div>

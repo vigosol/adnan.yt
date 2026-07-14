@@ -1,11 +1,13 @@
 ---
+import { excerpt } from '../lib/text'
+
 interface Props {
   post: {
     title: string
     slug: { current: string } | string
     publishedAt?: string
     category?: string
-    excerpt?: string
+    bodyText?: string
     thumbnail?: string
   }
 }
@@ -33,6 +35,6 @@ const date = post.publishedAt
       {date && <span>{date}</span>}
     </div>
     <h3 class="text-text-white font-bold mb-1 group-hover:text-accent-light transition-colors">{post.title}</h3>
-    {post.excerpt && <p class="text-text-muted text-sm line-clamp-2">{post.excerpt}</p>}
+    {excerpt(post.bodyText) && <p class="text-text-muted text-base line-clamp-2">{excerpt(post.bodyText)}</p>}
   </div>
 </a>

@@ -1,0 +1,96 @@
+---
+interface Step {
+  icon?: string
+  iconImageUrl?: string
+  title: string
+  description?: string
+}
+interface Props {
+  badge?: string
+  heading?: string
+  highlightPhrase?: string
+  subtitle?: string
+  steps: Step[]
+}
+const {
+  badge = 'How It Works',
+  heading = 'From raw footage to finished video, in four steps.',
+  highlightPhrase = 'finished video',
+  subtitle = 'A simple, transparent process. You stay focused on filming — I handle everything after the record button.',
+  steps,
+} = Astro.props as Props
+
+// Split the heading around the highlighted phrase so a specific word/phrase
+// can render in accent color while the rest stays the default heading color.
+function splitHeading(text: string, phrase?: string) {
+  if (!phrase) return [{ text, accent: false }]
+  const idx = text.indexOf(phrase)
+  if (idx === -1) return [{ text, accent: false }]
+  return [
+    { text: text.slice(0, idx), accent: false },
+    { text: text.slice(idx, idx + phrase.length), accent: true },
+    { text: text.slice(idx + phrase.length), accent: false },
+  ].filter(part => part.text.length > 0)
+}
+
+const headingParts = splitHeading(heading, highlightPhrase)
+
+// Single-row 4-up grid: every cell gets its own right+bottom border (the grid
+// itself supplies the left+top edges), so the row reads as one continuous
+// bordered strip whose outer edges land exactly on the container frame.
+function cellClasses(i: number, total: number) {
+  const isLastOverall = i === total - 1
+  return [
+    'border-border-light',
+    i % 2 === 0 ? 'border-r' : 'border-r-0',
+    isLastOverall ? 'md:border-r-0' : 'md:border-r',
+  ].join(' ')
+}
+
+// Generic line-icon fallback set, cycled by index — used when a step has no
+// uploaded Icon Image.
+const FALLBACK_ICONS = [
+  '<path d="M12 16V4M12 4l-4 4M12 4l4 4" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke-linecap="round" stroke-linejoin="round"/>',
+  '<circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M8.5 8.5L19 19M8.5 15.5L19 5" stroke-linecap="round"/>',
+  '<path d="M4 5h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H9l-5 4v-4H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z" stroke-linecap="round" stroke-linejoin="round"/>',
+  '<path d="M4 15l5-5 4 4 7-7" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 7h5v5" stroke-linecap="round" stroke-linejoin="round"/>',
+]
+---
+
+<section>
+  <div class="container md:border-x md:border-border-light md:px-0">
+    <div class="px-6 md:pl-[30px] md:pr-8 py-10 md:py-14">
+      <span class="inline-block border border-border-light rounded-full text-xs font-normal px-3 py-1 text-text-muted mb-4">{badge}</span>
+      <h2 class="text-4xl md:text-5xl font-bold text-text-white mb-3 max-w-[800px]">
+        {headingParts.map(part => part.accent ? <span class="text-accent">{part.text}</span> : part.text)}
+      </h2>
+      {subtitle && <p class="text-text-muted text-lg max-w-xl">{subtitle}</p>}
+    </div>
+
+    {steps?.length > 0 && (
+      <div class="border-t md:border-border-light grid grid-cols-2 md:grid-cols-4">
+        {steps.map((step, i) => {
+          const fallbackIcon = FALLBACK_ICONS[i % FALLBACK_ICONS.length]
+          return (
+            <div class={`p-8 md:p-[30px] bg-bg-1 ${cellClasses(i, steps.length)}`}>
+              <div class="flex items-start justify-between mb-6">
+                {step.iconImageUrl ? (
+                  <img src={step.iconImageUrl} alt="" class="w-7 h-7 object-contain" />
+                ) : (
+                  <svg class="w-7 h-7 text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" set:html={fallbackIcon} />
+                )}
+                <span class="text-4xl font-bold text-border-light">
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+              </div>
+              <h3 class="font-bold text-xl mb-2 text-text-white">{step.title}</h3>
+              {step.description && (
+                <p class="text-base leading-6 text-text-muted">{step.description}</p>
+              )}
+            </div>
+          )
+        })}
+      </div>
+    )}
+  </div>
+</section>

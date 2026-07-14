@@ -63,21 +63,21 @@ const breadcrumbs = breadcrumbSchema([
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           />
         </div>
-      ) : item.thumbnail && (
-        <img src={item.thumbnail} alt={item.title} class="w-full rounded-card border border-border" />
+      ) : item.detailImage && (
+        <img src={item.detailImage} alt={item.title} class="w-full rounded-card border border-border" />
       )}
 
       {item.problem && (
         <div>
           <h2 class="section-heading">The Problem</h2>
-          <p class="text-text-muted leading-relaxed">{item.problem}</p>
+          <p class="text-text-muted leading-6">{item.problem}</p>
         </div>
       )}
 
       {item.solution && (
         <div>
           <h2 class="section-heading">The Solution</h2>
-          <p class="text-text-muted leading-relaxed">{item.solution}</p>
+          <p class="text-text-muted leading-6">{item.solution}</p>
         </div>
       )}
 

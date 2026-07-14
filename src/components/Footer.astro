@@ -14,27 +14,16 @@ const year = new Date().getFullYear()
 const footerCols = [
   {
     title: 'Services',
-    links: [
-      { href: '/services', label: 'All Services' },
-      ...(services ?? []).slice(0, 3).map((s: any) => ({ href: `/services/${s.slug.current}`, label: s.title })),
-    ],
-  },
-  {
-    title: 'Resources',
-    links: [
-      { href: '/blog', label: 'Blog' },
-      { href: '/tutorials', label: 'Tutorials' },
-      { href: '/portfolio', label: 'Portfolio' },
-      { href: '/case-studies', label: 'Case Studies' },
-      { href: '/shop', label: 'Shop' },
-    ],
+    links: (services ?? []).slice(0, 5).map((s: any) => ({ href: `/services/${s.slug.current}`, label: s.title })),
   },
   {
     title: 'Company',
     links: [
       { href: '/about', label: 'About' },
+      { href: '/portfolio', label: 'Portfolio' },
       { href: '/pricing', label: 'Pricing' },
-      { href: '/contact', label: 'Contact' },
+      { href: '/blog', label: 'Blog' },
+      { href: '/tutorials', label: 'Tutorials' },
     ],
   },
 ]
@@ -52,55 +41,78 @@ const socials = ['youtube', 'instagram', 'tiktok', 'linkedin', 'twitter']
   .map(key => ({ key, url: settings.socialLinks[key] }))
 ---
 
-<footer class="border-t border-border bg-bg-1 mt-24">
+<footer class="bg-[#111827]">
   <div class="container py-16">
     <div class="grid md:grid-cols-[1.5fr_1fr_1fr_1fr] gap-10">
       <div>
-        <a href="/" class="text-lg font-extrabold text-text-white tracking-tight">
-          adnan<span class="text-gradient">.yt</span>
+        <a href="/" class="inline-flex items-center">
+          <img src="/about-logo-dark.svg" alt="adnan.yt" class="h-6 md:h-[26px] w-auto" />
         </a>
-        <p class="text-text-muted text-sm mt-3 max-w-xs leading-relaxed">
-          {settings?.tagline ?? 'Professional video editing for YouTube creators, coaches, agencies, and brands.'}
+        <p class="text-white/60 text-base mt-3 max-w-sm leading-6">
+          {settings?.tagline ?? 'Retention-first video editing for YouTube creators, podcasters, coaches, agencies, and brands — turning raw footage into polished, story-driven videos that keep viewers watching till the end.'}
         </p>
-
-        <div class="mt-6">
-          <p class="text-text-white text-sm font-semibold mb-2">Get editing tips monthly</p>
-          <a href="/contact" class="btn-secondary text-sm">Join the Newsletter →</a>
-        </div>
-
-        {socials.length > 0 && (
-          <div class="flex items-center gap-3 mt-6">
-            {socials.map(({ key, url }) => (
-              <a
-                href={url} target="_blank" rel="noopener noreferrer" aria-label={key}
-                class="w-11 h-11 flex items-center justify-center rounded-pill bg-bg-2 border border-border text-text-muted hover:text-text-white hover:border-border-light transition-colors"
-              >
-                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d={iconPaths[key]} /></svg>
-              </a>
-            ))}
-          </div>
-        )}
       </div>
 
       {footerCols.map(col => (
         <div>
-          <div class="text-text-white font-semibold text-sm mb-4">{col.title}</div>
+          <div class="text-white font-semibold text-sm mb-4">{col.title}</div>
           <ul class="space-y-2.5">
             {col.links.map(l => (
-              <li><a href={l.href} class="text-text-muted text-sm hover:text-text-white transition-colors">{l.label}</a></li>
+              <li><a href={l.href} class="text-white/60 text-sm hover:text-white transition-colors">{l.label}</a></li>
             ))}
           </ul>
         </div>
       ))}
+
+      <div>
+        <div class="text-white font-semibold text-sm mb-4">Contact</div>
+        <ul class="space-y-2.5 text-white/60 text-sm">
+          {settings?.email && (
+            <li><a href={`mailto:${settings.email}`} class="hover:text-white transition-colors">{settings.email}</a></li>
+          )}
+          <li>{settings?.footerHours ?? 'Mon–Sat, replies within 24h'}</li>
+          <li>{settings?.footerAvailability ?? 'Working worldwide, remotely'}</li>
+        </ul>
+        <a href="/contact" class="inline-flex items-center gap-1.5 text-accent-light text-sm font-semibold mt-4 hover:underline">
+          Book a call →
+        </a>
+      </div>
     </div>
   </div>
 
-  <div class="border-t border-border">
-    <div class="container py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-text-muted">
-      <p>© {year} adnan.yt · Professional Video Editing Services</p>
+  {socials.length > 0 && (
+    <div class="flex items-center justify-center gap-3 pb-10">
+      {socials.map(({ key, url }) => (
+        <a
+          href={url} target="_blank" rel="noopener noreferrer" aria-label={key}
+          class="w-11 h-11 flex items-center justify-center rounded-pill bg-accent text-white hover:bg-accent-dark transition-colors"
+        >
+          <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d={iconPaths[key]} /></svg>
+        </a>
+      ))}
+    </div>
+  )}
+
+  <div class="overflow-hidden">
+    <div
+      aria-hidden="true"
+      class="pointer-events-none select-none text-center font-black leading-none whitespace-nowrap"
+      style={
+        'font-size: clamp(6rem, 26vw, 18rem); ' +
+        'background: linear-gradient(to bottom, rgba(255,255,255,0.16), rgba(255,255,255,0.02) 70%); ' +
+        '-webkit-background-clip: text; background-clip: text; color: transparent;'
+      }
+    >
+      adnan
+    </div>
+  </div>
+
+  <div class="border-t border-white/10">
+    <div class="container py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-white/50">
+      <p>© {year} adnan.yt. All rights reserved.</p>
       <div class="flex gap-4">
-        <a href="/privacy-policy" class="hover:text-text-white">Privacy</a>
-        <a href="/affiliate-disclosure" class="hover:text-text-white">Affiliate Disclosure</a>
+        <a href="/privacy-policy" class="hover:text-white transition-colors">Privacy Policy</a>
+        <a href="/terms-of-service" class="hover:text-white transition-colors">Terms of Service</a>
       </div>
     </div>
   </div>

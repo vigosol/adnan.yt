@@ -15,7 +15,7 @@ const { testimonial: t } = Astro.props as Props
   <div class="flex items-center gap-1 text-gold mb-3">
     {'★'.repeat(t.rating ?? 5)}
   </div>
-  <p class="text-text-muted text-sm leading-relaxed mb-4">"{t.quote}"</p>
+  <p class="text-text-muted text-base leading-6 mb-4">"{t.quote}"</p>
   <div class="flex items-center gap-3">
     {t.avatar && <img src={t.avatar} alt={t.name} class="w-9 h-9 rounded-full object-cover" />}
     <div>

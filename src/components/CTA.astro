@@ -4,30 +4,61 @@ interface CtaLink {
   href: string
 }
 interface Props {
+  badge?: string
   heading: string
+  highlightPhrase?: string
   subtext?: string
   primaryCta?: CtaLink
   secondaryCta?: CtaLink
 }
 const {
+  badge,
   heading,
+  highlightPhrase,
   subtext,
   primaryCta = { label: 'Get Your Free Quote →', href: '/contact' },
   secondaryCta,
 } = Astro.props as Props
+
+// Fixed dark banner — always this color regardless of the light/dark toggle,
+// same convention as the red Services/Testimonials sections.
+function splitHeading(text: string, phrase?: string) {
+  if (!phrase) return [{ text, accent: false }]
+  const idx = text.indexOf(phrase)
+  if (idx === -1) return [{ text, accent: false }]
+  return [
+    { text: text.slice(0, idx), accent: false },
+    { text: text.slice(idx, idx + phrase.length), accent: true },
+    { text: text.slice(idx + phrase.length), accent: false },
+  ].filter(part => part.text.length > 0)
+}
+const headingParts = splitHeading(heading, highlightPhrase)
 ---
 
-<section class="py-24 border-t border-border">
+<section class="bg-[#111827] py-24">
   <div class="container text-center">
     <div class="max-w-2xl mx-auto">
-      <h2 class="text-3xl md:text-4xl font-black text-text-white mb-4">{heading}</h2>
-      {subtext && <p class="text-text-muted mb-8">{subtext}</p>}
+      {badge && (
+        <span class="inline-block bg-white/10 border border-white/20 text-white text-xs font-normal px-3 py-1.5 rounded-full mb-5">
+          {badge}
+        </span>
+      )}
+      <h2 class="text-3xl md:text-4xl font-black text-white mb-4">
+        {headingParts.map(part => part.accent ? <span class="text-accent">{part.text}</span> : part.text)}
+      </h2>
+      {subtext && <p class="text-white/70 mb-8">{subtext}</p>}
       <div class="flex flex-col sm:flex-row gap-4 justify-center">
         {primaryCta && (
-          <a href={primaryCta.href} class="btn-primary text-base px-8 py-4">{primaryCta.label}</a>
+          primaryCta.href === '/contact' ? (
+            <button type="button" data-open-quote-modal class="btn-primary text-base px-8 py-3">{primaryCta.label}</button>
+          ) : (
+            <a href={primaryCta.href} class="btn-primary text-base px-8 py-3">{primaryCta.label}</a>
+          )
         )}
         {secondaryCta && (
-          <a href={secondaryCta.href} class="btn-secondary text-base px-8 py-4">{secondaryCta.label}</a>
+          <a href={secondaryCta.href} class="inline-flex items-center justify-center gap-2 border border-white/30 text-white font-semibold text-base px-8 py-3 rounded-btn hover:bg-white/10 transition-colors">
+            {secondaryCta.label}
+          </a>
         )}
       </div>
     </div>

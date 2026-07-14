@@ -1,0 +1,98 @@
+---
+interface Props {
+  badge?: string
+  heading?: string
+  highlightPhrase?: string
+  subtitle?: string
+  placeholder?: string
+  buttonLabel?: string
+  disclaimer?: string
+}
+const {
+  badge = 'Newsletter',
+  heading = 'Sharper videos, straight to your inbox.',
+  highlightPhrase = 'your inbox.',
+  subtitle = 'One email a month with editing tips, retention insights, and behind-the-scenes breakdowns of real projects.',
+  placeholder = 'Enter your email address',
+  buttonLabel = 'Subscribe →',
+  disclaimer = 'No spam, unsubscribe anytime.',
+} = Astro.props as Props
+
+function splitHeading(text: string, phrase?: string) {
+  if (!phrase) return [{ text, accent: false }]
+  const idx = text.indexOf(phrase)
+  if (idx === -1) return [{ text, accent: false }]
+  return [
+    { text: text.slice(0, idx), accent: false },
+    { text: text.slice(idx, idx + phrase.length), accent: true },
+    { text: text.slice(idx + phrase.length), accent: false },
+  ].filter(part => part.text.length > 0)
+}
+const headingParts = splitHeading(heading, highlightPhrase)
+---
+
+<section>
+  <div class="container md:border-x md:border-border-light md:px-0">
+    <div class="px-6 md:px-8 py-16 md:py-20 text-center max-w-2xl mx-auto">
+      <span class="inline-block border border-border-light rounded-full text-xs font-normal px-3 py-1 text-text-muted mb-4">{badge}</span>
+      <h2 class="text-3xl md:text-4xl font-bold text-text-white mb-3">
+        {headingParts.map(part => part.accent ? <span class="text-accent">{part.text}</span> : part.text)}
+      </h2>
+      <p class="text-text-muted mb-8">{subtitle}</p>
+
+      <form id="newsletter-form" class="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+        <input
+          type="email" name="email" id="newsletter-email" required
+          placeholder={placeholder}
+          class="input flex-1"
+        />
+        <button type="submit" id="newsletter-submit" class="btn-primary shrink-0 justify-center">{buttonLabel}</button>
+      </form>
+      <p id="newsletter-status" class="text-sm mt-3 hidden" role="status"></p>
+      {disclaimer && <p class="text-text-muted text-xs mt-3">{disclaimer}</p>}
+    </div>
+  </div>
+</section>
+
+<script>
+  const form = document.getElementById('newsletter-form') as HTMLFormElement
+  const submitBtn = document.getElementById('newsletter-submit') as HTMLButtonElement
+  const status = document.getElementById('newsletter-status') as HTMLParagraphElement
+  const defaultLabel = submitBtn?.textContent ?? 'Subscribe →'
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault()
+
+    const email = (document.getElementById('newsletter-email') as HTMLInputElement).value
+
+    submitBtn.disabled = true
+    submitBtn.textContent = 'Subscribing...'
+    status.classList.add('hidden')
+
+    try {
+      const res = await fetch('/api/newsletter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      })
+      const result = await res.json()
+
+      status.classList.remove('hidden')
+      if (result.success) {
+        status.textContent = "You're in! Check your inbox for a welcome email."
+        status.className = 'text-sm mt-3 text-success'
+        form.reset()
+      } else {
+        status.textContent = result.error ?? 'Something went wrong. Please try again.'
+        status.className = 'text-sm mt-3 text-error'
+      }
+    } catch {
+      status.classList.remove('hidden')
+      status.textContent = 'Network error — please check your connection and try again.'
+      status.className = 'text-sm mt-3 text-error'
+    } finally {
+      submitBtn.disabled = false
+      submitBtn.textContent = defaultLabel
+    }
+  })
+</script>
