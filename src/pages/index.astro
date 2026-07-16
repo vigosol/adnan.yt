@@ -215,12 +215,12 @@ const faqSchema = {
   />
 
   <!-- ══ ABOUT TEASER ═══════════════════════════════════════════════ -->
-  <Spacer />
+  <Spacer borderTop borderBottom />
   <AboutTeaser quote={aboutTeaser.quote} ctaLabel={aboutTeaser.ctaLabel} />
 
   <!-- ══ METRICS ═══════════════════════════════════════════════════ -->
   <Metrics stats={trustStats} />
-  <Spacer />
+  <Spacer borderBottom />
 
   <!-- ══ SERVICES ═══════════════════════════════════════════════════ -->
   <ServicesShowcase
@@ -299,9 +299,9 @@ const faqSchema = {
   />
 
   <!-- ══ FAQs ═══════════════════════════════════════════════════════ -->
-  <Spacer borderTop />
+  <Spacer borderTop borderBottom />
   <section>
-    <div class="container md:border-x md:border-t md:border-border-light md:px-0">
+    <div class="container md:border-x md:border-border-light md:px-0">
       <div class="px-6 md:pl-[30px] md:pr-8 py-10 md:py-14">
         <span class="inline-block border border-border-light rounded-full text-xs font-normal px-3 py-1 text-text-muted mb-4">FAQs</span>
         <h2 class="text-4xl md:text-5xl font-bold text-text-white max-w-[800px]">Frequently Asked Questions</h2>

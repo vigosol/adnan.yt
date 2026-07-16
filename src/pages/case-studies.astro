@@ -2,6 +2,7 @@
 import MainLayout from '../layouts/MainLayout.astro'
 import CaseStudyCard from '../components/CaseStudyCard.astro'
 import CTA from '../components/CTA.astro'
+import PageHeroBackground from '../components/PageHeroBackground.astro'
 import { fetchSanity } from '../lib/sanity'
 import { CASE_STUDY_LIST_QUERY } from '../lib/queries'
 import { breadcrumbSchema } from '../lib/breadcrumbs'
@@ -17,14 +18,18 @@ const platforms = ['All', ...new Set((items ?? []).map((i: any) => i.platform).f
   schema={breadcrumbSchema([{ name: 'Home', url: '/' }, { name: 'Case Studies', url: '/case-studies' }])}
 >
 
-  <section class="py-20 border-b border-border text-center">
-    <div class="container max-w-2xl">
-      <h1 class="text-4xl md:text-5xl font-black text-text-white mb-4 tracking-tight">
-        Case <span class="text-gradient">Studies</span>
-      </h1>
-      <p class="text-text-muted text-lg leading-relaxed">
-        The problem, the solution, the results — the full story behind real projects.
-      </p>
+  <section class="relative overflow-hidden">
+    <PageHeroBackground />
+    <div class="container md:border-x md:border-border-light md:px-0 min-h-[300px] md:min-h-[400px] flex flex-col justify-center">
+      <div class="px-6 md:pl-[30px] md:pr-8 py-10 md:py-14">
+        <span class="inline-block border border-border-light rounded-full text-xs font-normal px-3 py-1 text-text-muted mb-4">Case Studies</span>
+        <h1 class="text-4xl md:text-5xl font-bold text-text-white mb-3 max-w-[800px]">
+          Case <span class="text-accent">Studies</span>
+        </h1>
+        <p class="text-text-muted text-lg max-w-[800px]">
+          The problem, the solution, the results — the full story behind real projects.
+        </p>
+      </div>
     </div>
   </section>
 

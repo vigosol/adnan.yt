@@ -1,14 +1,24 @@
 ---
 import MainLayout from '../layouts/MainLayout.astro'
 import PortfolioCard from '../components/PortfolioCard.astro'
+import Metrics from '../components/Metrics.astro'
+import Spacer from '../components/Spacer.astro'
 import CTA from '../components/CTA.astro'
+import PageHeroBackground from '../components/PageHeroBackground.astro'
 import { fetchSanity } from '../lib/sanity'
 import { PORTFOLIO_LIST_QUERY } from '../lib/queries'
 import { breadcrumbSchema } from '../lib/breadcrumbs'
 
 const items = await fetchSanity<any[]>(PORTFOLIO_LIST_QUERY)
 
-const platforms = ['All', ...new Set((items ?? []).map((i: any) => i.platform).filter(Boolean))]
+// Filter tabs mirror each card's own service badge, not the platform.
+const formats = ['All', ...new Set((items ?? []).map((i: any) => i.service).filter(Boolean))]
+
+const stats = [
+  { val: '350+', label: 'Videos delivered' },
+  { val: '48M+', label: 'Combined views on client videos' },
+  { val: '40+', label: 'Creators & brands served' },
+]
 ---
 
 <MainLayout
@@ -17,66 +27,116 @@ const platforms = ['All', ...new Set((items ?? []).map((i: any) => i.platform).f
   schema={breadcrumbSchema([{ name: 'Home', url: '/' }, { name: 'Portfolio', url: '/portfolio' }])}
 >
 
-  <section class="py-20 border-b border-border text-center">
-    <div class="container max-w-2xl">
-      <h1 class="text-4xl md:text-5xl font-black text-text-white mb-4 tracking-tight">
-        <span class="text-gradient">Portfolio</span>
-      </h1>
-      <p class="text-text-muted text-lg leading-relaxed">
-        Real edits, real clients, real results. Looking for the full story behind a project? Check out the <a href="/case-studies" class="text-accent-light hover:underline">Case Studies</a>.
-      </p>
+  <section class="relative overflow-hidden">
+    <PageHeroBackground />
+    <div class="container md:border-x md:border-border-light md:px-0 min-h-[300px] md:min-h-[400px] flex flex-col justify-center">
+      <div class="px-6 md:pl-[30px] md:pr-8 py-10 md:py-14">
+        <span class="inline-block border border-border-light rounded-full text-xs font-normal px-3 py-1 text-text-muted mb-4">Portfolio</span>
+        <h1 class="text-4xl md:text-5xl font-bold text-text-white mb-3 max-w-[800px]">
+          Every edit, built to keep people <span class="text-accent">watching.</span>
+        </h1>
+        <p class="text-text-muted text-lg max-w-[800px]">
+          The full archive — long form, shorts, motion graphics, podcasts, and commercials. Filter by format to see what works like yours. Looking for the full story behind a project? Check out the <a href="/case-studies" class="text-accent underline">Case Studies</a>.
+        </p>
+      </div>
     </div>
   </section>
 
-  <section class="py-20 border-b border-border">
-    <div class="container">
+  <Metrics stats={stats} />
+  <Spacer borderBottom />
+
+  <section>
+    <div class="container md:border-x md:border-border-light md:px-0 px-6 md:px-[30px] py-10 md:py-14">
       {items?.length ? (
         <>
-          {platforms.length > 2 && (
-            <div class="flex flex-wrap gap-2 justify-center mb-10" id="portfolio-filters">
-              {platforms.map((p, i) => (
-                <button
-                  type="button"
-                  data-filter={p}
-                  class={`px-4 py-2 rounded-pill text-sm font-medium border border-border transition-colors ${i === 0 ? 'bg-accent text-white border-accent' : 'text-text-muted hover:text-text-white hover:border-border-light'}`}
-                >
-                  {p}
-                </button>
-              ))}
-            </div>
-          )}
+          <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+            {formats.length > 2 && (
+              <div class="flex flex-wrap gap-2" id="portfolio-filters">
+                {formats.map((f, i) => (
+                  <button
+                    type="button"
+                    data-filter={f}
+                    class={`px-4 py-2 rounded-[4px] text-sm font-medium border border-border transition-colors ${i === 0 ? 'bg-accent text-white border-accent' : 'text-text-muted hover:text-text-white hover:border-border-light'}`}
+                  >
+                    {f}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            <p class="text-text-muted text-sm shrink-0" id="portfolio-count">{items.length} projects</p>
+          </div>
 
           <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-5" id="portfolio-grid">
             {items.map((item: any) => (
-              <div data-platform={item.platform ?? 'All'}>
+              <div data-format={item.service ?? 'All'}>
                 <PortfolioCard item={item} />
               </div>
             ))}
           </div>
+
+          <div class="flex justify-center mt-10">
+            <button type="button" id="portfolio-load-more" class="btn-secondary px-6">Load More Projects</button>
+          </div>
         </>
       ) : (
-        <p class="text-text-muted text-center">
+        <p class="text-text-muted text-center py-10">
           Portfolio items will appear here once added in Sanity Studio.
         </p>
       )}
     </div>
   </section>
 
+  <Spacer borderTop />
   <CTA
-    heading="Want Results Like These?"
-    subtext="Tell me about your project and get a free quote within 24 hours."
-    primaryCta={{ label: 'Get a Free Quote →', href: '/contact' }}
+    badge="🔥 Limited slots each month"
+    heading="Ready to Elevate Your Videos?"
+    highlightPhrase="Your Videos?"
+    subtext="Let's talk about your project. Free quote, no obligation."
+    primaryCta={{ label: 'Get Your Free Quote →', href: '/contact' }}
+    secondaryCta={{ label: 'View Pricing', href: '/pricing' }}
   />
 
 </MainLayout>
 
 <script>
+  const INITIAL_COUNT = 12
+  const ROWS_PER_LOAD = 2
+
+  // Grid is 2 cols on mobile, 4 cols at the md breakpoint — match that so
+  // "2 more rows" reveals the right number of cards at any screen size.
+  const mdQuery = window.matchMedia('(min-width: 768px)')
+  function currentColumns() {
+    return mdQuery.matches ? 4 : 2
+  }
+
   const filterBtns = document.querySelectorAll<HTMLButtonElement>('#portfolio-filters [data-filter]')
-  const cards = document.querySelectorAll<HTMLElement>('#portfolio-grid [data-platform]')
+  const cards = document.querySelectorAll<HTMLElement>('#portfolio-grid [data-format]')
+  const countEl = document.getElementById('portfolio-count')
+  const loadMoreBtn = document.getElementById('portfolio-load-more') as HTMLButtonElement | null
+
+  let currentFilter = 'All'
+  let visibleCount = INITIAL_COUNT
+
+  function getMatching() {
+    return Array.from(cards).filter(card => currentFilter === 'All' || card.dataset.format === currentFilter)
+  }
+
+  function render() {
+    const matching = getMatching()
+    cards.forEach(card => card.classList.add('hidden'))
+    matching.forEach((card, i) => {
+      if (i < visibleCount) card.classList.remove('hidden')
+    })
+
+    if (countEl) countEl.textContent = `${matching.length} project${matching.length === 1 ? '' : 's'}`
+    loadMoreBtn?.classList.toggle('hidden', visibleCount >= matching.length)
+  }
 
   filterBtns.forEach(btn => {
     btn.addEventListener('click', () => {
-      const filter = btn.dataset.filter
+      currentFilter = btn.dataset.filter ?? 'All'
+      visibleCount = INITIAL_COUNT
 
       filterBtns.forEach(b => {
         b.classList.remove('bg-accent', 'text-white', 'border-accent')
@@ -85,10 +145,14 @@ const platforms = ['All', ...new Set((items ?? []).map((i: any) => i.platform).f
       btn.classList.add('bg-accent', 'text-white', 'border-accent')
       btn.classList.remove('text-text-muted', 'hover:text-text-white', 'hover:border-border-light')
 
-      cards.forEach(card => {
-        const show = filter === 'All' || card.dataset.platform === filter
-        card.classList.toggle('hidden', !show)
-      })
+      render()
     })
   })
+
+  loadMoreBtn?.addEventListener('click', () => {
+    visibleCount += currentColumns() * ROWS_PER_LOAD
+    render()
+  })
+
+  render()
 </script>

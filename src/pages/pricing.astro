@@ -1,6 +1,7 @@
 ---
 import MainLayout from '../layouts/MainLayout.astro'
-import PricingCard from '../components/PricingCard.astro'
+import PricingShowcase from '../components/PricingShowcase.astro'
+import Spacer from '../components/Spacer.astro'
 import FAQ from '../components/FAQ.astro'
 import CTA from '../components/CTA.astro'
 import { fetchSanity } from '../lib/sanity'
@@ -32,12 +33,18 @@ const packages = pricingPage?.packages?.length ? pricingPage.packages : [
   },
 ]
 
+const packagesWithCta = packages.map((pkg: any) => ({
+  ...pkg,
+  ctaLabel: pkg.price === 'Custom' ? 'Get a Custom Quote' : 'Get Started',
+}))
+
 const addOns = pricingPage?.addOns?.length ? pricingPage.addOns : [
-  { name: 'Extra Revision', price: '+$25', description: 'One additional round beyond what\'s included.' },
-  { name: 'Rush Delivery (12h)', price: '+$40', description: 'Move to the front of the queue.' },
-  { name: 'Custom Thumbnail', price: '+$15', description: 'A scroll-stopping thumbnail designed for your video.' },
-  { name: 'Motion Graphics Intro', price: '+$30', description: 'A branded animated intro for your channel.' },
-  { name: 'Multi-Platform Resize', price: '+$20', description: 'Reformatted for Shorts, Reels, and TikTok.' },
+  { name: 'Custom Thumbnails', price: '$29 /thumbnail', description: 'Scroll-stopping thumbnail design with A/B variants, matched to your channel branding.' },
+  { name: 'Rush Delivery', price: '+40%', description: 'Jump the queue. Guaranteed 24–48h turnaround for time-sensitive launches and trends.' },
+  { name: 'Subtitles & Localization', price: '$19 /language', description: 'Accurate captions plus translated subtitle tracks to open your content to new markets.' },
+  { name: 'Content Strategy Call', price: '$99 /session', description: '60-minute session on packaging, titles, and retention data — with a written action plan.' },
+  { name: 'Channel Audit', price: '$149 one-off', description: "Deep review of your last 10 videos: hooks, pacing, and drop-off points, with fixes ranked by impact." },
+  { name: 'Raw Footage Cleanup', price: '$49 /hour of footage', description: 'Sync, organize, and pre-cut multicam or messy footage so every future edit starts faster.' },
 ]
 
 const faqs = pricingPage?.faqs?.length ? pricingPage.faqs : [
@@ -46,6 +53,26 @@ const faqs = pricingPage?.faqs?.length ? pricingPage.faqs : [
   { question: 'Do you require payment upfront?', answer: "Typically 50% upfront and 50% on delivery for new clients. We can discuss what works for your project." },
   { question: "What if my project doesn't fit a package?", answer: "Most projects do, but if yours is unique, just describe it in the contact form and I'll send a custom quote." },
 ]
+
+// Cycled by index — matches the ServiceShowcase/ProcessSection fallback-icon
+// convention, no per-add-on icon field needed in Sanity.
+const ADDON_ICONS = [
+  '<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21" stroke-linecap="round" stroke-linejoin="round"/>',
+  '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3" stroke-linecap="round" stroke-linejoin="round"/>',
+  '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 15h4M13 15h4M7 11h10" stroke-linecap="round"/>',
+  '<path d="M4 5h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H9l-5 4v-4H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z" stroke-linecap="round" stroke-linejoin="round"/>',
+  '<circle cx="10.5" cy="10.5" r="6.5"/><path d="M20 20l-4.35-4.35" stroke-linecap="round"/>',
+  '<path d="M3 12h4l2-7 4 14 2-7h6" stroke-linecap="round" stroke-linejoin="round"/>',
+]
+
+function cellClasses(i: number, total: number) {
+  const isOverallLast = i === total - 1
+  const isLastRowDesktop = i >= total - 3
+  return [
+    !isOverallLast && 'border-b border-border-light',
+    isLastRowDesktop && 'md:border-b-0',
+  ].filter(Boolean).join(' ')
+}
 
 // JSON-LD — Product/Offer schema for each fixed-price package
 const numericPackages = packages.filter((p: any) => /^\$[\d,.]+$/.test(p.price))
@@ -69,51 +96,41 @@ const pricingSchema = numericPackages.map((p: any) => ({
   schema={[...pricingSchema, breadcrumbSchema([{ name: 'Home', url: '/' }, { name: 'Pricing', url: '/pricing' }])]}
 >
 
-  <section class="py-20 border-b border-border text-center">
-    <div class="container max-w-2xl">
-      <h1 class="text-4xl md:text-5xl font-black text-text-white mb-4 tracking-tight">
-        Simple, Transparent <span class="text-gradient">Pricing</span>
-      </h1>
-      <p class="text-text-muted text-lg leading-relaxed">
-        Pick the package that fits your workflow, or get a custom quote for something different.
-      </p>
-    </div>
-  </section>
-
-  <!-- ══ PACKAGES ═══════════════════════════════════════════════════ -->
-  <section class="py-20 border-b border-border">
-    <div class="container">
-      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {packages.map((pkg: any) => (
-          <PricingCard
-            title={pkg.title}
-            price={pkg.price}
-            period={pkg.period}
-            description={pkg.description}
-            features={pkg.features}
-            featured={pkg.featured}
-            ctaLabel={pkg.price === 'Custom' ? 'Get a Custom Quote' : 'Get Started'}
-          />
-        ))}
-      </div>
-    </div>
-  </section>
+  <PricingShowcase
+    badge="Pricing"
+    heading="Simple, Transparent Pricing"
+    subtitle="Pick the package that fits your workflow, or get a custom quote for something different."
+    packages={packagesWithCta}
+    showHeroBackground={true}
+  />
 
   <!-- ══ ADD-ONS ════════════════════════════════════════════════════ -->
-  <section class="py-20 border-b border-border bg-bg-1">
-    <div class="container">
-      <h2 class="section-heading">Add-ons</h2>
-      <p class="text-text-muted mb-12 max-w-xl">
-        Extend any package with these à la carte options.
-      </p>
-      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-        {addOns.map((addOn: any) => (
-          <div class="card">
-            <div class="flex items-start justify-between gap-3 mb-2">
-              <h3 class="font-bold text-text-white">{addOn.name}</h3>
-              <span class="text-accent font-semibold text-sm whitespace-nowrap">{addOn.price}</span>
+  <Spacer borderTop borderBottom />
+  <section>
+    <div class="container md:border-x md:border-border-light md:px-0">
+      <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-6 px-6 md:pl-[30px] md:pr-8 py-10 md:py-14">
+        <div>
+          <span class="inline-block border border-border-light rounded-full text-xs font-normal px-3 py-1 text-text-muted mb-4">Add-ons</span>
+          <h2 class="text-4xl md:text-5xl font-bold text-text-white max-w-[800px]">
+            Extras that make videos <span class="text-accent">work harder.</span>
+          </h2>
+        </div>
+        <p class="text-text-muted text-lg max-w-sm md:pt-2">
+          Stack any add-on onto a single edit or your monthly package.
+        </p>
+      </div>
+
+      <div class="border-t border-border-light grid grid-cols-1 md:grid-cols-3 md:gap-x-px md:bg-border-light">
+        {addOns.map((addOn: any, i: number) => (
+          <div class={`p-8 bg-bg-1 ${cellClasses(i, addOns.length)}`}>
+            <div class="flex items-start justify-between mb-6">
+              <div class="w-11 h-11 rounded-lg bg-bg-2 flex items-center justify-center text-accent">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" set:html={ADDON_ICONS[i % ADDON_ICONS.length]} />
+              </div>
+              <span class="text-accent font-bold text-sm whitespace-nowrap">{addOn.price}</span>
             </div>
-            <p class="text-text-muted text-base">{addOn.description}</p>
+            <h3 class="font-bold text-text-white mb-2">{addOn.name}</h3>
+            <p class="text-text-muted text-base leading-6">{addOn.description}</p>
           </div>
         ))}
       </div>
@@ -121,9 +138,13 @@ const pricingSchema = numericPackages.map((p: any) => ({
   </section>
 
   <!-- ══ FAQs ═══════════════════════════════════════════════════════ -->
-  <section class="py-20 border-b border-border">
-    <div class="container max-w-2xl">
-      <h2 class="section-heading">Pricing FAQs</h2>
+  <Spacer borderTop />
+  <section>
+    <div class="container md:border-x md:border-t md:border-border-light md:px-0">
+      <div class="px-6 md:pl-[30px] md:pr-8 py-10 md:py-14">
+        <span class="inline-block border border-border-light rounded-full text-xs font-normal px-3 py-1 text-text-muted mb-4">FAQs</span>
+        <h2 class="text-4xl md:text-5xl font-bold text-text-white max-w-[800px]">Frequently Asked Questions</h2>
+      </div>
       <FAQ items={faqs} />
     </div>
   </section>

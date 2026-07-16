@@ -2,6 +2,8 @@
 import MainLayout from '../layouts/MainLayout.astro'
 import ServiceCard from '../components/ServiceCard.astro'
 import CTA from '../components/CTA.astro'
+import PageHeroBackground from '../components/PageHeroBackground.astro'
+import Spacer from '../components/Spacer.astro'
 import { fetchSanity } from '../lib/sanity'
 import { SERVICES_LIST_QUERY } from '../lib/queries'
 import { breadcrumbSchema } from '../lib/breadcrumbs'
@@ -26,17 +28,22 @@ const list = services?.length ? services : fallbackServices
   schema={breadcrumbSchema([{ name: 'Home', url: '/' }, { name: 'Services', url: '/services' }])}
 >
 
-  <section class="py-20 border-b border-border text-center">
-    <div class="container max-w-2xl">
-      <h1 class="text-4xl md:text-5xl font-black text-text-white mb-4 tracking-tight">
-        Video Editing <span class="text-gradient">Services</span>
-      </h1>
-      <p class="text-text-muted text-lg leading-relaxed">
-        From raw footage to publish-ready — pick the service that fits your project.
-      </p>
+  <section class="relative overflow-hidden">
+    <PageHeroBackground />
+    <div class="container md:border-x md:border-border-light md:px-0 min-h-[300px] md:min-h-[400px] flex flex-col justify-center">
+      <div class="px-6 md:pl-[30px] md:pr-8 py-10 md:py-14">
+        <span class="inline-block border border-border-light rounded-full text-xs font-normal px-3 py-1 text-text-muted mb-4">Services</span>
+        <h1 class="text-4xl md:text-5xl font-bold text-text-white mb-3 max-w-[800px]">
+          Video Editing <span class="text-accent">Services</span>
+        </h1>
+        <p class="text-text-muted text-lg max-w-[800px]">
+          From raw footage to publish-ready — pick the service that fits your project.
+        </p>
+      </div>
     </div>
   </section>
 
+  <Spacer borderTop borderBottom />
   <section class="py-20 border-b border-border">
     <div class="container">
       <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">

@@ -2,6 +2,8 @@
 import MainLayout from '../../layouts/MainLayout.astro'
 import FAQ from '../../components/FAQ.astro'
 import CTA from '../../components/CTA.astro'
+import PageHeroBackground from '../../components/PageHeroBackground.astro'
+import Spacer from '../../components/Spacer.astro'
 import { fetchSanity } from '../../lib/sanity'
 import { SERVICES_LIST_QUERY, SERVICE_BY_SLUG_QUERY } from '../../lib/queries'
 import { breadcrumbSchema } from '../../lib/breadcrumbs'
@@ -59,18 +61,22 @@ const breadcrumbs = breadcrumbSchema([
 >
 
   <!-- ══ HEADER ═════════════════════════════════════════════════════ -->
-  <section class="py-20 border-b border-border">
-    <div class="container max-w-3xl">
-      <a href="/services" class="text-accent-light text-sm font-semibold hover:underline">← All Services</a>
-      <h1 class="text-4xl md:text-5xl font-black text-text-white mt-4 mb-4 tracking-tight">
-        {service.icon && <span class="mr-2">{service.icon}</span>}{service.title}
-      </h1>
-      {service.shortDescription && (
-        <p class="text-text-muted text-lg leading-relaxed">{service.shortDescription}</p>
-      )}
+  <section class="relative overflow-hidden">
+    <PageHeroBackground />
+    <div class="container md:border-x md:border-border-light md:px-0 min-h-[300px] md:min-h-[400px] flex flex-col justify-center">
+      <div class="px-6 md:pl-[30px] md:pr-8 py-10 md:py-14">
+        <a href="/services" class="text-accent-light text-sm font-semibold hover:underline">← All Services</a>
+        <h1 class="text-4xl md:text-5xl font-bold text-text-white mt-4 mb-3 max-w-[800px]">
+          {service.icon && <span class="mr-2">{service.icon}</span>}{service.title}
+        </h1>
+        {service.shortDescription && (
+          <p class="text-text-muted text-lg max-w-[800px]">{service.shortDescription}</p>
+        )}
+      </div>
     </div>
   </section>
 
+  <Spacer borderTop borderBottom />
   <section class="py-20 border-b border-border">
     <div class="container grid lg:grid-cols-[1fr_360px] gap-12">
       <div>

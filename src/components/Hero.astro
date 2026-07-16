@@ -84,9 +84,9 @@ const embedUrl = youtubeId ? `https://www.youtube.com/embed/${youtubeId}?autopla
   </div>
 
   {thumbnailSrc && (
-    <div id="reel" class="container md:border-x md:border-border-light md:px-0">
+    <div id="reel" class="container md:border-x md:border-border-light md:px-0 pb-16 md:pb-24">
       <div
-        class="relative max-w-[1280px] mx-auto overflow-hidden bg-bg-2 shadow-[0_4px_6px_-2px_rgba(18,26,43,0.1),0_2px_4px_-2px_rgba(18,26,43,0.06)] scroll-mt-24"
+        class="relative max-w-[960px] mx-auto overflow-hidden bg-bg-2 shadow-[0_4px_6px_-2px_rgba(18,26,43,0.1),0_2px_4px_-2px_rgba(18,26,43,0.06)] scroll-mt-24"
         data-reel-player
         data-embed-url={embedUrl ?? ''}
       >
@@ -94,7 +94,7 @@ const embedUrl = youtubeId ? `https://www.youtube.com/embed/${youtubeId}?autopla
         <div class="absolute inset-0 bg-black/15"></div>
         {embedUrl ? (
           <button type="button" class="absolute inset-0 flex items-center justify-center group cursor-pointer" aria-label="Play the reel" data-reel-play>
-            <img src="/play-btn.svg" alt="" class="w-[90px] h-[90px] md:w-[142px] md:h-[142px] drop-shadow-lg group-hover:scale-105 transition-transform" />
+            <img src="/play-btn.svg" alt="" class="w-[68px] h-[68px] md:w-[107px] md:h-[107px] drop-shadow-lg group-hover:scale-105 transition-transform" />
           </button>
         ) : reelVideoUrl ? (
           <a
@@ -104,7 +104,7 @@ const embedUrl = youtubeId ? `https://www.youtube.com/embed/${youtubeId}?autopla
             class="absolute inset-0 flex items-center justify-center group cursor-pointer"
             aria-label="Play the reel"
           >
-            <img src="/play-btn.svg" alt="" class="w-[90px] h-[90px] md:w-[142px] md:h-[142px] drop-shadow-lg group-hover:scale-105 transition-transform" />
+            <img src="/play-btn.svg" alt="" class="w-[68px] h-[68px] md:w-[107px] md:h-[107px] drop-shadow-lg group-hover:scale-105 transition-transform" />
           </a>
         ) : null}
       </div>

@@ -1,4 +1,7 @@
 ---
+import PageHeroBackground from './PageHeroBackground.astro'
+import Spacer from './Spacer.astro'
+
 interface Package {
   title: string
   description?: string
@@ -22,6 +25,7 @@ interface Props {
   subtitle?: string
   packages: Package[]
   helpPanel?: HelpPanel
+  showHeroBackground?: boolean
 }
 const {
   badge = 'Pricing',
@@ -29,6 +33,7 @@ const {
   subtitle = 'Transparent pricing. No hidden costs. Just results.',
   packages,
   helpPanel = {},
+  showHeroBackground = false,
 } = Astro.props as Props
 
 const {
@@ -39,17 +44,36 @@ const {
   block2Subtext = 'Free quote, no obligation.',
   block2CtaLabel = 'Get Quote',
 } = helpPanel
+
+// Packages + the help panel share one row — homepage passes 2 packages (3
+// cols total), the standalone /pricing page passes 3 (4 cols total). Needs
+// a static lookup so Tailwind's build-time scanner can see the literal class.
+const totalCols = packages.length + 1
+const colsClass: Record<number, string> = {
+  2: 'md:grid-cols-2',
+  3: 'md:grid-cols-3',
+  4: 'md:grid-cols-4',
+  5: 'md:grid-cols-5',
+}
+const gridColsClass = colsClass[totalCols] ?? 'md:grid-cols-3'
 ---
 
 <section>
   <div class="container md:border-x md:border-border-light md:px-0">
-    <div class="px-6 md:pl-[30px] md:pr-8 py-10 md:py-14">
-      <span class="inline-block border border-border-light rounded-full text-xs font-normal px-3 py-1 text-text-muted mb-4">{badge}</span>
-      <h2 class="text-4xl md:text-5xl font-bold text-text-white mb-3 max-w-[800px]">{heading}</h2>
-      {subtitle && <p class="text-text-muted text-lg">{subtitle}</p>}
+    <div class={`relative overflow-hidden ${showHeroBackground ? 'min-h-[300px] md:min-h-[400px] flex flex-col justify-center' : ''}`}>
+      {showHeroBackground && <PageHeroBackground />}
+      <div class="px-6 md:pl-[30px] md:pr-8 py-10 md:py-14">
+        <span class="inline-block border border-border-light rounded-full text-xs font-normal px-3 py-1 text-text-muted mb-4">{badge}</span>
+        <h2 class="text-4xl md:text-5xl font-bold text-text-white mb-3 max-w-[800px]">{heading}</h2>
+        {subtitle && <p class="text-text-muted text-lg">{subtitle}</p>}
+      </div>
     </div>
+  </div>
 
-    <div class="border-t border-border-light grid grid-cols-1 md:grid-cols-3 md:divide-x md:divide-border-light">
+  {showHeroBackground && <Spacer borderTop borderBottom />}
+
+  <div class="container md:border-x md:border-border-light md:px-0">
+    <div class={`${showHeroBackground ? '' : 'border-t border-border-light'} grid grid-cols-1 ${gridColsClass} md:divide-x md:divide-border-light`}>
       {packages.map(pkg => (
         <div class={`p-8 md:p-10 flex flex-col border-b md:border-b-0 border-border-light ${pkg.featured ? 'bg-accent' : 'bg-bg-1'}`}>
           <div class="flex items-center gap-2 mb-2">

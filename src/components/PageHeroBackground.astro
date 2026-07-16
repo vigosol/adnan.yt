@@ -1,0 +1,43 @@
+---
+// Subtle grid-line + gradient glow background for a page's top hero/header
+// block. Drop it as the first child inside a `relative overflow-hidden`
+// section — it's purely decorative (absolutely positioned, -z-10) and
+// doesn't require any text-color changes in the section using it.
+---
+
+<div class="page-hero-grid container md:px-0 absolute inset-0 -z-10 h-full" aria-hidden="true"></div>
+<div class="page-hero-glow absolute inset-0 -z-10" aria-hidden="true"></div>
+
+<style>
+  .page-hero-grid {
+    background-image:
+      linear-gradient(to right, var(--color-border-light) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--color-border-light) 1px, transparent 1px);
+    background-size: 64px 64px;
+    background-position: 0 0;
+    opacity: 0.35;
+    mask-image: linear-gradient(to bottom, black, transparent);
+    -webkit-mask-image: linear-gradient(to bottom, black, transparent);
+  }
+
+  .page-hero-glow {
+    background: radial-gradient(
+      ellipse 80% 60% at 50% -10%,
+      color-mix(in oklch, var(--color-accent) 12%, transparent),
+      transparent
+    );
+  }
+
+  /* Same intensity bump as the homepage Hero — a subtle light-mode glow
+     reads far fainter against a near-black dark-mode background. */
+  :root.dark .page-hero-grid {
+    opacity: 0.8;
+  }
+  :root.dark .page-hero-glow {
+    background: radial-gradient(
+      ellipse 80% 60% at 50% -10%,
+      color-mix(in oklch, var(--color-accent) 25%, transparent),
+      transparent
+    );
+  }
+</style>
