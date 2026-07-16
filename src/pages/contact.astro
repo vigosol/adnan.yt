@@ -1,6 +1,8 @@
 ---
 import MainLayout from '../layouts/MainLayout.astro'
 import FAQ from '../components/FAQ.astro'
+import PageHeroBackground from '../components/PageHeroBackground.astro'
+import Spacer from '../components/Spacer.astro'
 import { fetchSanity } from '../lib/sanity'
 import { SITE_SETTINGS_QUERY, CONTACT_PAGE_QUERY, SERVICES_LIST_QUERY } from '../lib/queries'
 import { breadcrumbSchema } from '../lib/breadcrumbs'
@@ -39,16 +41,22 @@ const faqs = contact?.faqs?.length ? contact.faqs : [
   schema={breadcrumbSchema([{ name: 'Home', url: '/' }, { name: 'Contact', url: '/contact' }])}
 >
 
-  <section class="py-20 border-b border-border">
-    <div class="container text-center max-w-2xl">
-      <h1 class="text-4xl md:text-5xl font-black text-text-white mb-4 tracking-tight">
-        {contactCopy.title} <span class="text-gradient">{contactCopy.highlight}</span>
-      </h1>
-      <p class="text-text-muted text-lg leading-relaxed">
-        {contactCopy.subtitle}
-      </p>
+  <section class="relative overflow-hidden">
+    <PageHeroBackground />
+    <div class="container md:border-x md:border-border-light md:px-0 min-h-[300px] md:min-h-[400px] flex flex-col justify-center">
+      <div class="px-6 md:pl-[30px] md:pr-8 py-10 md:py-14">
+        <span class="inline-block border border-border-light rounded-full text-xs font-normal px-3 py-1 text-text-muted mb-4">Contact</span>
+        <h1 class="text-4xl md:text-5xl font-bold text-text-white mb-3 tracking-tight max-w-[800px]">
+          {contactCopy.title} <span class="text-accent">{contactCopy.highlight}</span>
+        </h1>
+        <p class="text-text-muted text-lg max-w-[800px]">
+          {contactCopy.subtitle}
+        </p>
+      </div>
     </div>
   </section>
+
+  <Spacer borderTop borderBottom />
 
   <section class="py-20">
     <div class="container grid lg:grid-cols-[1fr_360px] gap-12">

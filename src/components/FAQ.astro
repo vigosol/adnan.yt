@@ -5,11 +5,12 @@ interface FaqItem {
 }
 interface Props {
   items: FaqItem[]
+  hideTopBorder?: boolean
 }
-const { items } = Astro.props as Props
+const { items, hideTopBorder = false } = Astro.props as Props
 ---
 
-<div class="border-t border-border-light">
+<div class:list={['border-border-light', !hideTopBorder && 'border-t']}>
   {items.map((item, i) => (
     <details
       class={`group faq-item border-border-light ${i < items.length - 1 ? 'border-b' : ''} ${i === 0 ? 'is-open' : ''}`}

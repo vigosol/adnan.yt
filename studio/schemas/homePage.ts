@@ -32,6 +32,10 @@ export default defineType({
       fields: [
         { name: "badge", type: "string", title: "Badge Text" },
         { name: "heading", type: "text", title: "Heading", rows: 2 },
+        {
+          name: "highlightPhrase", type: "string", title: "Highlighted Phrase",
+          description: "A word or phrase from the Heading above to color in accent red (must match exactly).",
+        },
         { name: "subtitle", type: "string", title: "Subtitle" },
         { name: "viewAllLabel", type: "string", title: "\"View All\" Link Label" },
         {
@@ -47,6 +51,10 @@ export default defineType({
       fields: [
         { name: "badge", type: "string", title: "Badge Text" },
         { name: "heading", type: "string", title: "Heading" },
+        {
+          name: "highlightPhrase", type: "string", title: "Highlighted Phrase",
+          description: "A word or phrase from the Heading above to color in accent red (must match exactly).",
+        },
         { name: "subtitle", type: "string", title: "Subtitle" },
         {
           name: "packages", title: "Pricing Packages (2 shown side by side)", type: "array",

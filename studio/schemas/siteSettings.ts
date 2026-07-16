@@ -28,6 +28,16 @@ export default defineType({
     }),
     defineField({ name: "enableWhatsapp", type: "boolean", title: "Show WhatsApp Button?", initialValue: true }),
     defineField({
+      name: "author", title: "Blog Author Profile", type: "object",
+      description: "Shown on blog post detail pages — this is a single-author blog, so it's one shared profile rather than a per-post field.",
+      fields: [
+        { name: "name", type: "string", title: "Name" },
+        { name: "role", type: "string", title: "Role / Tagline", description: "e.g. \"Video editor & retention nerd\"" },
+        { name: "bio", type: "text", title: "Bio", rows: 3 },
+        { name: "avatar", type: "image", title: "Avatar", options: { hotspot: true } },
+      ],
+    }),
+    defineField({
       name: "quoteModal", title: "Quote Modal", type: "object",
       description: "The 'Get a Free Quote' popup triggered by quote-related buttons across the site.",
       fields: [

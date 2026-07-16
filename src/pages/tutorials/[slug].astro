@@ -1,11 +1,13 @@
 ---
 import { toHTML } from '@portabletext/to-html'
 import MainLayout from '../../layouts/MainLayout.astro'
-import TutorialCard from '../../components/TutorialCard.astro'
-import PostNav from '../../components/PostNav.astro'
+import TutorialGridCard from '../../components/TutorialGridCard.astro'
 import CTA from '../../components/CTA.astro'
+import PageHeroBackground from '../../components/PageHeroBackground.astro'
+import PostNav from '../../components/PostNav.astro'
+import Spacer from '../../components/Spacer.astro'
 import { fetchSanity } from '../../lib/sanity'
-import { TUTORIAL_LIST_QUERY, TUTORIAL_BY_SLUG_QUERY, TUTORIAL_SLUGS_QUERY } from '../../lib/queries'
+import { TUTORIAL_LIST_QUERY, TUTORIAL_BY_SLUG_QUERY, TUTORIAL_SLUGS_QUERY, SITE_SETTINGS_QUERY } from '../../lib/queries'
 import { breadcrumbSchema } from '../../lib/breadcrumbs'
 
 export async function getStaticPaths() {
@@ -14,7 +16,11 @@ export async function getStaticPaths() {
 }
 
 const { slug } = Astro.params
-const tutorial = await fetchSanity<any>(TUTORIAL_BY_SLUG_QUERY, { slug })
+
+const [tutorial, settings] = await Promise.all([
+  fetchSanity<any>(TUTORIAL_BY_SLUG_QUERY, { slug }),
+  fetchSanity<any>(SITE_SETTINGS_QUERY),
+])
 
 if (!tutorial) return Astro.redirect('/tutorials')
 
@@ -23,10 +29,58 @@ const currentIndex = allSlugs.findIndex((t: any) => t.slug.current === slug)
 const prevTutorial = currentIndex > 0 ? allSlugs[currentIndex - 1] : null
 const nextTutorial = currentIndex >= 0 && currentIndex < allSlugs.length - 1 ? allSlugs[currentIndex + 1] : null
 
-const bodyHtml = tutorial.body ? toHTML(tutorial.body) : ''
+const author = {
+  name: settings?.author?.name ?? 'Adnan',
+  role: settings?.author?.role ?? 'Video editor & retention nerd',
+  bio: settings?.author?.bio ?? "Video editor working with YouTubers, founders, and brands. I write about the craft behind videos people actually finish.",
+  avatar: settings?.author?.avatar,
+}
+
+function slugify(text: string) {
+  return text.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+}
+function blockText(block: any) {
+  return (block.children ?? []).filter((c: any) => c._type === 'span').map((c: any) => c.text).join('')
+}
+
+const tocItems = (tutorial.body ?? [])
+  .filter((b: any) => b._type === 'block' && b.style === 'h2')
+  .map((b: any) => ({ text: blockText(b), id: slugify(blockText(b)) }))
+
+const bodyHtml = tutorial.body ? toHTML(tutorial.body, {
+  components: {
+    block: {
+      h2: ({ value, children }: any) => `<h2 id="${slugify(blockText(value))}">${children}</h2>`,
+    },
+  },
+}) : ''
+
+const WORDS_PER_MINUTE = 200
+function readingTime(bodyText?: string) {
+  const words = bodyText?.trim().split(/\s+/).filter(Boolean).length ?? 0
+  return Math.max(1, Math.round(words / WORDS_PER_MINUTE))
+}
+
+function splitHeading(text: string, phrase?: string) {
+  if (!phrase) return [{ text, accent: false }]
+  const idx = text.indexOf(phrase)
+  if (idx === -1) return [{ text, accent: false }]
+  return [
+    { text: text.slice(0, idx), accent: false },
+    { text: text.slice(idx, idx + phrase.length), accent: true },
+    { text: text.slice(idx + phrase.length), accent: false },
+  ].filter(part => part.text.length > 0)
+}
+const titleParts = splitHeading(tutorial.title, tutorial.titleHighlight)
+
 const date = tutorial.publishedAt
   ? new Date(tutorial.publishedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
   : null
+
+const canonicalUrl = Astro.url.href
+const shareText = tutorial.title
+const twitterShareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(canonicalUrl)}&text=${encodeURIComponent(shareText)}`
+const mailShareUrl = `mailto:?subject=${encodeURIComponent(shareText)}&body=${encodeURIComponent(canonicalUrl)}`
 
 const howToSchema = {
   '@context': 'https://schema.org',
@@ -49,53 +103,196 @@ const breadcrumbs = breadcrumbSchema([
   schema={[howToSchema, breadcrumbs]}
 >
 
-  <article class="py-20 border-b border-border">
-    <div class="container max-w-3xl">
-      <a href="/tutorials" class="text-accent-light text-sm font-semibold hover:underline">← All Tutorials</a>
+  <section class="relative overflow-hidden">
+    <PageHeroBackground />
+    <div class="container md:border-x md:border-border-light md:px-0 min-h-[300px] md:min-h-[400px] flex flex-col justify-center">
+      <div class="px-6 md:pl-[30px] md:pr-8 py-10 md:py-14">
+        <a href="/tutorials" class="text-accent-light text-sm font-semibold hover:underline">← All Tutorials</a>
 
-      <div class="flex items-center gap-3 mt-6 mb-4 text-sm text-text-muted">
-        {tutorial.category && <span class="badge-accent text-xs">{tutorial.category}</span>}
-        {tutorial.difficulty && <span class="badge text-xs bg-bg-2 border border-border">{tutorial.difficulty}</span>}
-        {date && <span>{date}</span>}
+        <div class="flex items-center gap-3 mt-6 mb-4 text-sm text-text-muted">
+          {tutorial.category && <span class="badge-accent text-xs">{tutorial.category}</span>}
+          {tutorial.difficulty && <span class="badge text-xs bg-bg-2 border border-border">{tutorial.difficulty}</span>}
+          {date && <span>{date}</span>}
+          {date && <span>&middot;</span>}
+          <span>{readingTime(tutorial.bodyText)} min read</span>
+        </div>
+
+        <h1 class="text-3xl md:text-4xl font-black text-text-white mb-6 tracking-tight max-w-[800px]">
+          {titleParts.map(part => part.accent ? <span class="text-accent">{part.text}</span> : part.text)}
+        </h1>
+
+        <div class="flex items-center gap-3">
+          {author.avatar ? (
+            <img src={author.avatar} alt={author.name} class="w-9 h-9 rounded-full object-cover" />
+          ) : (
+            <span class="w-9 h-9 rounded-full bg-bg-2 flex items-center justify-center text-text-white text-sm font-semibold">{author.name.charAt(0)}</span>
+          )}
+          <div>
+            <div class="text-text-white font-semibold text-sm">{author.name}</div>
+            <div class="text-text-muted text-xs">{author.role}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <Spacer borderTop borderBottom />
+
+  <section class="pt-16 pb-20">
+    <div class="container grid lg:grid-cols-[1fr_340px] gap-12">
+      <div>
+        {tutorial.youtubeVideoId ? (
+          <figure class="mb-10">
+            <div class="aspect-video overflow-hidden border border-border">
+              <iframe
+                src={`https://www.youtube.com/embed/${tutorial.youtubeVideoId}`}
+                class="w-full h-full" frameborder="0" allowfullscreen
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              />
+            </div>
+            {tutorial.imageCaption && (
+              <figcaption class="text-text-muted text-sm italic mt-3">{tutorial.imageCaption}</figcaption>
+            )}
+          </figure>
+        ) : tutorial.thumbnail && (
+          <figure class="mb-10">
+            <img src={tutorial.thumbnail} alt={tutorial.title} class="w-full border border-border" />
+            {tutorial.imageCaption && (
+              <figcaption class="text-text-muted text-sm italic mt-3">{tutorial.imageCaption}</figcaption>
+            )}
+          </figure>
+        )}
+
+        <div class="prose" set:html={bodyHtml} />
+
+        <PostNav prev={prevTutorial} next={nextTutorial} basePath="/tutorials" />
+
+        <div class="flex flex-wrap items-center justify-between gap-4 pt-6 border-t border-border">
+          {tutorial.tags?.length > 0 && (
+            <div class="flex flex-wrap gap-2">
+              {tutorial.tags.map((tag: string) => (
+                <span class="badge bg-bg-2 border border-border text-text-muted text-xs">{tag}</span>
+              ))}
+            </div>
+          )}
+          <div class="flex items-center gap-2 text-text-muted text-sm">
+            <span>Share</span>
+            <a href={twitterShareUrl} target="_blank" rel="noopener noreferrer" aria-label="Share on X" class="w-8 h-8 rounded-pill border border-border flex items-center justify-center hover:text-text-white hover:border-border-light transition-colors">
+              <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.451-6.231Z" /></svg>
+            </a>
+            <a href={mailShareUrl} aria-label="Share by email" class="w-8 h-8 rounded-pill border border-border flex items-center justify-center hover:text-text-white hover:border-border-light transition-colors">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H9l-5 4v-4H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z" stroke-linecap="round" stroke-linejoin="round" /></svg>
+            </a>
+            <button type="button" id="copy-link" aria-label="Copy link" data-url={canonicalUrl} class="w-8 h-8 rounded-pill border border-border flex items-center justify-center hover:text-text-white hover:border-border-light transition-colors cursor-pointer">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" stroke-linecap="round" stroke-linejoin="round" /><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" stroke-linecap="round" stroke-linejoin="round" /></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="border border-border p-6 mt-8">
+          <div class="flex items-start gap-4">
+            {author.avatar ? (
+              <img src={author.avatar} alt={author.name} class="w-12 h-12 rounded-full object-cover shrink-0" />
+            ) : (
+              <span class="w-12 h-12 rounded-full bg-bg-2 flex items-center justify-center text-text-white font-semibold shrink-0">{author.name.charAt(0)}</span>
+            )}
+            <div>
+              <div class="text-text-muted text-xs uppercase tracking-wide mb-1">Written by</div>
+              <div class="text-text-white font-bold mb-2">{author.name}</div>
+              <p class="text-text-muted text-sm leading-6 mb-3">{author.bio}</p>
+              <a href="/contact" class="text-accent-light text-sm font-semibold hover:underline">Work with me →</a>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <h1 class="text-3xl md:text-4xl font-black text-text-white mb-8 tracking-tight">{tutorial.title}</h1>
+      <!-- ── Sidebar ── -->
+      <aside class="space-y-6 lg:sticky lg:top-24 lg:self-start">
+        {tocItems.length > 0 && (
+          <div class="card rounded-none">
+            <h3 class="text-text-white font-bold mb-4 text-sm uppercase tracking-wide">In This Tutorial</h3>
+            <ul class="space-y-2.5">
+              {tocItems.map((item: any) => (
+                <li><a href={`#${item.id}`} class="text-text-muted hover:text-text-white text-sm transition-colors">{item.text}</a></li>
+              ))}
+            </ul>
+          </div>
+        )}
 
-      {tutorial.youtubeVideoId ? (
-        <div class="aspect-video rounded-card overflow-hidden border border-border mb-10">
-          <iframe
-            src={`https://www.youtube.com/embed/${tutorial.youtubeVideoId}`}
-            class="w-full h-full" frameborder="0" allowfullscreen
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          />
+        {tutorial.relatedTutorials?.length > 0 && (
+          <div class="card rounded-none">
+            <h3 class="text-text-white font-bold mb-4 text-sm uppercase tracking-wide">More Tutorials</h3>
+            <ul class="space-y-4">
+              {tutorial.relatedTutorials.map((t: any) => {
+                const tSlug = typeof t.slug === 'string' ? t.slug : t.slug.current
+                return (
+                  <li>
+                    <a href={`/tutorials/${tSlug}`} class="group block">
+                      <div class="flex items-center gap-2 text-xs text-text-muted mb-1">
+                        {t.category && <span class="text-accent font-semibold">{t.category}</span>}
+                        <span>&middot;</span>
+                        <span>{readingTime(t.bodyText)} min read</span>
+                      </div>
+                      <div class="text-text-white text-sm font-semibold leading-5 group-hover:text-accent-light transition-colors">{t.title}</div>
+                    </a>
+                  </li>
+                )
+              })}
+            </ul>
+          </div>
+        )}
+
+        <div class="bg-[#111827] p-6">
+          <h3 class="text-white font-bold mb-2">Want this done for you?</h3>
+          <p class="text-white/60 text-sm leading-6 mb-4">Skip the learning curve — get a free quote within 24 hours.</p>
+          <button type="button" data-open-quote-modal class="btn-primary w-full justify-center">Get a Free Quote →</button>
         </div>
-      ) : tutorial.thumbnail && (
-        <img src={tutorial.thumbnail} alt={tutorial.title} class="w-full rounded-card border border-border mb-10" />
-      )}
-
-      <div class="prose" set:html={bodyHtml} />
-
-      <PostNav prev={prevTutorial} next={nextTutorial} basePath="/tutorials" />
+      </aside>
     </div>
-  </article>
+  </section>
 
   {tutorial.relatedTutorials?.length > 0 && (
-    <section class="py-20 border-b border-border bg-bg-1">
+    <section class="py-20 border-t border-border">
       <div class="container">
-        <h2 class="section-heading">Related Tutorials</h2>
-        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-8">
-          {tutorial.relatedTutorials.map((t: any) => (
-            <TutorialCard tutorial={t} />
-          ))}
+        <div class="flex items-center justify-between mb-8">
+          <h2 class="text-2xl md:text-3xl font-black text-text-white tracking-tight">Related <span class="text-accent">Tutorials</span></h2>
+          <a href="/tutorials" class="group shrink-0 inline-flex items-center gap-2 text-text-white font-medium text-sm">
+            All tutorials
+            <svg class="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </a>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-5">
+          {tutorial.relatedTutorials.map((t: any) => <TutorialGridCard tutorial={t} />)}
         </div>
       </div>
     </section>
   )}
 
   <CTA
-    heading="Want This Done For You?"
-    subtext="Skip the learning curve — get a free quote within 24 hours."
-    primaryCta={{ label: 'Get a Free Quote →', href: '/contact' }}
+    badge="🔥 Limited slots each month"
+    heading="Ready to Elevate Your Videos?"
+    highlightPhrase="Your Videos?"
+    subtext="Let's talk about your project. Free quote, no obligation."
+    primaryCta={{ label: 'Get Your Free Quote →', href: '/contact' }}
+    secondaryCta={{ label: 'View Pricing', href: '/pricing' }}
   />
 
 </MainLayout>
+
+<script>
+  const copyBtn = document.getElementById('copy-link')
+  copyBtn?.addEventListener('click', async () => {
+    const url = copyBtn.dataset.url
+    if (!url) return
+    try {
+      await navigator.clipboard.writeText(url)
+      const original = copyBtn.innerHTML
+      copyBtn.innerHTML = '<svg class="w-3.5 h-3.5 text-success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+      setTimeout(() => { copyBtn.innerHTML = original }, 1500)
+    } catch {
+      // Clipboard API unavailable — fail silently, link is still visible in the address bar.
+    }
+  })
+</script>

@@ -51,6 +51,7 @@ const aboutTeaser = {
 const servicesSection = {
   badge: home?.servicesSection?.badge ?? 'Services',
   heading: home?.servicesSection?.heading ?? 'Everything your content needs, after the record button.',
+  highlightPhrase: home?.servicesSection?.highlightPhrase ?? 'after the record button.',
   subtitle: home?.servicesSection?.subtitle ??
     'From first cut to final export, every service is built to keep your content polished and consistent.',
   viewAllLabel: home?.servicesSection?.viewAllLabel ?? 'View all Services',
@@ -81,6 +82,7 @@ const processSteps = home?.process?.length ? home.process : [
 const testimonialsSection = {
   badge: home?.testimonialsSection?.badge ?? 'Testimonials',
   heading: home?.testimonialsSection?.heading ?? 'Creators and brands who trust the process.',
+  highlightPhrase: home?.testimonialsSection?.highlightPhrase ?? 'trust the process.',
   subtitle: home?.testimonialsSection?.subtitle ?? 'Real feedback from real clients — see why they keep coming back.',
   viewAllLabel: home?.testimonialsSection?.viewAllLabel ?? 'View all Reviews',
 }
@@ -131,6 +133,7 @@ const trustStats = home?.trustStats?.length ? home.trustStats : [
 const pricingSection = {
   badge: home?.pricingSection?.badge ?? 'Pricing',
   heading: home?.pricingSection?.heading ?? 'Choose the best package for you',
+  highlightPhrase: home?.pricingSection?.highlightPhrase ?? 'best package',
   subtitle: home?.pricingSection?.subtitle ?? 'Transparent pricing. No hidden costs. Just results.',
   packages: home?.pricingSection?.packages?.length ? home.pricingSection.packages : [
     {
@@ -226,6 +229,7 @@ const faqSchema = {
   <ServicesShowcase
     badge={servicesSection.badge}
     heading={servicesSection.heading}
+    highlightPhrase={servicesSection.highlightPhrase}
     subtitle={servicesSection.subtitle}
     viewAllLabel={servicesSection.viewAllLabel}
     services={services ?? []}
@@ -239,7 +243,7 @@ const faqSchema = {
       <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-6 px-6 md:pl-[30px] md:pr-8 py-10 md:py-14">
         <div>
           <span class="inline-block border border-border-light rounded-full text-xs font-normal px-3 py-1 text-text-muted mb-4">Portfolio</span>
-          <h2 class="text-4xl md:text-5xl font-bold text-text-white mb-3 max-w-[800px]">
+          <h2 class="text-4xl md:text-5xl font-bold text-text-white mb-3 tracking-tight max-w-[800px]">
             Work that keeps people <span class="text-accent">watching.</span>
           </h2>
           <p class="text-text-muted text-lg max-w-xl">
@@ -273,6 +277,7 @@ const faqSchema = {
   <PricingShowcase
     badge={pricingSection.badge}
     heading={pricingSection.heading}
+    highlightPhrase={pricingSection.highlightPhrase}
     subtitle={pricingSection.subtitle}
     packages={pricingSection.packages}
     helpPanel={pricingSection.helpPanel}
@@ -293,6 +298,7 @@ const faqSchema = {
   <TestimonialsShowcase
     badge={testimonialsSection.badge}
     heading={testimonialsSection.heading}
+    highlightPhrase={testimonialsSection.highlightPhrase}
     subtitle={testimonialsSection.subtitle}
     viewAllLabel={testimonialsSection.viewAllLabel}
     testimonials={testimonials ?? []}
@@ -304,7 +310,7 @@ const faqSchema = {
     <div class="container md:border-x md:border-border-light md:px-0">
       <div class="px-6 md:pl-[30px] md:pr-8 py-10 md:py-14">
         <span class="inline-block border border-border-light rounded-full text-xs font-normal px-3 py-1 text-text-muted mb-4">FAQs</span>
-        <h2 class="text-4xl md:text-5xl font-bold text-text-white max-w-[800px]">Frequently Asked Questions</h2>
+        <h2 class="text-4xl md:text-5xl font-bold text-text-white tracking-tight max-w-[800px]">Frequently Asked Questions</h2>
       </div>
       <FAQ items={faqs} />
     </div>

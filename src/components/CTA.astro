@@ -43,7 +43,7 @@ const headingParts = splitHeading(heading, highlightPhrase)
           {badge}
         </span>
       )}
-      <h2 class="text-3xl md:text-4xl font-black text-white mb-4">
+      <h2 class="text-3xl md:text-4xl font-black text-white mb-4 tracking-tight">
         {headingParts.map(part => part.accent ? <span class="text-accent">{part.text}</span> : part.text)}
       </h2>
       {subtext && <p class="text-white/70 mb-8">{subtext}</p>}

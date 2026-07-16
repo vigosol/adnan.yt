@@ -13,7 +13,8 @@ export const SITE_SETTINGS_QUERY = `
     socialLinks { youtube, instagram, tiktok, linkedin, twitter, pinterest },
     enableWhatsapp, enableLiveChat, tawktoId,
     footerHours, footerAvailability,
-    quoteModal { badge, heading, highlightPhrase, subtitle, serviceOptions, budgetOptions, disclaimer, ctaLabel }
+    quoteModal { badge, heading, highlightPhrase, subtitle, serviceOptions, budgetOptions, disclaimer, ctaLabel },
+    author { name, role, bio, "avatar": avatar.asset->url }
   }
 `
 
@@ -22,9 +23,9 @@ export const HOME_PAGE_QUERY = `
   *[_type == "homePage"][0] {
     hero { badge, title, highlight, subtitle, primaryCtaLabel, secondaryCtaLabel, reelThumbnail, reelVideoUrl },
     aboutTeaser { quote, ctaLabel },
-    servicesSection { badge, heading, subtitle, viewAllLabel, tags },
+    servicesSection { badge, heading, highlightPhrase, subtitle, viewAllLabel, tags },
     pricingSection {
-      badge, heading, subtitle,
+      badge, heading, highlightPhrase, subtitle,
       packages[] { title, description, price, period, ctaLabel, featured, features },
       helpPanel { block1Heading, block1Subtext, block1CtaLabel, block2Heading, block2Subtext, block2CtaLabel }
     },
@@ -95,9 +96,10 @@ export const SERVICES_HOMEPAGE_QUERY = `
 
 export const SERVICE_BY_SLUG_QUERY = `
   *[_type == "service" && slug.current == $slug][0] {
-    _id, title, slug, icon, shortDescription, fullDescription, price,
-    deliverables, faqs[] { question, answer },
-    seoTitle, seoDescription,
+    _id, title, slug, icon, shortDescription, fullDescription, price, priceUnit,
+    deliverables, process[] { title, description }, stats[] { val, label },
+    faqs[] { question, answer },
+    seoTitle, seoDescription, videoUrl,
     "thumbnail": thumbnail.asset->url
   }
 `
@@ -173,11 +175,13 @@ export const BLOG_SLUGS_QUERY = `
 
 export const BLOG_BY_SLUG_QUERY = `
   *[_type == "blog" && slug.current == $slug][0] {
-    _id, title, slug, publishedAt, category,
-    body, seoTitle, seoDescription,
+    _id, title, slug, publishedAt, category, titleHighlight, tags, imageCaption,
+    body, "bodyText": pt::text(body), seoTitle, seoDescription,
     "thumbnail": thumbnail.asset->url,
-    "relatedPosts": *[_type == "blog" && isPublished == true && category == ^.category && slug.current != $slug][0...3] {
-      _id, title, slug, "thumbnail": thumbnail.asset->url
+    "relatedPosts": *[_type == "blog" && isPublished == true && category == ^.category && slug.current != $slug] | order(publishedAt desc) [0...4] {
+      _id, title, slug, publishedAt, category,
+      "bodyText": pt::text(body),
+      "thumbnail": thumbnail.asset->url
     }
   }
 `
@@ -198,11 +202,14 @@ export const TUTORIAL_SLUGS_QUERY = `
 
 export const TUTORIAL_BY_SLUG_QUERY = `
   *[_type == "tutorial" && slug.current == $slug][0] {
-    _id, title, slug, publishedAt, category, difficulty,
-    body, youtubeVideoId, seoTitle, seoDescription,
+    _id, title, slug, publishedAt, category, difficulty, titleHighlight, tags, imageCaption,
+    body, "bodyText": pt::text(body), youtubeVideoId, seoTitle, seoDescription,
     "thumbnail": thumbnail.asset->url,
-    "relatedTutorials": *[_type == "tutorial" && isPublished == true && category == ^.category && slug.current != $slug][0...3] {
-      _id, title, slug, "thumbnail": thumbnail.asset->url
+    "relatedTutorials": *[_type == "tutorial" && isPublished == true && category == ^.category && slug.current != $slug] | order(publishedAt desc) [0...4] {
+      _id, title, slug, publishedAt, category, difficulty,
+      "bodyText": pt::text(body),
+      "thumbnail": thumbnail.asset->url,
+      youtubeVideoId
     }
   }
 `

@@ -409,9 +409,15 @@
   .prose p { margin-top: 1.25em; }
   .prose a { color: var(--color-accent-light); text-decoration: underline; }
   .prose strong { color: var(--color-text-white); font-weight: 600; }
-  .prose ul, .prose ol { padding-left: 1.5em; }
-  .prose ul { list-style: disc; }
-  .prose ol { list-style: decimal; }
+  .prose ol { padding-left: 1.5em; list-style: decimal; }
+  .prose ul { list-style: none; padding-left: 0; }
+  .prose ul li { position: relative; padding-left: 1.5em; }
+  .prose ul li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--color-accent);
+  }
   .prose li + li { margin-top: 0.5em; }
   .prose blockquote {
     border-left: 3px solid var(--color-accent);

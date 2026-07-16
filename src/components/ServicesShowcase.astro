@@ -1,6 +1,6 @@
 ---
-import fs from 'node:fs'
-import path from 'node:path'
+import ServiceGridCard from './ServiceGridCard.astro'
+import { fallbackServiceIcons, serviceCellBorderClass } from '../lib/serviceIcons'
 
 interface Service {
   title: string
@@ -11,6 +11,7 @@ interface Service {
 interface Props {
   badge?: string
   heading?: string
+  highlightPhrase?: string
   subtitle?: string
   viewAllLabel?: string
   services: Service[]
@@ -19,58 +20,32 @@ interface Props {
 const {
   badge = 'Services',
   heading = 'Everything your content needs, after the record button.',
+  highlightPhrase = 'after the record button.',
   subtitle,
   viewAllLabel = 'View all Services',
   services,
   tags,
 } = Astro.props as Props
 
-// Fallback line-art icon assets from /public (used when a service has no
-// iconImage set in Sanity) — recolored to currentColor at build time so the
-// wrapper controls opacity/color for the default + hover states.
-const ICON_FILES = ['short-form-editing', 'long-form-editing', 'motion-graphics', 'color-grading', 'audio-enhancement', 'video-clipping']
-
-function loadIcon(filename: string): string | null {
-  try {
-    const filePath = path.join(process.cwd(), 'public', `${filename}.svg`)
-    let svg = fs.readFileSync(filePath, 'utf-8')
-    svg = svg.replace(/fill="white"/gi, 'fill="currentColor"')
-    svg = svg.replace(/\s*opacity="0\.7"/gi, '')
-    svg = svg.replace('<svg ', '<svg class="w-full h-full" ')
-    return svg
-  } catch {
-    return null
-  }
+// Split the heading around the highlighted phrase so it can render in accent
+// color while the rest stays default — natural wrap only, no forced <br>.
+function splitHeading(text: string, phrase?: string) {
+  if (!phrase) return [{ text, accent: false }]
+  const idx = text.indexOf(phrase)
+  if (idx === -1) return [{ text, accent: false }]
+  return [
+    { text: text.slice(0, idx), accent: false },
+    { text: text.slice(idx, idx + phrase.length), accent: true },
+    { text: text.slice(idx + phrase.length), accent: false },
+  ].filter(part => part.text.length > 0)
 }
-const fallbackIcons = ICON_FILES.map(loadIcon)
+const headingParts = splitHeading(heading, highlightPhrase)
 
 function chunk(arr: string[], n: number) {
   const size = Math.ceil(arr.length / n)
   return Array.from({ length: n }, (_, i) => arr.slice(i * size, i * size + size)).filter(r => r.length)
 }
 const tagRows = chunk(tags, 3)
-
-// Row dividers (top/bottom) use normal borders — fine, since each cell's
-// top/bottom edge is only ever shared with the cell directly above/below in
-// the same column, no cross-column rounding involved.
-//
-// Column dividers (between col1|col2 and col2|col3) do NOT use borders: with
-// a 1280px-ish container split into three `1fr` tracks, the width per column
-// isn't a whole number, so adjacent cells' borders can land a sub-pixel apart
-// and leave a hairline gap showing the page background through. Instead the
-// grid itself gets `gap-x-px` + a divider-colored background — a real layout
-// gutter is pixel-exact by construction, so there's nothing to misalign.
-function cellBorderClass(i: number) {
-  const row = Math.floor(i / 3)
-  const classes = ['md:border-b', 'md:border-b-border-light']
-  if (row === 0) classes.push('md:border-t', 'md:border-t-border-light')
-
-  // Complete the outer frame on the left-column / right-column cells.
-  if (i === 0 || i === 3) classes.push('md:border-l', 'md:border-l-border-light')
-  if (i === 2 || i === 5) classes.push('md:border-r', 'md:border-r-border-light')
-
-  return classes.join(' ')
-}
 ---
 
 <section>
@@ -80,8 +55,8 @@ function cellBorderClass(i: number) {
         <span class="inline-block border border-border-light text-text-muted text-xs font-normal uppercase tracking-wide px-3 py-1.5 rounded-full mb-4">
           {badge}
         </span>
-        <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold text-text-white leading-tight max-w-[800px]">
-          {heading}
+        <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold text-text-white leading-tight tracking-tight max-w-[800px]">
+          {headingParts.map(part => part.accent ? <span class="text-accent">{part.text}</span> : part.text)}
         </h2>
         {subtitle && <p class="text-text-muted text-base md:text-lg max-w-xl mt-4">{subtitle}</p>}
       </div>
@@ -101,36 +76,13 @@ function cellBorderClass(i: number) {
     <div>
       <div class="container md:px-0">
         <div class="grid grid-cols-1 md:grid-cols-3 md:gap-x-px md:bg-border-light">
-          {services.map((service, i) => {
-            const slug = typeof service.slug === 'string' ? service.slug : service.slug?.current
-            const fallbackIcon = fallbackIcons[i % fallbackIcons.length]
-            return (
-              <a
-                href={slug ? `/services/${slug}` : '/services'}
-                class={`group flex flex-col justify-center bg-bg-1 p-8 min-h-[320px] transition-colors hover:bg-bg-2 ${cellBorderClass(i)}`}
-              >
-                {service.iconImageUrl ? (
-                  <img src={service.iconImageUrl} alt="" class="w-10 h-10 shrink-0 object-contain" />
-                ) : fallbackIcon ? (
-                  <div class="w-10 h-10 shrink-0 text-accent transition-colors" set:html={fallbackIcon} />
-                ) : null}
-                <h3 class="text-text-white group-hover:text-accent-light font-bold text-xl mt-6 mb-3 transition-colors">
-                  {service.title}
-                </h3>
-                {service.shortDescription && (
-                  <p class="text-text-muted text-base leading-6 min-h-[72px] transition-colors">
-                    {service.shortDescription}
-                  </p>
-                )}
-                <span class="mt-4 inline-flex items-center gap-1.5 self-start border-b-2 border-current text-accent text-sm font-medium pb-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                  Learn more
-                  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round" />
-                  </svg>
-                </span>
-              </a>
-            )
-          })}
+          {services.map((service, i) => (
+            <ServiceGridCard
+              service={service}
+              fallbackIcon={fallbackServiceIcons[i % fallbackServiceIcons.length]}
+              cellClass={serviceCellBorderClass(i)}
+            />
+          ))}
         </div>
       </div>
     </div>

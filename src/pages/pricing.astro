@@ -99,6 +99,7 @@ const pricingSchema = numericPackages.map((p: any) => ({
   <PricingShowcase
     badge="Pricing"
     heading="Simple, Transparent Pricing"
+    highlightPhrase="Transparent Pricing"
     subtitle="Pick the package that fits your workflow, or get a custom quote for something different."
     packages={packagesWithCta}
     showHeroBackground={true}
@@ -111,7 +112,7 @@ const pricingSchema = numericPackages.map((p: any) => ({
       <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-6 px-6 md:pl-[30px] md:pr-8 py-10 md:py-14">
         <div>
           <span class="inline-block border border-border-light rounded-full text-xs font-normal px-3 py-1 text-text-muted mb-4">Add-ons</span>
-          <h2 class="text-4xl md:text-5xl font-bold text-text-white max-w-[800px]">
+          <h2 class="text-4xl md:text-5xl font-bold text-text-white tracking-tight max-w-[800px]">
             Extras that make videos <span class="text-accent">work harder.</span>
           </h2>
         </div>
@@ -143,7 +144,7 @@ const pricingSchema = numericPackages.map((p: any) => ({
     <div class="container md:border-x md:border-t md:border-border-light md:px-0">
       <div class="px-6 md:pl-[30px] md:pr-8 py-10 md:py-14">
         <span class="inline-block border border-border-light rounded-full text-xs font-normal px-3 py-1 text-text-muted mb-4">FAQs</span>
-        <h2 class="text-4xl md:text-5xl font-bold text-text-white max-w-[800px]">Frequently Asked Questions</h2>
+        <h2 class="text-4xl md:text-5xl font-bold text-text-white tracking-tight max-w-[800px]">Frequently Asked Questions</h2>
       </div>
       <FAQ items={faqs} />
     </div>

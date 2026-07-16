@@ -1,22 +1,23 @@
 ---
 import MainLayout from '../layouts/MainLayout.astro'
-import ServiceCard from '../components/ServiceCard.astro'
+import ServiceGridCard from '../components/ServiceGridCard.astro'
 import CTA from '../components/CTA.astro'
 import PageHeroBackground from '../components/PageHeroBackground.astro'
 import Spacer from '../components/Spacer.astro'
 import { fetchSanity } from '../lib/sanity'
 import { SERVICES_LIST_QUERY } from '../lib/queries'
 import { breadcrumbSchema } from '../lib/breadcrumbs'
+import { fallbackServiceIcons, serviceCellBorderClass } from '../lib/serviceIcons'
 
 const services = await fetchSanity<any[]>(SERVICES_LIST_QUERY)
 
 const fallbackServices = [
-  { title: 'YouTube Video Editing', slug: 'youtube-video-editing', icon: '🎬', shortDescription: 'Long-form edits built for watch time and retention.' },
-  { title: 'Shorts & Reels Editing', slug: 'shorts-reels-editing', icon: '⚡', shortDescription: 'Fast-paced vertical edits for TikTok, Reels, and Shorts.' },
-  { title: 'Podcast Video Editing', slug: 'podcast-editing', icon: '🎙️', shortDescription: 'Multi-cam podcast edits, clipped for social.' },
-  { title: 'Motion Graphics', slug: 'motion-graphics', icon: '✨', shortDescription: 'Animated titles, lower-thirds, and branded intros.' },
-  { title: 'Corporate Video', slug: 'corporate-video', icon: '🏢', shortDescription: 'Polished edits for brand and internal communications.' },
-  { title: 'Social Media Packages', slug: 'social-media-packages', icon: '📱', shortDescription: 'Ongoing monthly editing for your content calendar.' },
+  { title: 'YouTube Video Editing', slug: 'youtube-video-editing', shortDescription: 'Long-form edits built for watch time and retention.' },
+  { title: 'Shorts & Reels Editing', slug: 'shorts-reels-editing', shortDescription: 'Fast-paced vertical edits for TikTok, Reels, and Shorts.' },
+  { title: 'Podcast Video Editing', slug: 'podcast-editing', shortDescription: 'Multi-cam podcast edits, clipped for social.' },
+  { title: 'Motion Graphics', slug: 'motion-graphics', shortDescription: 'Animated titles, lower-thirds, and branded intros.' },
+  { title: 'Corporate Video', slug: 'corporate-video', shortDescription: 'Polished edits for brand and internal communications.' },
+  { title: 'Social Media Packages', slug: 'social-media-packages', shortDescription: 'Ongoing monthly editing for your content calendar.' },
 ]
 
 const list = services?.length ? services : fallbackServices
@@ -33,7 +34,7 @@ const list = services?.length ? services : fallbackServices
     <div class="container md:border-x md:border-border-light md:px-0 min-h-[300px] md:min-h-[400px] flex flex-col justify-center">
       <div class="px-6 md:pl-[30px] md:pr-8 py-10 md:py-14">
         <span class="inline-block border border-border-light rounded-full text-xs font-normal px-3 py-1 text-text-muted mb-4">Services</span>
-        <h1 class="text-4xl md:text-5xl font-bold text-text-white mb-3 max-w-[800px]">
+        <h1 class="text-4xl md:text-5xl font-bold text-text-white mb-3 tracking-tight max-w-[800px]">
           Video Editing <span class="text-accent">Services</span>
         </h1>
         <p class="text-text-muted text-lg max-w-[800px]">
@@ -44,11 +45,15 @@ const list = services?.length ? services : fallbackServices
   </section>
 
   <Spacer borderTop borderBottom />
-  <section class="py-20 border-b border-border">
-    <div class="container">
-      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-        {list.map((service: any) => (
-          <ServiceCard service={service} />
+  <section>
+    <div class="container md:px-0">
+      <div class="grid grid-cols-1 md:grid-cols-3 md:gap-x-px md:bg-border-light">
+        {list.map((service: any, i: number) => (
+          <ServiceGridCard
+            service={service}
+            fallbackIcon={fallbackServiceIcons[i % fallbackServiceIcons.length]}
+            cellClass={serviceCellBorderClass(i)}
+          />
         ))}
       </div>
     </div>
