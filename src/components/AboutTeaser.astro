@@ -78,12 +78,19 @@ const chars = Array.from(quote.trim())
       const start = vh * 0.9    // word 0 activates when paragraph top crosses here
       const end = vh * 0.25     // all words active once paragraph top crosses here
 
-      state.forEach(({ el, words }) => {
+      // Batch all layout reads (getBoundingClientRect) before any DOM
+      // writes (classList.toggle) — interleaving them per-paragraph forces
+      // the browser to recompute layout on every iteration instead of once.
+      const activeCounts = state.map(({ el, words }) => {
         const rect = el.getBoundingClientRect()
         const progress = (start - rect.top) / (start - end)
         const clamped = Math.max(0, Math.min(1, progress))
-        const activeCount = Math.round(clamped * words.length)
-        words.forEach((w, i) => w.classList.toggle('is-active', i < activeCount))
+        return Math.round(clamped * words.length)
+      })
+
+      state.forEach(({ words }, i) => {
+        const activeCount = activeCounts[i]
+        words.forEach((w, wi) => w.classList.toggle('is-active', wi < activeCount))
       })
       ticking = false
     }

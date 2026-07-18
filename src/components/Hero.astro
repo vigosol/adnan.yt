@@ -90,7 +90,7 @@ const embedUrl = youtubeId ? `https://www.youtube.com/embed/${youtubeId}?autopla
         data-reel-player
         data-embed-url={embedUrl ?? ''}
       >
-        <img src={thumbnailSrc} alt="Watch the reel" class="w-full aspect-[1218/714] object-cover" loading="lazy" />
+        <img src={thumbnailSrc} alt="Watch the reel" class="w-full aspect-[1218/714] object-cover" loading="eager" fetchpriority="high" />
         <div class="absolute inset-0 bg-black/15"></div>
         {embedUrl ? (
           <button type="button" class="absolute inset-0 flex items-center justify-center group cursor-pointer" aria-label="Play the reel" data-reel-play>

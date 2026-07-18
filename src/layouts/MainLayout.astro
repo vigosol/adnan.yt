@@ -76,9 +76,12 @@ const schemas = schema ? (Array.isArray(schema) ? schema : [schema]) : []
   <meta name="twitter:description" content={description} />
   <meta name="twitter:image"       content={ogImage} />
 
-  <!-- Fonts preloaded from /public/fonts (Euclid Circular A) -->
+  <!-- Fonts preloaded from /public/fonts (Euclid Circular A) — Bold is
+       included since headings sitewide (including the hero H1) use it,
+       and would otherwise only be discoverable after the CSS is parsed. -->
   <link rel="preload" href="/fonts/EuclidCircularA-Regular.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="preload" href="/fonts/EuclidCircularA-Medium.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="/fonts/EuclidCircularA-Bold.woff2" as="font" type="font/woff2" crossorigin />
 
   <!-- Favicon -->
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
