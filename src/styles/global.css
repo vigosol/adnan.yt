@@ -36,12 +36,19 @@
    ───────────────────────────────────────────────────────────────── */
 @theme {
   /* Brand accent — from Figma (red-500), stays constant in both themes */
-  --color-accent:       #ef4444;
-  --color-accent-light: #f87171;
-  --color-accent-dark:  #dc2626;
+  --color-accent:        #ef4444;
+  --color-accent-light:  #f87171;
+  --color-accent-dark:   #dc2626;
+  --color-accent-darker: #b91c1c;
   --color-gold:         #f59e0b;
   --color-gold-light:   #fcd34d;
   --color-gold-dark:    #d97706;
+
+  /* Accent as body text — needs to flip shade per theme to hold 4.5:1 against
+     the page background (accent-dark reads 4.83:1 on white but only 3.67:1
+     on the dark-mode bg; accent-light is the reverse), so it can't be a
+     theme-constant token like the accent family above. */
+  --color-accent-text: var(--color-accent-dark);
 
   /* Light theme (default) */
   --color-bg:           #ffffff;
@@ -76,6 +83,8 @@
 /* ── Dark theme — toggled via `.dark` class on <html> ───────────
    Brand colors stay constant; only the neutral scale flips. */
 :root.dark {
+  --color-accent-text:  var(--color-accent-light);
+
   --color-bg:           #111827;
   --color-bg-1:         #151515;
   --color-bg-2:         #1c1c1c;
@@ -198,7 +207,9 @@
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    background-color: var(--color-accent);
+    /* accent-dark, not accent — white text on the base accent red is only
+       3.82:1, which fails WCAG AA (4.5:1) for normal-size button text. */
+    background-color: var(--color-accent-dark);
     color: #fff;
     font-weight: 600;
     padding: 0.75rem 1.5rem;
@@ -208,7 +219,7 @@
     border: none;
     cursor: pointer;
   }
-  .btn-primary:hover  { background-color: var(--color-accent-dark); }
+  .btn-primary:hover  { background-color: var(--color-accent-darker); }
   .btn-primary:active { transform: scale(.98); }
 
   .btn-secondary {
@@ -257,7 +268,9 @@
   }
 
   :root.dark .btn-dark {
-    background-color: var(--color-accent);
+    /* accent-dark, not accent — white text on the base accent red fails
+       WCAG AA contrast (3.82:1 vs the 4.5:1 required). */
+    background-color: var(--color-accent-dark);
   }
   :root.dark .btn-dark:hover {
     background-color: #fff;

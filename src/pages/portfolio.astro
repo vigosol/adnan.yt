@@ -56,7 +56,7 @@ const stats = [
                   <button
                     type="button"
                     data-filter={f}
-                    class={`px-4 py-2 rounded-sm text-sm font-medium border border-border transition-colors ${i === 0 ? 'bg-accent text-white border-accent' : 'text-text-muted hover:text-text-white hover:border-border-light'}`}
+                    class={`px-4 py-2 rounded-sm text-sm font-medium border border-border transition-colors ${i === 0 ? 'bg-accent-dark text-white border-accent-dark' : 'text-text-muted hover:text-text-white hover:border-border-light'}`}
                   >
                     {f}
                   </button>
@@ -139,10 +139,10 @@ const stats = [
       visibleCount = INITIAL_COUNT
 
       filterBtns.forEach(b => {
-        b.classList.remove('bg-accent', 'text-white', 'border-accent')
+        b.classList.remove('bg-accent-dark', 'text-white', 'border-accent-dark')
         b.classList.add('text-text-muted', 'hover:text-text-white', 'hover:border-border-light')
       })
-      btn.classList.add('bg-accent', 'text-white', 'border-accent')
+      btn.classList.add('bg-accent-dark', 'text-white', 'border-accent-dark')
       btn.classList.remove('text-text-muted', 'hover:text-text-white', 'hover:border-border-light')
 
       render()

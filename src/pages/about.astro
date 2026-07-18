@@ -209,7 +209,7 @@ const beyondDescParts = linkifyWord(beyondTheTimeline.description, 'blog', '/blo
             const isLast = i === workflow.length - 1
             return (
               <div class={`p-6 border rounded-none ${isLast ? 'border-accent' : 'border-border'}`}>
-                <div class={`text-3xl font-black mb-4 ${isLast ? 'text-accent' : 'text-border-light'}`}>
+                <div class={`text-3xl font-black mb-4 ${isLast ? 'text-accent' : 'text-text-muted'}`}>
                   {String(i + 1).padStart(2, '0')}
                 </div>
                 <h3 class="font-bold text-text-white mb-2">{step.title}</h3>

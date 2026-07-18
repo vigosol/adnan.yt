@@ -103,21 +103,21 @@ const gridColsClass = colsClass[totalCols] ?? 'md:grid-cols-3'
   <div class="container md:border-x md:border-border-light md:px-0">
     <div class={`${showHeroBackground ? '' : 'border-t border-border-light'} grid grid-cols-1 ${gridColsClass} md:divide-x md:divide-border-light`}>
       {packages.map(pkg => (
-        <div class={`p-8 md:p-10 flex flex-col border-b md:border-b-0 border-border-light ${pkg.featured ? 'bg-accent' : 'bg-bg'}`}>
+        <div class={`p-8 md:p-10 flex flex-col border-b md:border-b-0 border-border-light ${pkg.featured ? 'bg-accent-dark' : 'bg-bg'}`}>
           <div class="flex items-center gap-2 mb-2">
             <h3 class={`font-bold text-2xl ${pkg.featured ? 'text-white' : 'text-text-white'}`}>{pkg.title}</h3>
             {pkg.featured && (
-              <span class="inline-block bg-white text-accent text-xs font-normal rounded-full px-3 py-1 whitespace-nowrap">Most Popular</span>
+              <span class="inline-block bg-white text-accent-dark text-xs font-normal rounded-full px-3 py-1 whitespace-nowrap">Most Popular</span>
             )}
           </div>
           {pkg.description && (
-            <p class={`text-base mb-6 ${pkg.featured ? 'text-white/80' : 'text-text-muted'}`}>{pkg.description}</p>
+            <p class={`text-base mb-6 ${pkg.featured ? 'text-white' : 'text-text-muted'}`}>{pkg.description}</p>
           )}
 
           <div class={`flex items-baseline gap-1 mb-6 ${pkg.featured ? 'text-white' : 'text-text-white'}`}>
             <span class="text-lg self-start mt-1">$</span>
             <span class="text-5xl font-bold tracking-tight">{pkg.price}</span>
-            {pkg.period && <span class={`text-sm ${pkg.featured ? 'text-white/80' : 'text-text-muted'}`}>/{pkg.period.replace(/^\/+/, '')}</span>}
+            {pkg.period && <span class={`text-sm ${pkg.featured ? 'text-white' : 'text-text-muted'}`}>/{pkg.period.replace(/^\/+/, '')}</span>}
           </div>
 
           <a
@@ -128,7 +128,7 @@ const gridColsClass = colsClass[totalCols] ?? 'md:grid-cols-3'
               'data-cal-config': '{"layout":"month_view","useSlotsViewOnSmallScreen":"true"}',
             } : {})}
             class={`group inline-flex items-center justify-center gap-2 rounded-[4px] px-5 py-3 font-semibold text-base transition-colors mb-8 ${
-              pkg.featured ? 'bg-white text-accent hover:bg-bg-2' : 'bg-accent text-white hover:bg-accent-dark'
+              pkg.featured ? 'bg-white text-accent-dark hover:bg-bg-2' : 'bg-accent-dark text-white hover:bg-accent-darker'
             }`}
           >
             {pkg.ctaLabel ?? 'Get Started'}
