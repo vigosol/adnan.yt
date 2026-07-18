@@ -179,6 +179,16 @@ const schemas = schema ? (Array.isArray(schema) ? schema : [schema]) : []
       Cal.config = Cal.config || {}
       Cal.config.forwardQueryParams = true
       Cal.ns[calNamespace]('ui', { hideEventTypeDetails: false, layout: 'month_view' })
+
+      // Cal's own click handler opens the modal but doesn't call
+      // preventDefault(), so a real href="/contact" fallback (kept for
+      // no-JS visitors) would otherwise navigate away before the modal
+      // finishes opening. Block just the default navigation here — Cal's
+      // separately-attached listener still runs and opens the popup.
+      document.addEventListener('click', (e) => {
+        const trigger = e.target instanceof Element ? e.target.closest('[data-cal-link]') : null
+        if (trigger) e.preventDefault()
+      })
     </script>
   )}
 
