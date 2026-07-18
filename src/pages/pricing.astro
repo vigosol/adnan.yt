@@ -5,10 +5,16 @@ import Spacer from '../components/Spacer.astro'
 import FAQ from '../components/FAQ.astro'
 import CTA from '../components/CTA.astro'
 import { fetchSanity } from '../lib/sanity'
-import { PRICING_PAGE_QUERY } from '../lib/queries'
+import { PRICING_PAGE_QUERY, SITE_SETTINGS_QUERY } from '../lib/queries'
 import { breadcrumbSchema } from '../lib/breadcrumbs'
+import { normalizeCalLink, getCalNamespace } from '../lib/cal'
 
-const pricingPage = await fetchSanity<any>(PRICING_PAGE_QUERY)
+const [pricingPage, settings] = await Promise.all([
+  fetchSanity<any>(PRICING_PAGE_QUERY),
+  fetchSanity<any>(SITE_SETTINGS_QUERY),
+])
+const calLink = normalizeCalLink(settings?.calBooking?.calLink)
+const calNamespace = getCalNamespace(calLink)
 
 // Pricing content is CMS-managed via the Pricing Page document — fall
 // back to launch-day defaults until that content is filled in.
@@ -103,6 +109,8 @@ const pricingSchema = numericPackages.map((p: any) => ({
     subtitle="Pick the package that fits your workflow, or get a custom quote for something different."
     packages={packagesWithCta}
     showHeroBackground={true}
+    calLink={calLink}
+    calNamespace={calNamespace}
   />
 
   <!-- ══ ADD-ONS ════════════════════════════════════════════════════ -->

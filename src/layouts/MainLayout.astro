@@ -6,6 +6,7 @@ import Header from '../components/Header.astro'
 import Footer from '../components/Footer.astro'
 import WhatsAppButton from '../components/WhatsAppButton.astro'
 import QuoteModal from '../components/QuoteModal.astro'
+import { normalizeCalLink, getCalNamespace } from '../lib/cal'
 
 interface Props {
   title?:       string
@@ -30,6 +31,9 @@ const {
 const ga4Id  = settings?.ga4Id
 const gtmId  = settings?.gtmId
 const siteName = settings?.siteName ?? 'adnan.yt'
+
+const calLink = normalizeCalLink(settings?.calBooking?.calLink)
+const calNamespace = getCalNamespace(calLink)
 
 // Normalise schema to array
 const schemas = schema ? (Array.isArray(schema) ? schema : [schema]) : []
@@ -140,6 +144,43 @@ const schemas = schema ? (Array.isArray(schema) ? schema : [schema]) : []
 
   <!-- ── Get a Free Quote modal (opened by any [data-open-quote-modal] trigger) ── -->
   <QuoteModal settings={settings} />
+
+  <!-- ── Cal.com booking popup (opened by any [data-cal-link] trigger) ── -->
+  {calLink && calNamespace && (
+    <script type="text/javascript" define:vars={{ calNamespace }}>
+      (function (C, A, L) {
+        let p = function (a, ar) { a.q.push(ar) }
+        let d = C.document
+        C.Cal = C.Cal || function () {
+          let cal = C.Cal
+          let ar = arguments
+          if (!cal.loaded) {
+            cal.ns = {}
+            cal.q = cal.q || []
+            d.head.appendChild(d.createElement('script')).src = A
+            cal.loaded = true
+          }
+          if (ar[0] === L) {
+            const api = function () { p(api, arguments) }
+            const namespace = ar[1]
+            api.q = api.q || []
+            if (typeof namespace === 'string') {
+              cal.ns[namespace] = cal.ns[namespace] || api
+              p(cal.ns[namespace], ar)
+              p(cal, ['initNamespace', namespace])
+            } else p(cal, ar)
+            return
+          }
+          p(cal, ar)
+        }
+      })(window, 'https://app.cal.com/embed/embed.js', 'init')
+
+      Cal('init', calNamespace, { origin: 'https://app.cal.com' })
+      Cal.config = Cal.config || {}
+      Cal.config.forwardQueryParams = true
+      Cal.ns[calNamespace]('ui', { hideEventTypeDetails: false, layout: 'month_view' })
+    </script>
+  )}
 
   <!-- ── Scripts slot ── -->
   <slot name="scripts" />

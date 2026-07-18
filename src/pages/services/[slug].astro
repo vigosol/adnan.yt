@@ -6,8 +6,9 @@ import Metrics from '../../components/Metrics.astro'
 import PageHeroBackground from '../../components/PageHeroBackground.astro'
 import Spacer from '../../components/Spacer.astro'
 import { fetchSanity } from '../../lib/sanity'
-import { SERVICES_LIST_QUERY, SERVICE_BY_SLUG_QUERY } from '../../lib/queries'
+import { SERVICES_LIST_QUERY, SERVICE_BY_SLUG_QUERY, SITE_SETTINGS_QUERY } from '../../lib/queries'
 import { breadcrumbSchema } from '../../lib/breadcrumbs'
+import { normalizeCalLink, getCalNamespace } from '../../lib/cal'
 
 function youtubeId(url?: string) {
   if (!url) return null
@@ -22,15 +23,18 @@ export async function getStaticPaths() {
 
 const { slug } = Astro.params
 
-const [service, allServices] = await Promise.all([
+const [service, allServices, settings] = await Promise.all([
   fetchSanity<any>(SERVICE_BY_SLUG_QUERY, { slug }),
   fetchSanity<any[]>(SERVICES_LIST_QUERY),
+  fetchSanity<any>(SITE_SETTINGS_QUERY),
 ])
 
 if (!service) return Astro.redirect('/services')
 
 const ytId = youtubeId(service.videoUrl)
 const otherServices = (allServices ?? []).filter((s: any) => s.slug.current !== slug).slice(0, 3)
+const calLink = normalizeCalLink(settings?.calBooking?.calLink)
+const calNamespace = getCalNamespace(calLink)
 
 // JSON-LD — Service schema
 const serviceSchema = {
@@ -206,7 +210,15 @@ const breadcrumbs = breadcrumbSchema([
           <p class="text-white/60 text-sm leading-6 mb-4">
             Book a free 15-minute call and I'll point you to the right service — even if it's not mine.
           </p>
-          <a href="/contact" class="inline-flex items-center gap-1.5 text-accent-light text-sm font-semibold hover:underline">
+          <a
+            href="/contact"
+            {...(calLink ? {
+              'data-cal-link': calLink,
+              'data-cal-namespace': calNamespace,
+              'data-cal-config': '{"layout":"month_view","useSlotsViewOnSmallScreen":"true"}',
+            } : {})}
+            class="inline-flex items-center gap-1.5 text-accent-light text-sm font-semibold hover:underline"
+          >
             Book a call →
           </a>
         </div>

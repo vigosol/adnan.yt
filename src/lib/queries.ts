@@ -12,6 +12,7 @@ export const SITE_SETTINGS_QUERY = `
     defaultOgImage { asset->{ url } },
     socialLinks { youtube, instagram, tiktok, linkedin, twitter, pinterest },
     enableWhatsapp, enableLiveChat, tawktoId,
+    calBooking { calLink },
     footerHours, footerAvailability,
     quoteModal { badge, heading, highlightPhrase, subtitle, serviceOptions, budgetOptions, disclaimer, ctaLabel },
     author { name, role, bio, "avatar": avatar.asset->url }
@@ -43,10 +44,25 @@ export const HOME_PAGE_QUERY = `
 // ── About Page ───────────────────────────────────────────────────
 export const ABOUT_PAGE_QUERY = `
   *[_type == "aboutPage"][0] {
+    hero {
+      badge, title, highlightPhrase,
+      "imageUrl": image.asset->url,
+      imageCaptionName, imageCaptionRole,
+      primaryCtaLabel, secondaryCtaLabel
+    },
     story,
+    trustStats[] { val, label },
+    toolsSection { badge, heading, highlightPhrase, subtitle },
     tools[] { icon, name },
+    processSection { badge, heading, highlightPhrase, subtitle },
     workflow[] { title, description },
-    trustStats[] { val, label }
+    principlesSection { badge, heading, highlightPhrase, subtitle },
+    principles[] { title, description },
+    beyondTheTimeline {
+      "image1Url": image1.asset->url,
+      "image2Url": image2.asset->url,
+      title, description
+    }
   }
 `
 

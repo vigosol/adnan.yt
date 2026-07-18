@@ -15,7 +15,7 @@ const slug = typeof service.slug === 'string' ? service.slug : service.slug?.cur
 
 <a
   href={slug ? `/services/${slug}` : '/services'}
-  class={`group flex flex-col justify-center bg-bg-1 p-8 min-h-[320px] transition-colors hover:bg-bg-2 ${cellClass}`}
+  class={`group flex flex-col justify-center bg-bg p-8 min-h-[320px] transition-colors hover:bg-bg-2 ${cellClass}`}
 >
   {service.iconImageUrl ? (
     <img src={service.iconImageUrl} alt="" class="w-10 h-10 shrink-0 object-contain" />

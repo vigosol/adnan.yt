@@ -12,6 +12,13 @@ function loadIcon(filename: string): string | null {
     let svg = fs.readFileSync(filePath, 'utf-8')
     svg = svg.replace(/fill="white"/gi, 'fill="currentColor"')
     svg = svg.replace(/\s*opacity="0\.7"/gi, '')
+    // Strip clip-path defs — they're redundant bounding-box clips from the
+    // Figma export (the rect already matches the icon's own viewBox), and
+    // since this same icon markup gets inlined more than once per page (nav
+    // dropdown + card grid), the duplicate clipPath ids broke clip-path
+    // resolution in the browser and made the clipped icons invisible.
+    svg = svg.replace(/\s*clip-path="url\(#[^)]*\)"/gi, '')
+    svg = svg.replace(/<defs>[\s\S]*?<\/defs>/gi, '')
     svg = svg.replace('<svg ', '<svg class="w-full h-full" ')
     return svg
   } catch {
@@ -27,11 +34,11 @@ export const fallbackServiceIcons = ICON_FILES.map(loadIcon)
 // the grid's own gap-x-px + divider-colored background instead of per-cell
 // borders, since a container split into `cols` `1fr` tracks can leave a
 // sub-pixel hairline gap between adjacent cells' borders.
-export function serviceCellBorderClass(i: number, cols = 3) {
+export function serviceCellBorderClass(i: number, cols = 3, includeTopBorder = true) {
   const col = i % cols
   const row = Math.floor(i / cols)
   const classes = ['md:border-b', 'md:border-b-border-light']
-  if (row === 0) classes.push('md:border-t', 'md:border-t-border-light')
+  if (row === 0 && includeTopBorder) classes.push('md:border-t', 'md:border-t-border-light')
   if (col === 0) classes.push('md:border-l', 'md:border-l-border-light')
   if (col === cols - 1) classes.push('md:border-r', 'md:border-r-border-light')
   return classes.join(' ')

@@ -104,6 +104,11 @@
   color: var(--color-text-white);
 }
 
+/* FAQ answer text — muted grey reads too low-contrast on dark backgrounds */
+:root.dark .faq-content {
+  color: var(--color-text-white);
+}
+
 /* Text selection — theme accent color site-wide */
 ::selection {
   background-color: var(--color-accent);

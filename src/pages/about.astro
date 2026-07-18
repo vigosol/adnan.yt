@@ -1,6 +1,8 @@
 ---
 import MainLayout from '../layouts/MainLayout.astro'
 import CTA from '../components/CTA.astro'
+import Metrics from '../components/Metrics.astro'
+import Spacer from '../components/Spacer.astro'
 import { fetchSanity } from '../lib/sanity'
 import { ABOUT_PAGE_QUERY } from '../lib/queries'
 import { breadcrumbSchema } from '../lib/breadcrumbs'
@@ -9,20 +11,52 @@ const about = await fetchSanity<any>(ABOUT_PAGE_QUERY)
 
 // About content is CMS-managed via the About Page document — fall back
 // to launch-day defaults until that content is filled in.
+const hero = {
+  badge: about?.hero?.badge ?? 'About',
+  title: about?.hero?.title ?? "Hi, I'm Muhammad Adnan.",
+  highlightPhrase: about?.hero?.highlightPhrase ?? 'Muhammad Adnan.',
+  imageUrl: about?.hero?.imageUrl,
+  imageCaptionName: about?.hero?.imageCaptionName ?? 'Muhammad Adnan',
+  imageCaptionRole: about?.hero?.imageCaptionRole ?? 'Video Editor · Est. 2021',
+  primaryCtaLabel: about?.hero?.primaryCtaLabel ?? 'Work With Me →',
+  secondaryCtaLabel: about?.hero?.secondaryCtaLabel ?? 'View Portfolio',
+}
+
 const story = about?.story?.length ? about.story : [
   "I'm a professional video editor based in Pakistan, working with creators, coaches, agencies, and brands around the world. What started as editing my own YouTube experiments turned into editing for clients who needed their videos to actually perform — not just look polished.",
   'Today I focus on YouTube long-form, Shorts and Reels, podcast video, and corporate edits — combining clean technical execution with an eye for pacing and retention, because a beautiful edit that loses viewers in the first ten seconds isn\'t doing its job.',
   "I treat every project like it's for my own channel: tight story, clean sound, and a turnaround you can actually plan around.",
 ]
 
-const tools = about?.tools?.length ? about.tools : [
-  { icon: '🎬', name: 'Adobe Premiere Pro' },
-  { icon: '✨', name: 'After Effects' },
-  { icon: '🎨', name: 'DaVinci Resolve' },
-  { icon: '📱', name: 'CapCut' },
-  { icon: '🎙️', name: 'Adobe Audition' },
-  { icon: '🖼️', name: 'Photoshop' },
+const trustStats = about?.trustStats?.length ? about.trustStats : [
+  { val: '100+', label: 'Videos edited' },
+  { val: '50+',  label: 'Happy clients' },
+  { val: '24h',  label: 'Avg. turnaround' },
+  { val: '5★',   label: 'Average rating' },
 ]
+
+const toolsSection = {
+  badge: about?.toolsSection?.badge ?? 'Toolbox',
+  heading: about?.toolsSection?.heading ?? 'Tools I use.',
+  highlightPhrase: about?.toolsSection?.highlightPhrase ?? 'use.',
+  subtitle: about?.toolsSection?.subtitle ?? 'Industry-standard software, chosen per project — not habit.',
+}
+
+const tools = about?.tools?.length ? about.tools : [
+  { icon: 'Pr', name: 'Premiere Pro' },
+  { icon: 'Ae', name: 'After Effects' },
+  { icon: 'DR', name: 'DaVinci Resolve' },
+  { icon: 'CC', name: 'CapCut' },
+  { icon: 'Au', name: 'Adobe Audition' },
+  { icon: 'Ps', name: 'Photoshop' },
+]
+
+const processSection = {
+  badge: about?.processSection?.badge ?? 'Process',
+  heading: about?.processSection?.heading ?? 'How I work.',
+  highlightPhrase: about?.processSection?.highlightPhrase ?? 'work.',
+  subtitle: about?.processSection?.subtitle ?? 'A predictable process means fewer surprises for you and a better result for the video.',
+}
 
 const workflow = about?.workflow?.length ? about.workflow : [
   { title: 'Discovery Call', description: "We talk through your goals, audience, and style — so every edit serves a purpose, not just looks good." },
@@ -32,12 +66,56 @@ const workflow = about?.workflow?.length ? about.workflow : [
   { title: 'Delivery', description: 'Final files delivered in whatever format and resolution your platform needs — ready to publish.' },
 ]
 
-const trustStats = about?.trustStats?.length ? about.trustStats : [
-  { val: '100+', label: 'Videos Edited' },
-  { val: '50+',  label: 'Happy Clients' },
-  { val: '24h',  label: 'Avg. Turnaround' },
-  { val: '5★',   label: 'Average Rating' },
+const principlesSection = {
+  badge: about?.principlesSection?.badge ?? 'Principles',
+  heading: about?.principlesSection?.heading ?? 'What I believe about editing.',
+  highlightPhrase: about?.principlesSection?.highlightPhrase ?? 'editing.',
+  subtitle: about?.principlesSection?.subtitle ?? "The rules behind every timeline I touch — they're why clients stay.",
+}
+
+const principles = about?.principles?.length ? about.principles : [
+  { title: 'Retention beats decoration', description: "Effects that don't hold attention are noise. Every cut, caption, and sound cue exists to keep the viewer watching — nothing goes on the timeline just because it looks cool." },
+  { title: 'The story is found in the footage', description: "I don't force a template onto your content. I watch everything first, find the strongest thread, and build the edit around it." },
+  { title: 'Sound is half the edit', description: 'Clean dialogue, intentional music shifts, and sound design that lands on the cut — audiences forgive average visuals, never bad audio.' },
+  { title: 'Deadlines are part of the craft', description: 'A brilliant edit delivered late costs you the algorithm window. You get a date, and the video arrives on it.' },
 ]
+
+const beyondTheTimeline = {
+  image1Url: about?.beyondTheTimeline?.image1Url,
+  image2Url: about?.beyondTheTimeline?.image2Url,
+  title: about?.beyondTheTimeline?.title ?? 'Beyond the timeline',
+  description: about?.beyondTheTimeline?.description ?? "When I'm not editing, I'm studying what makes videos work — breaking down retention graphs, testing hooks on my own channel, and writing about the craft on the blog.",
+}
+
+// Splits a string around a phrase so it can render in accent color while the
+// rest stays default — natural wrap only, no forced <br>.
+function splitHeading(text: string, phrase?: string) {
+  if (!phrase) return [{ text, accent: false }]
+  const idx = text.indexOf(phrase)
+  if (idx === -1) return [{ text, accent: false }]
+  return [
+    { text: text.slice(0, idx), accent: false },
+    { text: text.slice(idx, idx + phrase.length), accent: true },
+    { text: text.slice(idx + phrase.length), accent: false },
+  ].filter(part => part.text.length > 0)
+}
+
+// Wraps the first occurrence of `word` in the text with a link to `href`.
+function linkifyWord(text: string, word: string, href: string) {
+  const idx = text.toLowerCase().indexOf(word.toLowerCase())
+  if (idx === -1) return [{ text, link: false }]
+  return [
+    { text: text.slice(0, idx), link: false },
+    { text: text.slice(idx, idx + word.length), link: true },
+    { text: text.slice(idx + word.length), link: false },
+  ].filter(part => part.text.length > 0)
+}
+
+const heroTitleParts = splitHeading(hero.title, hero.highlightPhrase)
+const toolsHeadingParts = splitHeading(toolsSection.heading, toolsSection.highlightPhrase)
+const processHeadingParts = splitHeading(processSection.heading, processSection.highlightPhrase)
+const principlesHeadingParts = splitHeading(principlesSection.heading, principlesSection.highlightPhrase)
+const beyondDescParts = linkifyWord(beyondTheTimeline.description, 'blog', '/blog')
 ---
 
 <MainLayout
@@ -46,69 +124,163 @@ const trustStats = about?.trustStats?.length ? about.trustStats : [
   schema={breadcrumbSchema([{ name: 'Home', url: '/' }, { name: 'About', url: '/about' }])}
 >
 
-  <!-- ══ STORY ═══════════════════════════════════════════════════════ -->
-  <section class="py-20 border-b border-border">
-    <div class="container max-w-3xl">
-      <h1 class="text-4xl md:text-5xl font-black text-text-white mb-6 tracking-tight">
-        Hi, I'm <span class="text-gradient">Muhammad Adnan</span>
-      </h1>
-      <div class="space-y-5 text-text-muted text-lg leading-relaxed">
-        {story.map((paragraph: string) => <p>{paragraph}</p>)}
+  <!-- ══ HERO ═══════════════════════════════════════════════════════ -->
+  <section>
+    <div class="container md:border-x md:border-border-light md:px-0">
+      <div class="grid lg:grid-cols-2">
+        <div class="px-6 md:pl-[30px] md:pr-10 py-14 md:py-20 flex flex-col justify-center">
+          <span class="inline-block border border-border-light rounded-full text-xs font-normal px-3 py-1 text-text-muted mb-5 self-start">{hero.badge}</span>
+          <h1 class="text-4xl md:text-5xl font-black text-text-white mb-6 tracking-tight">
+            {heroTitleParts.map(part => part.accent ? <span class="text-accent">{part.text}</span> : part.text)}
+          </h1>
+          <div class="space-y-4 text-text-muted text-lg leading-relaxed mb-8">
+            {story.map((paragraph: string) => <p>{paragraph}</p>)}
+          </div>
+          <div class="flex flex-wrap gap-4">
+            <a href="/contact" class="btn-primary">{hero.primaryCtaLabel}</a>
+            <a href="/portfolio" class="btn-secondary">{hero.secondaryCtaLabel}</a>
+          </div>
+        </div>
+
+        <div class="relative min-h-[360px] lg:min-h-[560px] bg-bg-2 md:border-l md:border-border-light">
+          {hero.imageUrl && (
+            <img src={hero.imageUrl} alt={hero.imageCaptionName} class="absolute inset-0 w-full h-full object-cover" />
+          )}
+          <div class="absolute bottom-4 left-4 md:bottom-6 md:left-6 bg-[#111827] text-white p-4 max-w-[220px]">
+            <div class="font-bold text-sm">{hero.imageCaptionName}</div>
+            <div class="text-white/60 text-xs mt-0.5">{hero.imageCaptionRole}</div>
+          </div>
+        </div>
       </div>
     </div>
   </section>
+
+  <Metrics stats={trustStats} />
+  <Spacer borderBottom />
 
   <!-- ══ TOOLS ═══════════════════════════════════════════════════════ -->
-  <section class="py-20 border-b border-border bg-bg-1">
-    <div class="container">
-      <h2 class="section-heading">Tools I Use</h2>
-      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mt-8">
-        {tools.map(tool => (
-          <div class="card text-center !py-6">
-            <div class="text-3xl mb-2">{tool.icon}</div>
-            <div class="text-text-white text-sm font-semibold">{tool.name}</div>
-          </div>
-        ))}
+  <section>
+    <div class="container md:border-x md:border-border-light md:px-0">
+      <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-6 px-6 md:pl-[30px] md:pr-8 py-10 md:py-14">
+        <div>
+          <span class="inline-block border border-border-light rounded-full text-xs font-normal px-3 py-1 text-text-muted mb-4">{toolsSection.badge}</span>
+          <h2 class="text-4xl md:text-5xl font-bold text-text-white tracking-tight max-w-[800px]">
+            {toolsHeadingParts.map(part => part.accent ? <span class="text-accent">{part.text}</span> : part.text)}
+          </h2>
+        </div>
+        {toolsSection.subtitle && <p class="text-text-muted text-lg max-w-sm md:pt-2">{toolsSection.subtitle}</p>}
       </div>
+    </div>
+
+    {tools?.length > 0 && (
+      <div class="container md:border-x md:border-border-light md:px-0">
+        <div class="border-t md:border-border-light grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 md:gap-x-px md:bg-border-light">
+          {tools.map((tool: any) => (
+            <div class="bg-bg-1 p-6 flex flex-col items-center text-center gap-3">
+              <div class="w-11 h-11 rounded-lg bg-accent/10 flex items-center justify-center text-accent font-bold text-sm shrink-0">
+                {tool.icon}
+              </div>
+              <div class="text-text-white text-sm font-semibold">{tool.name}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    )}
+  </section>
+
+  <Spacer borderTop borderBottom />
+
+  <!-- ══ PROCESS ═════════════════════════════════════════════════════ -->
+  <section>
+    <div class="container md:border-x md:border-border-light md:px-0">
+      <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-6 px-6 md:pl-[30px] md:pr-8 py-10 md:py-14">
+        <div>
+          <span class="inline-block border border-border-light rounded-full text-xs font-normal px-3 py-1 text-text-muted mb-4">{processSection.badge}</span>
+          <h2 class="text-4xl md:text-5xl font-bold text-text-white tracking-tight max-w-[800px]">
+            {processHeadingParts.map(part => part.accent ? <span class="text-accent">{part.text}</span> : part.text)}
+          </h2>
+        </div>
+        {processSection.subtitle && <p class="text-text-muted text-lg max-w-sm md:pt-2">{processSection.subtitle}</p>}
+      </div>
+
+      {workflow?.length > 0 && (
+        <div class="px-6 md:px-[30px] pb-10 md:pb-14 grid sm:grid-cols-2 lg:grid-cols-5 gap-4">
+          {workflow.map((step: any, i: number) => {
+            const isLast = i === workflow.length - 1
+            return (
+              <div class={`p-6 border rounded-none ${isLast ? 'border-accent' : 'border-border'}`}>
+                <div class={`text-3xl font-black mb-4 ${isLast ? 'text-accent' : 'text-border-light'}`}>
+                  {String(i + 1).padStart(2, '0')}
+                </div>
+                <h3 class="font-bold text-text-white mb-2">{step.title}</h3>
+                <p class="text-text-muted text-sm leading-6">{step.description}</p>
+              </div>
+            )
+          })}
+        </div>
+      )}
     </div>
   </section>
 
-  <!-- ══ WORKFLOW ════════════════════════════════════════════════════ -->
-  <section class="py-20 border-b border-border">
-    <div class="container">
-      <h2 class="section-heading">How I Work</h2>
-      <p class="text-text-muted mb-12 max-w-xl">
-        A predictable process means fewer surprises for you and a better result for the video.
-      </p>
-      <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-6">
-        {workflow.map((step: any, i: number) => (
-          <div class="card relative">
-            <div class="text-4xl font-black text-border absolute top-4 right-4">{String(i + 1).padStart(2, '0')}</div>
-            <h3 class="font-bold text-text-white mb-2">{step.title}</h3>
-            <p class="text-text-muted text-base">{step.description}</p>
-          </div>
-        ))}
-      </div>
-    </div>
-  </section>
+  <Spacer borderTop borderBottom />
 
-  <!-- ══ TRUST SIGNALS ═══════════════════════════════════════════════ -->
-  <section class="py-20 border-b border-border bg-bg-1">
-    <div class="container">
-      <div class="flex flex-wrap gap-8 justify-center text-center">
-        {trustStats.map(({ val, label }) => (
-          <div>
-            <div class="text-4xl font-black text-gradient">{val}</div>
-            <div class="text-sm text-text-muted mt-1">{label}</div>
+  <!-- ══ PRINCIPLES ══════════════════════════════════════════════════ -->
+  <section>
+    <div class="container md:border-x md:border-border-light md:px-0">
+      <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-6 px-6 md:pl-[30px] md:pr-8 py-10 md:py-14">
+        <div>
+          <span class="inline-block border border-border-light rounded-full text-xs font-normal px-3 py-1 text-text-muted mb-4">{principlesSection.badge}</span>
+          <h2 class="text-4xl md:text-5xl font-bold text-text-white tracking-tight max-w-[800px]">
+            {principlesHeadingParts.map(part => part.accent ? <span class="text-accent">{part.text}</span> : part.text)}
+          </h2>
+        </div>
+        {principlesSection.subtitle && <p class="text-text-muted text-lg max-w-sm md:pt-2">{principlesSection.subtitle}</p>}
+      </div>
+
+      <div class="px-6 md:px-[30px] pb-10 md:pb-14">
+        {principles?.length > 0 && (
+          <div class="divide-y divide-border">
+            {principles.map((p: any, i: number) => (
+              <div class="flex gap-4 py-6 first:pt-0 last:pb-0">
+                <span class="text-accent font-bold text-sm shrink-0 pt-0.5">{String(i + 1).padStart(2, '0')}</span>
+                <div>
+                  <h3 class="font-bold text-text-white mb-1">{p.title}</h3>
+                  <p class="text-text-muted text-base leading-6">{p.description}</p>
+                </div>
+              </div>
+            ))}
           </div>
-        ))}
+        )}
+
+        {beyondTheTimeline && (
+          <div class="grid sm:grid-cols-3 gap-4 mt-12">
+            <div class="aspect-square bg-bg-2 overflow-hidden">
+              {beyondTheTimeline.image1Url && (
+                <img src={beyondTheTimeline.image1Url} alt="" class="w-full h-full object-cover" loading="lazy" />
+              )}
+            </div>
+            <div class="aspect-square bg-bg-2 overflow-hidden">
+              {beyondTheTimeline.image2Url && (
+                <img src={beyondTheTimeline.image2Url} alt="" class="w-full h-full object-cover" loading="lazy" />
+              )}
+            </div>
+            <div class="card rounded-none flex flex-col justify-center">
+              <h3 class="font-bold text-text-white mb-2">{beyondTheTimeline.title}</h3>
+              <p class="text-text-muted text-sm leading-6">
+                {beyondDescParts.map(part => part.link ? <a href="/blog" class="text-accent hover:underline">{part.text}</a> : part.text)}
+              </p>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   </section>
 
   <!-- ══ CTA ═════════════════════════════════════════════════════════ -->
   <CTA
+    badge="🔥 Limited slots each month"
     heading="Ready to Work Together?"
+    highlightPhrase="Together?"
     subtext="Tell me about your project and get a free quote within 24 hours."
     primaryCta={{ label: 'Get a Free Quote →', href: '/contact' }}
     secondaryCta={{ label: 'View Portfolio', href: '/portfolio' }}

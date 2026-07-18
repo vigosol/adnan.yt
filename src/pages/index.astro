@@ -18,6 +18,7 @@ import {
   SITE_SETTINGS_QUERY, HOME_PAGE_QUERY, SERVICES_HOMEPAGE_QUERY, TESTIMONIALS_QUERY, PORTFOLIO_LIST_QUERY,
   BLOG_HOMEPAGE_QUERY,
 } from '../lib/queries'
+import { normalizeCalLink, getCalNamespace } from '../lib/cal'
 
 const [settings, home, services, testimonials, portfolio, blogPosts] = await Promise.all([
   fetchSanity<any>(SITE_SETTINGS_QUERY),
@@ -27,6 +28,9 @@ const [settings, home, services, testimonials, portfolio, blogPosts] = await Pro
   fetchSanity<any[]>(PORTFOLIO_LIST_QUERY),
   fetchSanity<any[]>(BLOG_HOMEPAGE_QUERY),
 ])
+
+const calLink = normalizeCalLink(settings?.calBooking?.calLink)
+const calNamespace = getCalNamespace(calLink)
 
 // Hero / Process / FAQs / Trust Stats are CMS-managed via the Home Page
 // document — fall back to launch-day defaults until that's filled in.
@@ -281,6 +285,8 @@ const faqSchema = {
     subtitle={pricingSection.subtitle}
     packages={pricingSection.packages}
     helpPanel={pricingSection.helpPanel}
+    calLink={calLink}
+    calNamespace={calNamespace}
   />
 
   <!-- ══ PROCESS ════════════════════════════════════════════════════ -->

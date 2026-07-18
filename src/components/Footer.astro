@@ -1,6 +1,7 @@
 ---
 import { fetchSanity } from '../lib/sanity'
 import { SERVICES_LIST_QUERY } from '../lib/queries'
+import { normalizeCalLink, getCalNamespace } from '../lib/cal'
 
 interface Props {
   settings?: any
@@ -8,6 +9,8 @@ interface Props {
 const { settings } = Astro.props as Props
 
 const services = await fetchSanity<any[]>(SERVICES_LIST_QUERY).catch(() => [])
+const calLink = normalizeCalLink(settings?.calBooking?.calLink)
+const calNamespace = getCalNamespace(calLink)
 
 const year = new Date().getFullYear()
 
@@ -73,7 +76,15 @@ const socials = ['youtube', 'instagram', 'tiktok', 'linkedin', 'twitter']
           <li>{settings?.footerHours ?? 'Mon–Sat, replies within 24h'}</li>
           <li>{settings?.footerAvailability ?? 'Working worldwide, remotely'}</li>
         </ul>
-        <a href="/contact" class="inline-flex items-center gap-1.5 text-accent-light text-sm font-semibold mt-4 hover:underline">
+        <a
+          href="/contact"
+          {...(calLink ? {
+            'data-cal-link': calLink,
+            'data-cal-namespace': calNamespace,
+            'data-cal-config': '{"layout":"month_view","useSlotsViewOnSmallScreen":"true"}',
+          } : {})}
+          class="inline-flex items-center gap-1.5 text-accent-light text-sm font-semibold mt-4 hover:underline"
+        >
           Book a call →
         </a>
       </div>

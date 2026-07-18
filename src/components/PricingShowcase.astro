@@ -27,6 +27,8 @@ interface Props {
   packages: Package[]
   helpPanel?: HelpPanel
   showHeroBackground?: boolean
+  calLink?: string
+  calNamespace?: string
 }
 const {
   badge = 'Pricing',
@@ -36,7 +38,15 @@ const {
   packages,
   helpPanel = {},
   showHeroBackground = false,
+  calLink,
+  calNamespace,
 } = Astro.props as Props
+
+// A package CTA labeled "Book a Call" opens the Cal.com popup instead of
+// linking to /contact — every other label keeps the normal contact link.
+function isBookACallLabel(label?: string) {
+  return /book a call/i.test(label ?? '')
+}
 
 // Split the heading around the highlighted phrase so it can render in accent
 // color while the rest stays default — natural wrap only, no forced <br>.
@@ -93,7 +103,7 @@ const gridColsClass = colsClass[totalCols] ?? 'md:grid-cols-3'
   <div class="container md:border-x md:border-border-light md:px-0">
     <div class={`${showHeroBackground ? '' : 'border-t border-border-light'} grid grid-cols-1 ${gridColsClass} md:divide-x md:divide-border-light`}>
       {packages.map(pkg => (
-        <div class={`p-8 md:p-10 flex flex-col border-b md:border-b-0 border-border-light ${pkg.featured ? 'bg-accent' : 'bg-bg-1'}`}>
+        <div class={`p-8 md:p-10 flex flex-col border-b md:border-b-0 border-border-light ${pkg.featured ? 'bg-accent' : 'bg-bg'}`}>
           <div class="flex items-center gap-2 mb-2">
             <h3 class={`font-bold text-2xl ${pkg.featured ? 'text-white' : 'text-text-white'}`}>{pkg.title}</h3>
             {pkg.featured && (
@@ -112,6 +122,11 @@ const gridColsClass = colsClass[totalCols] ?? 'md:grid-cols-3'
 
           <a
             href="/contact"
+            {...(calLink && isBookACallLabel(pkg.ctaLabel) ? {
+              'data-cal-link': calLink,
+              'data-cal-namespace': calNamespace,
+              'data-cal-config': '{"layout":"month_view","useSlotsViewOnSmallScreen":"true"}',
+            } : {})}
             class={`group inline-flex items-center justify-center gap-2 rounded-[4px] px-5 py-3 font-semibold text-base transition-colors mb-8 ${
               pkg.featured ? 'bg-white text-accent hover:bg-bg-2' : 'bg-accent text-white hover:bg-accent-dark'
             }`}
@@ -137,7 +152,7 @@ const gridColsClass = colsClass[totalCols] ?? 'md:grid-cols-3'
         </div>
       ))}
 
-      <div class="p-8 md:p-10 flex flex-col justify-between bg-bg-1">
+      <div class="p-8 md:p-10 flex flex-col justify-between bg-bg">
         <div>
           <h3 class="font-bold text-2xl text-text-white mb-2">{block1Heading}</h3>
           <p class="text-text-muted text-base mb-6">{block1Subtext}</p>

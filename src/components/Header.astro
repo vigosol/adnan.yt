@@ -1,6 +1,7 @@
 ---
 import { fetchSanity } from '../lib/sanity'
 import { SERVICES_LIST_QUERY } from '../lib/queries'
+import { fallbackServiceIcons } from '../lib/serviceIcons'
 import ThemeToggle from './ThemeToggle.astro'
 
 const services = await fetchSanity<any[]>(SERVICES_LIST_QUERY).catch(() => [])
@@ -18,14 +19,14 @@ const navLinks = [
 <header class="sticky top-0 z-50 bg-bg/95 backdrop-blur-sm border-b border-border-light">
   <div class="container md:border-x md:border-border-light flex items-center gap-10 h-16">
 
-    <!-- Logo — fixed 180px column, swaps for dark mode -->
-    <a href="/" class="shrink-0 flex items-center" style="width:180px">
+    <!-- Logo — fixed 180px column on desktop (balances the centered nav), auto-width on mobile, swaps for dark mode -->
+    <a href="/" class="shrink-0 flex items-center lg:w-[180px]">
       <img src="/logo.svg"       alt="adnan.yt" class="logo-light h-8 w-auto" />
       <img src="/logo-white.svg" alt="adnan.yt" class="logo-dark  h-8 w-auto" />
     </a>
 
     <!-- Nav — flex-1, centered, 20px gaps, 16px font -->
-    <nav class="hidden md:flex flex-1 items-center justify-center gap-5 text-[16px] font-normal text-text-muted" aria-label="Main">
+    <nav class="hidden lg:flex flex-1 items-center justify-center gap-5 text-[16px] font-normal text-text-muted" aria-label="Main">
       <!-- Services dropdown -->
       <div class="relative group">
         <button
@@ -38,19 +39,36 @@ const navLinks = [
           </svg>
         </button>
         <div class="absolute left-0 top-full pt-3 invisible opacity-0 translate-y-1 group-hover:visible group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-150">
-          <div class="w-64 card !p-2 shadow-card">
-            {services?.length ? services.map((s: any) => (
-              <a
-                href={`/services/${s.slug.current}`}
-                class="flex items-center gap-3 px-3 py-2 rounded-btn hover:bg-bg-2 text-text hover:text-text-white transition-colors"
-              >
-                <span>{s.icon ?? '🎬'}</span>
-                <span>{s.title}</span>
-              </a>
-            )) : (
+          <div class="w-[560px] card bg-bg rounded-none !p-2 shadow-card">
+            {services?.length ? (
+              <div class="grid grid-cols-2 gap-1">
+                {services.slice(0, 6).map((s: any, i: number) => (
+                  <a
+                    href={`/services/${s.slug.current}`}
+                    class="group/item flex items-start gap-3 p-3 hover:bg-bg-2 transition-colors"
+                  >
+                    <div class="w-10 h-10 shrink-0 rounded-lg bg-accent/10 flex items-center justify-center text-accent">
+                      {s.iconImageUrl ? (
+                        <img src={s.iconImageUrl} alt="" class="w-5 h-5 object-contain" />
+                      ) : (
+                        <div class="w-5 h-5" set:html={fallbackServiceIcons[i % fallbackServiceIcons.length]} />
+                      )}
+                    </div>
+                    <div class="min-w-0">
+                      <div class="text-text-white group-hover/item:text-accent-light font-semibold text-sm transition-colors">
+                        {s.title}
+                      </div>
+                      {s.shortDescription && (
+                        <p class="text-text-muted text-xs leading-5 mt-0.5 line-clamp-2">{s.shortDescription}</p>
+                      )}
+                    </div>
+                  </a>
+                ))}
+              </div>
+            ) : (
               <p class="px-3 py-2 text-text-muted text-sm">Add services in Sanity Studio.</p>
             )}
-            <a href="/services" class="block px-3 py-2 mt-1 border-t border-border text-accent text-sm font-semibold">
+            <a href="/services" class="block px-3 py-2.5 mt-1 border-t border-border text-accent text-sm font-semibold hover:bg-bg-2 transition-colors">
               View all services →
             </a>
           </div>
@@ -62,46 +80,77 @@ const navLinks = [
       ))}
     </nav>
 
-    <!-- Actions — fixed 180px column, right-aligned, 32px gap -->
-    <div class="hidden md:flex items-center justify-end gap-8 shrink-0" style="width:180px">
-      <ThemeToggle />
-      <a href="/contact" class="btn-dark">Start a Project</a>
+    <!-- Actions — min 180px column (never shrinks its own children), right-aligned -->
+    <div class="hidden lg:flex items-center justify-end gap-4 md:min-w-[180px] shrink-0">
+      <ThemeToggle class="shrink-0" />
+      <a href="/contact" class="btn-dark shrink-0 whitespace-nowrap">Start a Project</a>
     </div>
 
-    <!-- Mobile hamburger -->
-    <button
-      id="mobile-menu-btn"
-      class="md:hidden ml-auto flex items-center justify-center w-11 h-11 text-text-white"
-      aria-label="Open menu"
-      aria-expanded="false"
-      aria-controls="mobile-menu"
-    >
-      <svg id="icon-open" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round" />
-      </svg>
-      <svg id="icon-close" class="w-6 h-6 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M6 6l12 12M18 6L6 18" stroke-linecap="round" />
-      </svg>
-    </button>
+    <!-- Mobile: quote button + hamburger, right-aligned, icon flush with container edge -->
+    <div class="lg:hidden ml-auto flex items-center gap-3">
+      <button type="button" data-open-quote-modal class="h-[30px] px-3.5 inline-flex items-center justify-center rounded-btn bg-accent hover:bg-accent-dark text-white text-sm font-semibold whitespace-nowrap transition-colors">
+        Get a Free Quote
+      </button>
+      <button
+        id="mobile-menu-btn"
+        class="flex items-center justify-end h-11 shrink-0 text-text-white"
+        aria-label="Open menu"
+        aria-expanded="false"
+        aria-controls="mobile-menu"
+      >
+        <svg id="icon-open" class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round" />
+        </svg>
+        <svg id="icon-close" class="w-8 h-8 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M6 6l12 12M18 6L6 18" stroke-linecap="round" />
+        </svg>
+      </button>
+    </div>
   </div>
 
-  <!-- Mobile menu -->
-  <div id="mobile-menu" class="hidden md:hidden border-t border-border bg-bg">
-    <div class="container py-4 flex flex-col gap-1 text-[16px] font-normal">
-      <a href="/services" class="px-2 py-2.5 rounded-btn hover:bg-bg-2 text-text-white">Services</a>
-      {services?.slice(0, 5).map((s: any) => (
-        <a href={`/services/${s.slug.current}`} class="px-4 py-2.5 rounded-btn hover:bg-bg-2 text-text-muted text-sm">
-          {s.title}
-        </a>
-      ))}
-      {navLinks.map(link => (
-        <a href={link.href} class="px-2 py-2.5 rounded-btn hover:bg-bg-2 text-text-white">{link.label}</a>
-      ))}
-      <div class="flex items-center justify-between px-2 py-2.5">
-        <span class="text-text-white">Theme</span>
-        <ThemeToggle />
+  <!-- Mobile menu — full-screen overlay below the header -->
+  <div id="mobile-menu" class="hidden lg:hidden fixed inset-x-0 top-16 z-40 bg-bg overflow-y-auto h-[calc(100dvh-4rem)]">
+    <div class="container h-full flex flex-col text-[16px] font-normal">
+      <!-- Services — collapsible accordion, closed by default -->
+      <div class="border-b border-border">
+        <button
+          type="button"
+          id="mobile-services-toggle"
+          class="w-full flex items-center justify-between px-2 py-3.5 text-text-white"
+          aria-expanded="false"
+          aria-controls="mobile-services-panel"
+        >
+          Services
+          <svg id="mobile-services-chevron" class="w-5 h-5 text-text-muted transition-transform duration-300 ease-in-out" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </button>
+        <div id="mobile-services-panel" class="grid transition-[grid-template-rows] duration-300 ease-in-out" style="grid-template-rows: 0fr;">
+          <div class="overflow-hidden">
+            <div class="flex flex-col gap-1 pb-3">
+              {services?.slice(0, 6).map((s: any) => (
+                <a href={`/services/${s.slug.current}`} class="px-4 py-2 rounded-btn hover:bg-bg-2 text-text-muted text-sm">
+                  {s.title}
+                </a>
+              ))}
+              <a href="/services" class="px-4 py-2 text-accent text-sm font-semibold">View all services →</a>
+            </div>
+          </div>
+        </div>
       </div>
-      <a href="/contact" class="btn-dark text-center mt-1">Start a Project</a>
+
+      {navLinks.map(link => (
+        <a href={link.href} class="px-2 py-3.5 border-b border-border hover:bg-bg-2 text-text-white">{link.label}</a>
+      ))}
+
+      <!-- Theme toggle + primary CTA — pinned to the bottom of the screen -->
+      <div class="mt-auto pb-6">
+        <div class="flex items-center justify-between px-2 py-3.5 border-b border-border">
+          <span class="text-text-white">Theme</span>
+          <ThemeToggle />
+        </div>
+        <a href="/contact" class="btn-dark text-center mt-4">Start a Project</a>
+      </div>
     </div>
   </div>
 </header>
@@ -112,10 +161,28 @@ const navLinks = [
   const iconOpen = document.getElementById('icon-open')
   const iconClose = document.getElementById('icon-close')
 
+  const servicesToggle = document.getElementById('mobile-services-toggle')
+  const servicesPanel = document.getElementById('mobile-services-panel')
+  const servicesChevron = document.getElementById('mobile-services-chevron')
+
+  function closeServicesAccordion() {
+    servicesPanel && (servicesPanel.style.gridTemplateRows = '0fr')
+    servicesChevron?.classList.remove('rotate-180')
+    servicesToggle?.setAttribute('aria-expanded', 'false')
+  }
+
   btn?.addEventListener('click', () => {
     const isHidden = menu?.classList.toggle('hidden')
     btn.setAttribute('aria-expanded', String(!isHidden))
     iconOpen?.classList.toggle('hidden')
     iconClose?.classList.toggle('hidden')
+    closeServicesAccordion()
+  })
+
+  servicesToggle?.addEventListener('click', () => {
+    const isOpen = servicesToggle.getAttribute('aria-expanded') === 'true'
+    if (servicesPanel) servicesPanel.style.gridTemplateRows = isOpen ? '0fr' : '1fr'
+    servicesChevron?.classList.toggle('rotate-180', !isOpen)
+    servicesToggle.setAttribute('aria-expanded', String(!isOpen))
   })
 </script>

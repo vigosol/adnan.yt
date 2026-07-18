@@ -28,6 +28,16 @@ export default defineType({
     }),
     defineField({ name: "enableWhatsapp", type: "boolean", title: "Show WhatsApp Button?", initialValue: true }),
     defineField({
+      name: "calBooking", title: "Cal.com Booking", type: "object",
+      description: "Powers the booking popup opened by every \"Book a call\" button on the site.",
+      fields: [
+        {
+          name: "calLink", type: "string", title: "Cal.com Link",
+          description: "Your Cal.com username + event type slug, e.g. \"adnan/book-a-call\" (from cal.com/adnan/book-a-call). Leave blank to keep \"Book a call\" buttons linking to the Contact page instead.",
+        },
+      ],
+    }),
+    defineField({
       name: "author", title: "Blog Author Profile", type: "object",
       description: "Shown on blog post detail pages — this is a single-author blog, so it's one shared profile rather than a per-post field.",
       fields: [
