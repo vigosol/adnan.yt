@@ -12,7 +12,7 @@ const navLinks = [
   { href: '/about',      label: 'About' },
   { href: '/blog',       label: 'Blog' },
   { href: '/tutorials',  label: 'Tutorials' },
-  { href: '/shop',       label: 'Shop' },
+  { href: '/contact',    label: 'Contact' },
 ]
 ---
 
@@ -108,8 +108,8 @@ const navLinks = [
     </div>
   </div>
 
-  <!-- Mobile menu — full-screen overlay below the header -->
-  <div id="mobile-menu" class="hidden lg:hidden fixed inset-x-0 top-16 z-40 bg-bg overflow-y-auto h-[calc(100dvh-4rem)]">
+  <!-- Mobile menu — full-screen overlay below the header, fades + slides in -->
+  <div id="mobile-menu" class="lg:hidden fixed inset-x-0 top-16 z-40 bg-bg overflow-y-auto h-[calc(100dvh-4rem)] invisible opacity-0 -translate-y-4 transition-all duration-300 ease-in-out">
     <div class="container h-full flex flex-col text-[16px] font-normal">
       <!-- Services — collapsible accordion, closed by default -->
       <div class="border-b border-border">
@@ -172,8 +172,14 @@ const navLinks = [
   }
 
   btn?.addEventListener('click', () => {
-    const isHidden = menu?.classList.toggle('hidden')
-    btn.setAttribute('aria-expanded', String(!isHidden))
+    // Toggling 'invisible' (not 'hidden') keeps the menu in the render tree
+    // so opacity/transform can transition smoothly instead of snapping —
+    // visibility itself still flips at the right end of the transition, so
+    // it's still non-interactive and out of the tab order once closed.
+    const isNowClosed = menu?.classList.toggle('invisible')
+    menu?.classList.toggle('opacity-0', isNowClosed)
+    menu?.classList.toggle('-translate-y-4', isNowClosed)
+    btn.setAttribute('aria-expanded', String(!isNowClosed))
     iconOpen?.classList.toggle('hidden')
     iconClose?.classList.toggle('hidden')
     closeServicesAccordion()

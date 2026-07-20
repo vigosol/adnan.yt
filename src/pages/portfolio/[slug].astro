@@ -2,9 +2,12 @@
 import MainLayout from '../../layouts/MainLayout.astro'
 import PostNav from '../../components/PostNav.astro'
 import CTA from '../../components/CTA.astro'
+import PageHeroBackground from '../../components/PageHeroBackground.astro'
+import Spacer from '../../components/Spacer.astro'
 import { fetchSanity } from '../../lib/sanity'
-import { PORTFOLIO_LIST_QUERY, PORTFOLIO_BY_SLUG_QUERY, PORTFOLIO_SLUGS_QUERY } from '../../lib/queries'
+import { PORTFOLIO_LIST_QUERY, PORTFOLIO_BY_SLUG_QUERY, PORTFOLIO_SLUGS_QUERY, SITE_SETTINGS_QUERY } from '../../lib/queries'
 import { breadcrumbSchema } from '../../lib/breadcrumbs'
+import { normalizeCalLink, getCalNamespace } from '../../lib/cal'
 
 export async function getStaticPaths() {
   const items = await fetchSanity<any[]>(PORTFOLIO_LIST_QUERY)
@@ -12,7 +15,12 @@ export async function getStaticPaths() {
 }
 
 const { slug } = Astro.params
-const item = await fetchSanity<any>(PORTFOLIO_BY_SLUG_QUERY, { slug })
+
+const [item, allItems, settings] = await Promise.all([
+  fetchSanity<any>(PORTFOLIO_BY_SLUG_QUERY, { slug }),
+  fetchSanity<any[]>(PORTFOLIO_LIST_QUERY),
+  fetchSanity<any>(SITE_SETTINGS_QUERY),
+])
 
 if (!item) return Astro.redirect('/portfolio')
 
@@ -20,6 +28,10 @@ const allSlugs = await fetchSanity<any[]>(PORTFOLIO_SLUGS_QUERY)
 const currentIndex = allSlugs.findIndex((p: any) => p.slug.current === slug)
 const prevItem = currentIndex > 0 ? allSlugs[currentIndex - 1] : null
 const nextItem = currentIndex >= 0 && currentIndex < allSlugs.length - 1 ? allSlugs[currentIndex + 1] : null
+
+const otherItems = (allItems ?? []).filter((p: any) => p.slug.current !== slug).slice(0, 3)
+const calLink = normalizeCalLink(settings?.calBooking?.calLink)
+const calNamespace = getCalNamespace(calLink)
 
 function youtubeId(url?: string) {
   if (!url) return null
@@ -41,73 +53,169 @@ const breadcrumbs = breadcrumbSchema([
   schema={breadcrumbs}
 >
 
-  <section class="py-20 border-b border-border">
-    <div class="container max-w-3xl">
-      <a href="/portfolio" class="text-accent-light text-sm font-semibold hover:underline">← All Portfolio</a>
-      <h1 class="text-4xl md:text-5xl font-black text-text-white mt-4 mb-4 tracking-tight">{item.title}</h1>
-      <div class="flex flex-wrap gap-2">
-        {item.platform && <span class="badge-accent text-xs">{item.platform}</span>}
-        {item.industry && <span class="badge text-xs bg-bg-2 text-text-muted border border-border">{item.industry}</span>}
-        {item.service && <span class="badge text-xs bg-bg-2 text-text-muted border border-border">{item.service}</span>}
+  <!-- ══ HEADER ═════════════════════════════════════════════════════ -->
+  <section class="relative overflow-hidden">
+    <PageHeroBackground />
+    <div class="container md:border-x md:border-border-light md:px-0 min-h-[300px] md:min-h-[400px] flex flex-col justify-center">
+      <div class="px-6 md:pl-[30px] md:pr-8 py-10 md:py-14">
+        <a href="/portfolio" class="text-accent-light text-sm font-semibold hover:underline">← All Portfolio</a>
+        <h1 class="text-4xl md:text-5xl font-bold text-text-white mt-4 mb-3 tracking-tight max-w-[800px]">{item.title}</h1>
+        <div class="flex flex-wrap gap-2">
+          {item.platform && <span class="badge-accent text-xs">{item.platform}</span>}
+          {item.industry && <span class="badge text-xs bg-bg-2 text-text-muted border border-border">{item.industry}</span>}
+          {item.service && <span class="badge text-xs bg-bg-2 text-text-muted border border-border">{item.service}</span>}
+        </div>
       </div>
     </div>
   </section>
 
+  <Spacer borderTop borderBottom />
+
   <section class="py-20 border-b border-border">
-    <div class="container max-w-3xl space-y-10">
-      {ytId ? (
-        <div class="aspect-video rounded-card overflow-hidden border border-border">
-          <iframe
-            src={`https://www.youtube.com/embed/${ytId}`}
-            class="w-full h-full" frameborder="0" allowfullscreen
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          />
-        </div>
-      ) : item.detailImage && (
-        <img src={item.detailImage} alt={item.title} class="w-full rounded-card border border-border" />
-      )}
+    <div class="container grid lg:grid-cols-[1fr_360px] gap-12">
+      <div>
+        {ytId ? (
+          <div class="relative aspect-video overflow-hidden border border-border mb-10">
+            <span class="badge-accent absolute top-3 left-3 z-10 text-xs">Showreel</span>
+            <iframe
+              src={`https://www.youtube.com/embed/${ytId}`}
+              class="w-full h-full" frameborder="0" allowfullscreen
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            />
+          </div>
+        ) : item.detailImage && (
+          <div class="relative mb-10">
+            <span class="badge-accent absolute top-3 left-3 z-10 text-xs">Showreel</span>
+            <img
+              src={item.detailImage} alt={item.title}
+              class="w-full border border-border"
+              loading="lazy"
+            />
+          </div>
+        )}
 
-      {item.problem && (
-        <div>
-          <h2 class="section-heading">The Problem</h2>
-          <p class="text-text-muted leading-6">{item.problem}</p>
-        </div>
-      )}
+        {item.problem && (
+          <div class="mb-10">
+            <h2 class="text-xl font-extrabold text-text-white pb-4 mb-6 border-b border-border">The Problem</h2>
+            <p class="text-text-muted leading-6">{item.problem}</p>
+          </div>
+        )}
 
-      {item.solution && (
-        <div>
-          <h2 class="section-heading">The Solution</h2>
-          <p class="text-text-muted leading-6">{item.solution}</p>
-        </div>
-      )}
+        {item.solution && (
+          <div class="mb-10">
+            <h2 class="text-xl font-extrabold text-text-white pb-4 mb-6 border-b border-border">The Solution</h2>
+            <p class="text-text-muted leading-6">{item.solution}</p>
+          </div>
+        )}
 
-      {item.toolsUsed?.length > 0 && (
-        <div>
-          <h2 class="section-heading">Tools Used</h2>
-          <div class="flex flex-wrap gap-2">
-            {item.toolsUsed.map((tool: string) => (
-              <span class="text-sm text-text bg-bg-2 border border-border rounded-pill px-3 py-1">{tool}</span>
-            ))}
+        {item.toolsUsed?.length > 0 && (
+          <div class="mb-10">
+            <h2 class="text-xl font-extrabold text-text-white pb-4 mb-6 border-b border-border">Tools Used</h2>
+            <div class="flex flex-wrap gap-2">
+              {item.toolsUsed.map((tool: string) => (
+                <span class="text-sm text-text bg-bg-2 border border-border rounded-pill px-3 py-1">{tool}</span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {item.results && (
+          <div class="callout-success rounded-none mb-10">
+            <span class="callout-icon">📈</span>
+            <div><strong>Results:</strong> {item.results}</div>
+          </div>
+        )}
+
+        {item.testimonial?.quote && (
+          <blockquote class="card rounded-none bg-bg-2 mb-10">
+            <p class="text-text text-lg leading-relaxed mb-4">"{item.testimonial.quote}"</p>
+            <div class="text-text-white font-semibold text-sm">{item.testimonial.name}</div>
+            {item.testimonial.role && <div class="text-text-muted text-xs">{item.testimonial.role}</div>}
+          </blockquote>
+        )}
+
+        <PostNav prev={prevItem} next={nextItem} basePath="/portfolio" />
+      </div>
+
+      <!-- ── Sidebar: project details + CTA ── -->
+      <aside class="space-y-6 lg:sticky lg:top-24 lg:self-start">
+        <div class="card rounded-none">
+          <h3 class="text-text-white font-bold mb-4 text-sm uppercase tracking-wide">Project Details</h3>
+          <ul class="space-y-3 mb-5">
+            {item.client && (
+              <li class="flex items-center justify-between gap-2 text-sm">
+                <span class="text-text-muted">Client</span>
+                <span class="text-text-white font-medium">{item.client}</span>
+              </li>
+            )}
+            {item.service && (
+              <li class="flex items-center justify-between gap-2 text-sm">
+                <span class="text-text-muted">Service</span>
+                <span class="text-text-white font-medium">{item.service}</span>
+              </li>
+            )}
+            {item.platform && (
+              <li class="flex items-center justify-between gap-2 text-sm">
+                <span class="text-text-muted">Platform</span>
+                <span class="text-text-white font-medium">{item.platform}</span>
+              </li>
+            )}
+            {item.industry && (
+              <li class="flex items-center justify-between gap-2 text-sm">
+                <span class="text-text-muted">Industry</span>
+                <span class="text-text-white font-medium">{item.industry}</span>
+              </li>
+            )}
+          </ul>
+          <button type="button" data-open-quote-modal class="group btn-primary w-full justify-center mb-3">
+            Get a Free Quote
+            <svg class="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </button>
+          <a href="/portfolio" class="btn-secondary w-full justify-center">View All Work</a>
+          <div class="flex items-center gap-2 mt-4 text-text-muted text-xs">
+            <span class="w-1.5 h-1.5 rounded-full bg-accent shrink-0"></span>
+            Free quote within 24 hours
           </div>
         </div>
-      )}
 
-      {item.results && (
-        <div class="callout-success">
-          <span class="callout-icon">📈</span>
-          <div><strong>Results:</strong> {item.results}</div>
+        {otherItems.length > 0 && (
+          <div class="card rounded-none">
+            <h3 class="text-text-white font-bold mb-4 text-sm uppercase tracking-wide">Other Projects</h3>
+            <ul class="space-y-1">
+              {otherItems.map((p: any) => (
+                <li>
+                  <a href={`/portfolio/${p.slug.current}`} class="group flex items-center justify-between gap-2 py-2 text-text-muted hover:text-text-white text-sm transition-colors">
+                    <span>{p.title}</span>
+                    <svg class="w-3.5 h-3.5 shrink-0 transition-transform duration-200 group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        <div class="bg-[#111827] p-6">
+          <h3 class="text-white font-bold mb-2">Want results like this?</h3>
+          <p class="text-white/60 text-sm leading-6 mb-4">
+            Book a free 15-minute call and let's talk about what's possible for your content.
+          </p>
+          <a
+            href="/contact"
+            {...(calLink ? {
+              'data-cal-link': calLink,
+              'data-cal-namespace': calNamespace,
+              'data-cal-config': '{"layout":"month_view","useSlotsViewOnSmallScreen":"true"}',
+            } : {})}
+            class="inline-flex items-center gap-1.5 text-accent-light text-sm font-semibold hover:underline"
+          >
+            Book a call →
+          </a>
         </div>
-      )}
-
-      {item.testimonial?.quote && (
-        <blockquote class="card border-l-4 border-l-accent">
-          <p class="text-text text-lg leading-relaxed mb-4">"{item.testimonial.quote}"</p>
-          <div class="text-text-white font-semibold text-sm">{item.testimonial.name}</div>
-          {item.testimonial.role && <div class="text-text-muted text-xs">{item.testimonial.role}</div>}
-        </blockquote>
-      )}
-
-      <PostNav prev={prevItem} next={nextItem} basePath="/portfolio" />
+      </aside>
     </div>
   </section>
 
