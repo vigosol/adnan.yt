@@ -1,29 +1,52 @@
 ---
 // Global success toast — mounted once in MainLayout, triggered from any
-// page/form via window.showToast(title, message). Auto-dismisses after 3s.
+// page/form via window.showToast(title, message). Auto-dismisses after 3s,
+// or closes on manual click. Background uses the same color-mix-against-
+// page-bg technique as .callout-success, so it stays a solid tinted card
+// (not a see-through overlay) in both light and dark mode automatically.
 ---
 
 <div
   id="site-toast"
-  class="fixed top-20 left-1/2 -translate-x-1/2 z-[100] pointer-events-none opacity-0 -translate-y-2 transition-all duration-300 ease-out"
+  class="fixed top-24 left-1/2 -translate-x-1/2 z-[100] w-[calc(100%-2rem)] max-w-[360px] pointer-events-none opacity-0 -translate-y-3 scale-95 transition-all duration-300 ease-out"
   role="status"
   aria-live="polite"
 >
-  <div class="flex items-center gap-3 bg-bg-1 border border-border rounded-card shadow-card px-5 py-4 max-w-sm mx-4">
-    <span class="shrink-0 w-8 h-8 rounded-full bg-success/15 flex items-center justify-center text-success">
-      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+  <div
+    class="relative rounded-3xl border p-8 pt-10 text-center shadow-card"
+    style="background: color-mix(in oklch, var(--color-success) 12%, var(--color-bg)); border-color: color-mix(in oklch, var(--color-success) 30%, transparent);"
+  >
+    <button
+      type="button"
+      id="site-toast-close"
+      aria-label="Close"
+      class="absolute top-4 right-4 w-7 h-7 rounded-full bg-[#111827] text-white flex items-center justify-center hover:opacity-80 transition-opacity cursor-pointer"
+    >
+      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <path d="M18 6L6 18M6 6l12 12" stroke-linecap="round" />
+      </svg>
+    </button>
+
+    <span class="mx-auto mb-5 flex w-16 h-16 items-center justify-center rounded-full bg-success text-white">
+      <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
         <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" />
       </svg>
     </span>
-    <div class="min-w-0">
-      <div id="site-toast-title" class="text-text-white font-semibold text-sm">Message sent!</div>
-      <div id="site-toast-message" class="text-text-muted text-xs mt-0.5"></div>
-    </div>
+
+    <div id="site-toast-title" class="text-xl font-bold text-success mb-2">Amazing success!</div>
+    <p id="site-toast-message" class="text-text-muted text-sm leading-relaxed"></p>
   </div>
 </div>
 
 <script>
   let hideTimer: ReturnType<typeof setTimeout> | null = null
+
+  function hideToast() {
+    const toast = document.getElementById('site-toast')
+    if (!toast) return
+    toast.classList.add('opacity-0', '-translate-y-3', 'scale-95', 'pointer-events-none')
+    if (hideTimer) clearTimeout(hideTimer)
+  }
 
   function showToast(title: string, message?: string) {
     const toast = document.getElementById('site-toast')
@@ -37,11 +60,11 @@
 
     if (hideTimer) clearTimeout(hideTimer)
 
-    toast.classList.remove('opacity-0', '-translate-y-2', 'pointer-events-none')
-    hideTimer = setTimeout(() => {
-      toast.classList.add('opacity-0', '-translate-y-2', 'pointer-events-none')
-    }, 3000)
+    toast.classList.remove('opacity-0', '-translate-y-3', 'scale-95', 'pointer-events-none')
+    hideTimer = setTimeout(hideToast, 3000)
   }
+
+  document.getElementById('site-toast-close')?.addEventListener('click', hideToast)
 
   // Exposed globally so any form's submit handler can call it.
   ;(window as any).showToast = showToast

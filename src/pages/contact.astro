@@ -2,9 +2,11 @@
 import MainLayout from '../layouts/MainLayout.astro'
 import FAQ from '../components/FAQ.astro'
 import DatePicker from '../components/DatePicker.astro'
+import PhoneInput from '../components/PhoneInput.astro'
 import PageHeroBackground from '../components/PageHeroBackground.astro'
 import Spacer from '../components/Spacer.astro'
 import { fetchSanity } from '../lib/sanity'
+import { reverseText } from '../lib/obfuscate'
 import { SITE_SETTINGS_QUERY, CONTACT_PAGE_QUERY, SERVICES_LIST_QUERY } from '../lib/queries'
 import { breadcrumbSchema } from '../lib/breadcrumbs'
 
@@ -89,7 +91,10 @@ const faqs = contact?.faqs?.length ? contact.faqs : [
           </div>
         </div>
 
-        <DatePicker id="deadline" name="deadline" label="Deadline (optional)" placeholder="Select a date" />
+        <div class="grid sm:grid-cols-2 gap-5">
+          <PhoneInput id="whatsapp" name="whatsapp" label="WhatsApp" />
+          <DatePicker id="deadline" name="deadline" label="Deadline (optional)" placeholder="Select a date" />
+        </div>
 
         <div>
           <label for="message" class="label">Project Details</label>
@@ -98,6 +103,8 @@ const faqs = contact?.faqs?.length ? contact.faqs : [
             placeholder="Tell me about your project — goals, style references, footage length, anything else useful."
           ></textarea>
         </div>
+
+        <div class="cf-turnstile" data-sitekey={import.meta.env.PUBLIC_TURNSTILE_SITE_KEY} data-theme="auto"></div>
 
         <button type="submit" id="contact-submit" class="btn-primary w-full justify-center text-base rounded-none">
           Send Project Details →
@@ -112,8 +119,12 @@ const faqs = contact?.faqs?.length ? contact.faqs : [
           <h3 class="text-text-white font-bold mb-3">Prefer to reach out directly?</h3>
           <div class="space-y-3 text-sm">
             {settings?.email && (
-              <a href={`mailto:${settings.email}`} class="flex items-center gap-2 py-2 text-text-muted hover:text-text-white transition-colors">
-                ✉️ {settings.email}
+              <a
+                href={`mailto:${settings.email}`}
+                aria-label={settings.email}
+                class="flex items-center gap-2 py-2 text-text-muted hover:text-text-white transition-colors"
+              >
+                ✉️ <span style="unicode-bidi: bidi-override; direction: rtl;" aria-hidden="true">{reverseText(settings.email)}</span>
               </a>
             )}
             {settings?.enableWhatsapp && settings?.whatsappNumber && (
@@ -149,6 +160,8 @@ const faqs = contact?.faqs?.length ? contact.faqs : [
 
 </MainLayout>
 
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+
 <script>
   const form = document.getElementById('contact-form') as HTMLFormElement
   const submitBtn = document.getElementById('contact-submit') as HTMLButtonElement
@@ -172,7 +185,7 @@ const faqs = contact?.faqs?.length ? contact.faqs : [
       const result = await res.json()
 
       if (result.success) {
-        ;(window as any).showToast?.('Message sent!', "I'll be in touch within 24 hours.")
+        ;(window as any).showToast?.('Message sent!', "Thanks for reaching out — I'll be in touch within 24 hours.")
         form.reset()
       } else {
         status.classList.remove('hidden')

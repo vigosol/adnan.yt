@@ -1,0 +1,153 @@
+---
+import { countries, flagEmoji } from '../lib/countries'
+
+interface Props {
+  id: string
+  name: string
+  label?: string
+  placeholder?: string
+}
+const { id, name, label, placeholder = '(000) 000-0000' } = Astro.props as Props
+
+const defaultCountry = countries.find(c => c.iso2 === 'US')!
+---
+
+<div data-phone-input class="relative">
+  {label && <label for={id} class="label">{label}</label>}
+
+  <div class="flex items-stretch bg-bg-2 border border-border focus-within:border-accent transition-colors">
+    <button
+      type="button"
+      data-phone-toggle
+      aria-haspopup="listbox"
+      aria-expanded="false"
+      class="flex items-center gap-1.5 px-3.5 border-r border-border shrink-0 hover:bg-bg-3 transition-colors cursor-pointer"
+    >
+      <span data-selected-flag class="text-lg leading-none">{flagEmoji(defaultCountry.iso2)}</span>
+      <svg class="w-3.5 h-3.5 text-text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+    </button>
+    <input
+      type="tel"
+      id={id}
+      data-phone-number
+      placeholder={placeholder}
+      autocomplete="off"
+      class="flex-1 min-w-0 bg-transparent outline-none px-3.5 py-4 text-sm text-text placeholder:text-text-muted"
+    />
+  </div>
+  <input type="hidden" name={name} data-phone-value />
+
+  <div
+    class="hidden absolute z-20 mt-2 w-full max-w-sm bg-bg-1 border border-border shadow-card"
+    data-phone-panel
+    role="listbox"
+    aria-label="Choose a country"
+  >
+    <div class="flex items-center gap-2 border-b border-border px-4 py-3">
+      <svg class="w-4 h-4 text-text-muted shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="7" /><path d="M21 21l-4.35-4.35" stroke-linecap="round" />
+      </svg>
+      <input
+        type="text"
+        data-phone-search
+        placeholder="Search"
+        autocomplete="off"
+        class="flex-1 bg-transparent outline-none text-sm text-text placeholder:text-text-muted"
+      />
+    </div>
+    <div class="max-h-72 overflow-y-auto" data-country-list>
+      {countries.map(c => (
+        <button
+          type="button"
+          data-country-row
+          data-iso2={c.iso2}
+          data-dial={c.dialCode}
+          data-name={c.name.toLowerCase()}
+          data-flag={flagEmoji(c.iso2)}
+          class="w-full flex items-center justify-between gap-3 px-4 py-2.5 hover:bg-bg-2 transition-colors text-left cursor-pointer"
+        >
+          <span class="flex items-center gap-3 min-w-0">
+            <span class="text-lg leading-none shrink-0">{flagEmoji(c.iso2)}</span>
+            <span class="text-text-white text-sm truncate">{c.name}</span>
+          </span>
+          <span class="text-text-muted text-sm shrink-0">{c.dialCode}</span>
+        </button>
+      ))}
+    </div>
+  </div>
+</div>
+
+<script>
+  function initPhoneInputs() {
+    document.querySelectorAll<HTMLElement>('[data-phone-input]').forEach(root => {
+      if (root.dataset.phoneReady) return
+      root.dataset.phoneReady = 'true'
+
+      const toggle = root.querySelector<HTMLButtonElement>('[data-phone-toggle]')
+      const panel = root.querySelector<HTMLElement>('[data-phone-panel]')
+      const search = root.querySelector<HTMLInputElement>('[data-phone-search]')
+      const list = root.querySelector<HTMLElement>('[data-country-list]')
+      const numberInput = root.querySelector<HTMLInputElement>('[data-phone-number]')
+      const hiddenValue = root.querySelector<HTMLInputElement>('[data-phone-value]')
+      const flagEl = root.querySelector<HTMLElement>('[data-selected-flag]')
+      if (!toggle || !panel || !search || !list || !numberInput || !hiddenValue || !flagEl) return
+
+      let dialCode = '+1'
+
+      function syncValue() {
+        const num = numberInput!.value.trim()
+        hiddenValue!.value = num ? `${dialCode} ${num}` : ''
+      }
+
+      function openPanel() {
+        panel!.classList.remove('hidden')
+        toggle!.setAttribute('aria-expanded', 'true')
+        search!.value = ''
+        filterRows('')
+        search!.focus()
+      }
+      function closePanel() {
+        panel!.classList.add('hidden')
+        toggle!.setAttribute('aria-expanded', 'false')
+      }
+      function togglePanel() {
+        if (panel!.classList.contains('hidden')) openPanel()
+        else closePanel()
+      }
+
+      function filterRows(query: string) {
+        const q = query.toLowerCase().trim()
+        list!.querySelectorAll<HTMLButtonElement>('[data-country-row]').forEach(row => {
+          const matches = !q || row.dataset.name!.includes(q) || row.dataset.dial!.includes(q)
+          row.classList.toggle('hidden', !matches)
+        })
+      }
+
+      toggle.addEventListener('click', togglePanel)
+      search.addEventListener('input', () => filterRows(search!.value))
+
+      list.querySelectorAll<HTMLButtonElement>('[data-country-row]').forEach(row => {
+        row.addEventListener('click', () => {
+          flagEl!.textContent = row.dataset.flag ?? ''
+          dialCode = row.dataset.dial ?? '+1'
+          syncValue()
+          closePanel()
+          numberInput!.focus()
+        })
+      })
+
+      numberInput.addEventListener('input', syncValue)
+
+      document.addEventListener('click', (e) => {
+        if (!root.contains(e.target as Node)) closePanel()
+      })
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closePanel()
+      })
+    })
+  }
+
+  initPhoneInputs()
+</script>

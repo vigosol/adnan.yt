@@ -6,10 +6,12 @@ export const prerender = false
 interface ContactPayload {
   name: string
   email: string
+  whatsapp?: string
   service?: string
   budget?: string
   deadline?: string
   message: string
+  'cf-turnstile-response'?: string
 }
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -21,7 +23,26 @@ function jsonResponse(body: Record<string, unknown>, status: number) {
   })
 }
 
-export const POST: APIRoute = async ({ request }) => {
+async function verifyTurnstile(token: string | undefined, ip: string | null) {
+  const secret = import.meta.env.TURNSTILE_SECRET_KEY
+  if (!secret) {
+    console.error('Contact form: missing TURNSTILE_SECRET_KEY env var.')
+    return false
+  }
+  if (!token) return false
+
+  const body = new URLSearchParams({ secret, response: token })
+  if (ip) body.set('remoteip', ip)
+
+  const res = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+    method: 'POST',
+    body,
+  })
+  const result = await res.json()
+  return result.success === true
+}
+
+export const POST: APIRoute = async ({ request, clientAddress }) => {
   let data: Partial<ContactPayload>
   try {
     data = await request.json()
@@ -29,13 +50,25 @@ export const POST: APIRoute = async ({ request }) => {
     return jsonResponse({ success: false, error: 'Invalid request body.' }, 400)
   }
 
-  const { name, email, service, budget, deadline, message } = data
+  const { name, email, whatsapp, service, budget, deadline, message } = data
 
   if (!name?.trim() || !email?.trim() || !message?.trim()) {
     return jsonResponse({ success: false, error: 'Name, email, and project details are required.' }, 400)
   }
   if (!EMAIL_RE.test(email.trim())) {
     return jsonResponse({ success: false, error: 'Please enter a valid email address.' }, 400)
+  }
+
+  let clientIp: string | null = null
+  try {
+    clientIp = clientAddress
+  } catch {
+    clientIp = null
+  }
+
+  const captchaOk = await verifyTurnstile(data['cf-turnstile-response'], clientIp)
+  if (!captchaOk) {
+    return jsonResponse({ success: false, error: 'Spam check failed. Please try again.' }, 400)
   }
 
   const adminEmail = import.meta.env.ADMIN_EMAIL
@@ -47,15 +80,13 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   const resend = new Resend(resendApiKey)
-  // TEMPORARY: adnan.yt isn't verified in Resend yet (Settings → Domains),
-  // so sending from hello@adnan.yt gets rejected with a 403. Using Resend's
-  // built-in test sender until the domain is verified — swap this back to
-  // 'adnan.yt <hello@adnan.yt>' once that's done.
-  const fromAddress = 'adnan.yt <onboarding@resend.dev>'
+  // Sending domain verified in Resend as of 2026-07-20.
+  const fromAddress = 'adnan.yt <hello@adnan.yt>'
 
   const detailRows = [
     ['Name', name],
     ['Email', email],
+    ['WhatsApp', whatsapp || '—'],
     ['Service', service || '—'],
     ['Budget', budget || '—'],
     ['Deadline', deadline || '—'],

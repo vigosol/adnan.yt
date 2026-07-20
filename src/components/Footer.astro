@@ -2,6 +2,7 @@
 import { fetchSanity } from '../lib/sanity'
 import { SERVICES_LIST_QUERY } from '../lib/queries'
 import { normalizeCalLink, getCalNamespace } from '../lib/cal'
+import { reverseText } from '../lib/obfuscate'
 
 interface Props {
   settings?: any
@@ -71,7 +72,11 @@ const socials = ['youtube', 'instagram', 'tiktok', 'linkedin', 'twitter']
         <div class="text-white font-semibold text-sm mb-4">Contact</div>
         <ul class="space-y-2.5 text-white/60 text-sm">
           {settings?.email && (
-            <li><a href={`mailto:${settings.email}`} class="hover:text-white transition-colors">{settings.email}</a></li>
+            <li>
+              <a href={`mailto:${settings.email}`} aria-label={settings.email} class="hover:text-white transition-colors">
+                <span style="unicode-bidi: bidi-override; direction: rtl;" aria-hidden="true">{reverseText(settings.email)}</span>
+              </a>
+            </li>
           )}
           <li>{settings?.footerHours ?? 'Mon–Sat, replies within 24h'}</li>
           <li>{settings?.footerAvailability ?? 'Working worldwide, remotely'}</li>
