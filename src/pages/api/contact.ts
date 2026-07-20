@@ -47,8 +47,11 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   const resend = new Resend(resendApiKey)
-  // Sending domain must be verified in the Resend dashboard before this address can send.
-  const fromAddress = 'adnan.yt <hello@adnan.yt>'
+  // TEMPORARY: adnan.yt isn't verified in Resend yet (Settings → Domains),
+  // so sending from hello@adnan.yt gets rejected with a 403. Using Resend's
+  // built-in test sender until the domain is verified — swap this back to
+  // 'adnan.yt <hello@adnan.yt>' once that's done.
+  const fromAddress = 'adnan.yt <onboarding@resend.dev>'
 
   const detailRows = [
     ['Name', name],
