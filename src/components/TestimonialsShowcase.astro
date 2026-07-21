@@ -48,17 +48,18 @@ const headingParts = splitHeading(heading, highlightPhrase)
 const videoReviews = testimonials.filter(t => t.reviewType === 'video' || (!t.reviewType && t.videoUrl))
 const textReviews = testimonials.filter(t => t.reviewType !== 'video' && !(!t.reviewType && t.videoUrl))
 
-// Build fixed-size groups with circular wraparound, so a group that would
-// otherwise run short (e.g. 5 items ÷ 3 = groups of [3, 2]) instead wraps
-// back to the start to fill the gap — [t1,t2,t3], [t4,t5,t1] — never a
-// half-empty slide.
+// Plain fixed-size chunks — the last group is left short (e.g. 5 items ÷ 3
+// = [3, 2]) rather than wrapping back to the start to pad it out. Wrapping
+// would repeat an earlier review within the same visible slide whenever
+// there aren't enough unique reviews to fill every group evenly (a real
+// issue seen with a thin review count); an asymmetric last slide is a much
+// smaller cost than showing the same name/quote twice at once.
 function circularChunks<T>(items: T[], size: number) {
   const total = items.length
   if (total === 0) return []
-  const groupCount = Math.ceil(total / size)
-  return Array.from({ length: groupCount }, (_, g) =>
-    Array.from({ length: size }, (_, j) => items[(g * size + j) % total])
-  )
+  const groups: T[][] = []
+  for (let i = 0; i < total; i += size) groups.push(items.slice(i, i + size))
+  return groups
 }
 const textSlides = circularChunks(textReviews, 3)
 

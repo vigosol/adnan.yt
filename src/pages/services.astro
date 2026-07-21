@@ -49,6 +49,12 @@ const fillerCount = list.length % GRID_COLS === 0 ? 0 : GRID_COLS - (list.length
 
   <Spacer borderTop borderBottom />
   <section>
+    <div class="container md:border-x md:border-t md:border-border-light md:px-0">
+      <div class="px-6 md:pl-[30px] md:pr-8 py-10 md:py-14">
+        <span class="inline-block border border-border-light rounded-full text-xs font-normal px-3 py-1 text-text-muted mb-4">All Services</span>
+        <h2 class="text-4xl md:text-5xl font-bold text-text-white tracking-tight max-w-[800px]">Pick the service that fits your project.</h2>
+      </div>
+    </div>
     <div class="container md:px-0">
       <div class="grid grid-cols-1 md:grid-cols-3 md:gap-x-px md:bg-border-light">
         {list.map((service: any, i: number) => (

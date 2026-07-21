@@ -11,8 +11,12 @@ export default defineType({
         type: "object", name: "package",
         fields: [
           { name: "title", type: "string", title: "Package Name" },
-          { name: "price", type: "string", title: "Price", description: "e.g. $149" },
-          { name: "period", type: "string", title: "Period", description: "e.g. /video" },
+          { name: "price", type: "string", title: "Price", description: "Number only, e.g. 149. Leave blank if using Custom Price Label below." },
+          { name: "period", type: "string", title: "Period", description: "Just the word, e.g. \"video\" or \"month\" — the slash is added automatically." },
+          {
+            name: "customPriceLabel", type: "string", title: "Custom Price Label",
+            description: "For a package with no fixed price (e.g. \"Let's talk\") — shown instead of Price/Period when set.",
+          },
           { name: "description", type: "text", title: "Short Description", rows: 2 },
           { name: "features", type: "array", title: "Features", of: [{ type: "string" }] },
           { name: "featured", type: "boolean", title: "Highlight as Most Popular?", initialValue: false },

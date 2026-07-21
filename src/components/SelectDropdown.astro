@@ -1,0 +1,112 @@
+---
+interface Props {
+  id: string
+  name: string
+  label?: string
+  options: string[]
+  placeholder?: string
+  defaultValue?: string
+}
+const { id, name, label, options, placeholder = 'Select an option', defaultValue } = Astro.props as Props
+const initialValue = defaultValue ?? options[0] ?? ''
+---
+
+<div data-select-dropdown class="relative">
+  {label && <label for={`${id}-toggle`} class="label">{label}</label>}
+
+  <button
+    type="button"
+    id={`${id}-toggle`}
+    data-select-toggle
+    aria-haspopup="listbox"
+    aria-expanded="false"
+    class="input rounded-none py-4 w-full flex items-center justify-between gap-2 text-left cursor-pointer"
+  >
+    <span data-select-value class="truncate">{initialValue || placeholder}</span>
+    <svg class="w-4 h-4 text-text-muted shrink-0 transition-transform duration-150" data-select-chevron viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round" />
+    </svg>
+  </button>
+  <input type="hidden" name={name} data-select-input value={initialValue} />
+
+  <div
+    class="hidden absolute z-20 mt-2 w-full max-h-72 overflow-y-auto bg-bg-1 border border-border shadow-card"
+    data-select-panel
+    role="listbox"
+    aria-label={label ?? placeholder}
+  >
+    {options.map(option => (
+      <button
+        type="button"
+        data-select-option
+        data-value={option}
+        role="option"
+        aria-selected={option === initialValue ? 'true' : 'false'}
+        class="w-full flex items-center justify-between gap-3 px-4 py-3 hover:bg-bg-2 transition-colors text-left text-sm text-text-white cursor-pointer"
+      >
+        {option}
+        <svg class="w-4 h-4 text-accent shrink-0 data-select-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style={option === initialValue ? '' : 'visibility: hidden;'}>
+          <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </button>
+    ))}
+  </div>
+</div>
+
+<script>
+  function initSelectDropdowns() {
+    document.querySelectorAll<HTMLElement>('[data-select-dropdown]').forEach(root => {
+      if (root.dataset.selectReady) return
+      root.dataset.selectReady = 'true'
+
+      const toggle = root.querySelector<HTMLButtonElement>('[data-select-toggle]')
+      const panel = root.querySelector<HTMLElement>('[data-select-panel]')
+      const chevron = root.querySelector<HTMLElement>('[data-select-chevron]')
+      const valueLabel = root.querySelector<HTMLElement>('[data-select-value]')
+      const hiddenInput = root.querySelector<HTMLInputElement>('[data-select-input]')
+      if (!toggle || !panel || !valueLabel || !hiddenInput) return
+
+      function openPanel() {
+        panel!.classList.remove('hidden')
+        toggle!.setAttribute('aria-expanded', 'true')
+        chevron!.classList.add('rotate-180')
+      }
+      function closePanel() {
+        panel!.classList.add('hidden')
+        toggle!.setAttribute('aria-expanded', 'false')
+        chevron!.classList.remove('rotate-180')
+      }
+      function togglePanel() {
+        if (panel!.classList.contains('hidden')) openPanel()
+        else closePanel()
+      }
+
+      toggle.addEventListener('click', togglePanel)
+
+      root.querySelectorAll<HTMLButtonElement>('[data-select-option]').forEach(option => {
+        option.addEventListener('click', () => {
+          const value = option.dataset.value ?? ''
+          valueLabel.textContent = value
+          hiddenInput.value = value
+          root.querySelectorAll<HTMLButtonElement>('[data-select-option]').forEach(o => {
+            const isSelected = o === option
+            o.setAttribute('aria-selected', String(isSelected))
+            const check = o.querySelector('svg') as HTMLElement | null
+            if (check) check.style.visibility = isSelected ? 'visible' : 'hidden'
+          })
+          closePanel()
+          toggle.focus()
+        })
+      })
+
+      document.addEventListener('click', (e) => {
+        if (!root.contains(e.target as Node)) closePanel()
+      })
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closePanel()
+      })
+    })
+  }
+
+  initSelectDropdowns()
+</script>

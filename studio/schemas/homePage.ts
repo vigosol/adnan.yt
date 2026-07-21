@@ -47,7 +47,7 @@ export default defineType({
     }),
     defineField({
       name: "pricingSection", title: "Pricing Section", type: "object",
-      description: "The homepage pricing showcase — badge, heading, subtitle, the two pricing packages, and the 'still deciding?' help panel.",
+      description: "The homepage pricing showcase — badge, heading, subtitle, and the three pricing packages shown side by side.",
       fields: [
         { name: "badge", type: "string", title: "Badge Text" },
         { name: "heading", type: "string", title: "Heading" },
@@ -57,31 +57,24 @@ export default defineType({
         },
         { name: "subtitle", type: "string", title: "Subtitle" },
         {
-          name: "packages", title: "Pricing Packages (2 shown side by side)", type: "array",
+          name: "packages", title: "Pricing Packages (3 shown side by side)", type: "array",
           of: [{
             type: "object", name: "homePricingPackage",
             fields: [
               { name: "title", type: "string", title: "Package Name" },
               { name: "description", type: "text", title: "Short Description", rows: 2 },
-              { name: "price", type: "string", title: "Price", description: "Number only, e.g. 199" },
+              { name: "price", type: "string", title: "Price", description: "Number only, e.g. 199. Leave blank if using Custom Price Label below." },
               { name: "period", type: "string", title: "Period", description: "Just the word, e.g. \"video\" or \"month\" — the slash is added automatically." },
-              { name: "ctaLabel", type: "string", title: "Button Label", description: "e.g. Book a Call" },
+              {
+                name: "customPriceLabel", type: "string", title: "Custom Price Label",
+                description: "For a package with no fixed price (e.g. \"Let's talk\") — shown instead of Price/Period when set.",
+              },
+              { name: "ctaLabel", type: "string", title: "Button Label", description: "e.g. Book a call, Subscribe now, Get a free quote" },
               { name: "featured", type: "boolean", title: "Highlight as Most Popular?", initialValue: false },
               { name: "features", type: "array", title: "Features", of: [{ type: "string" }] },
             ],
             preview: { select: { title: "title", subtitle: "price" } },
           }],
-        },
-        {
-          name: "helpPanel", title: "Help Panel (3rd column)", type: "object",
-          fields: [
-            { name: "block1Heading", type: "string", title: "Block 1 — Heading" },
-            { name: "block1Subtext", type: "string", title: "Block 1 — Subtext" },
-            { name: "block1CtaLabel", type: "string", title: "Block 1 — Button Label" },
-            { name: "block2Heading", type: "string", title: "Block 2 — Heading" },
-            { name: "block2Subtext", type: "string", title: "Block 2 — Subtext" },
-            { name: "block2CtaLabel", type: "string", title: "Block 2 — Button Label" },
-          ],
         },
       ],
     }),

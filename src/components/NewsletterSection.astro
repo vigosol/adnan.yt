@@ -40,13 +40,17 @@ const headingParts = splitHeading(heading, highlightPhrase)
       </h2>
       <p class="text-text-muted mb-8">{subtitle}</p>
 
-      <form id="newsletter-form" class="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-        <input
-          type="email" name="email" id="newsletter-email" required
-          placeholder={placeholder}
-          class="input flex-1 bg-bg"
-        />
-        <button type="submit" id="newsletter-submit" class="btn-primary shrink-0 justify-center">{buttonLabel}</button>
+      <form id="newsletter-form" novalidate class="max-w-md mx-auto">
+        <div class="flex flex-col sm:flex-row gap-3">
+          <input
+            type="email" name="email" id="newsletter-email" required
+            placeholder={placeholder}
+            aria-describedby="newsletter-email-error"
+            class="input flex-1 bg-bg"
+          />
+          <button type="submit" id="newsletter-submit" class="btn-primary shrink-0 justify-center">{buttonLabel}</button>
+        </div>
+        <p id="newsletter-email-error" class="field-error text-left hidden" role="alert"></p>
       </form>
       <p id="newsletter-status" class="text-sm mt-3 hidden" role="status"></p>
       {disclaimer && <p class="text-text-muted text-xs mt-3">{disclaimer}</p>}
@@ -58,12 +62,46 @@ const headingParts = splitHeading(heading, highlightPhrase)
   const form = document.getElementById('newsletter-form') as HTMLFormElement
   const submitBtn = document.getElementById('newsletter-submit') as HTMLButtonElement
   const status = document.getElementById('newsletter-status') as HTMLParagraphElement
+  const emailInput = document.getElementById('newsletter-email') as HTMLInputElement
+  const emailError = document.getElementById('newsletter-email-error') as HTMLParagraphElement
   const defaultLabel = submitBtn?.textContent ?? 'Subscribe →'
+
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+  function validateEmail(): boolean {
+    const value = emailInput.value.trim()
+    let message: string | null = null
+    if (!value) message = 'Please enter your email address.'
+    else if (!EMAIL_RE.test(value)) message = 'Please enter a valid email address (e.g. you@example.com).'
+
+    if (message) {
+      emailInput.setAttribute('aria-invalid', 'true')
+      emailError.textContent = message
+      emailError.classList.remove('hidden')
+      return false
+    }
+    emailInput.removeAttribute('aria-invalid')
+    emailError.textContent = ''
+    emailError.classList.add('hidden')
+    return true
+  }
+
+  // Validate on blur (not keystroke); once an error is showing, live-clear
+  // it as the user fixes the field.
+  emailInput?.addEventListener('blur', validateEmail)
+  emailInput?.addEventListener('input', () => {
+    if (emailInput.getAttribute('aria-invalid') === 'true') validateEmail()
+  })
 
   form?.addEventListener('submit', async (e) => {
     e.preventDefault()
 
-    const email = (document.getElementById('newsletter-email') as HTMLInputElement).value
+    if (!validateEmail()) {
+      emailInput.focus()
+      return
+    }
+
+    const email = emailInput.value
 
     submitBtn.disabled = true
     submitBtn.textContent = 'Subscribing...'

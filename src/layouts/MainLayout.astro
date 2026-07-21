@@ -16,6 +16,7 @@ interface Props {
   canonical?:   string
   schema?:      object | object[]   // JSON-LD schema(s)
   noindex?:     boolean
+  hideFloatingWhatsApp?: boolean   // suppress the floating bubble on pages that already have a prominent WhatsApp CTA (e.g. Contact)
 }
 
 const settings = await sanityClient.fetch(SITE_SETTINGS_QUERY)
@@ -27,6 +28,7 @@ const {
   canonical   = Astro.url.href,
   schema,
   noindex     = false,
+  hideFloatingWhatsApp = false,
 } = Astro.props
 
 const ga4Id  = settings?.ga4Id
@@ -143,8 +145,8 @@ const schemas = schema ? (Array.isArray(schema) ? schema : [schema]) : []
     <Footer settings={settings} />
   </slot>
 
-  <!-- ── WhatsApp Float ── -->
-  <WhatsAppButton settings={settings} />
+  <!-- ── WhatsApp Float (suppressed on pages with their own prominent WhatsApp CTA) ── -->
+  {!hideFloatingWhatsApp && <WhatsAppButton settings={settings} />}
 
   <!-- ── Success toast (triggered via window.showToast(title, message)) ── -->
   <Toast />
@@ -164,7 +166,16 @@ const schemas = schema ? (Array.isArray(schema) ? schema : [schema]) : []
           if (!cal.loaded) {
             cal.ns = {}
             cal.q = cal.q || []
-            d.head.appendChild(d.createElement('script')).src = A
+            const embedScript = d.createElement('script')
+            embedScript.src = A
+            // Only trust the popup to open once this script has actually
+            // loaded — if Cal.com/Cloudflare blocks or fails to serve it,
+            // embedReady stays false and the click handler below lets the
+            // real href="/contact" navigation through instead of silently
+            // eating the click with no popup to show for it.
+            embedScript.onload = function () { cal.embedReady = true }
+            embedScript.onerror = function () { cal.embedReady = false }
+            d.head.appendChild(embedScript)
             cal.loaded = true
           }
           if (ar[0] === L) {
@@ -190,11 +201,13 @@ const schemas = schema ? (Array.isArray(schema) ? schema : [schema]) : []
       // Cal's own click handler opens the modal but doesn't call
       // preventDefault(), so a real href="/contact" fallback (kept for
       // no-JS visitors) would otherwise navigate away before the modal
-      // finishes opening. Block just the default navigation here — Cal's
-      // separately-attached listener still runs and opens the popup.
+      // finishes opening. Block the default navigation only once Cal's
+      // embed script has confirmed it loaded — otherwise let the fallback
+      // link work normally so a blocked/failed embed never leaves visitors
+      // stuck on a dead button.
       document.addEventListener('click', (e) => {
         const trigger = e.target instanceof Element ? e.target.closest('[data-cal-link]') : null
-        if (trigger) e.preventDefault()
+        if (trigger && Cal.embedReady) e.preventDefault()
       })
     </script>
   )}

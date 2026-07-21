@@ -44,6 +44,12 @@
   --color-gold-light:   #fcd34d;
   --color-gold-dark:    #d97706;
 
+  /* Fixed-dark surface — used by sections that stay dark regardless of the
+     light/dark toggle (Header/Footer/CTA convention) and small dark chips
+     (badges, close buttons). Was duplicated as a raw bg-[#111827] literal
+     across 10+ files; consolidated into one token. */
+  --color-surface-fixed: #111827;
+
   /* Accent as body text — needs to flip shade per theme to hold 4.5:1 against
      the page background (accent-dark reads 4.83:1 on white but only 3.67:1
      on the dark-mode bg; accent-light is the reverse), so it can't be a
@@ -130,6 +136,18 @@
 ::selection {
   background-color: var(--color-accent);
   color: #fff;
+}
+
+/* Respect the OS-level reduced-motion preference site-wide — every
+   transition/animation collapses to near-instant instead of being
+   individually gated per component. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* ── Base ─────────────────────────────────────────────────────── */
@@ -414,6 +432,22 @@
   :root.dark .input,
   :root.dark .input-box {
     background-color: var(--color-bg-3);
+  }
+
+  /* Invalid state: paired with aria-invalid so screen readers and sighted
+     users both get the same signal, not color alone. */
+  .input[aria-invalid="true"] {
+    border-color: var(--color-error);
+  }
+  .input[aria-invalid="true"]:focus {
+    border-color: var(--color-error);
+    box-shadow: 0 0 0 1px var(--color-error);
+  }
+
+  .field-error {
+    color: var(--color-error);
+    font-size: 0.75rem;
+    margin-top: 0.375rem;
   }
 
   .label {

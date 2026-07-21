@@ -16,7 +16,7 @@ const slug = typeof item.slug === 'string' ? item.slug : item.slug.current
 
 <a href={`/portfolio/${slug}`} class={`group relative block ${aspectClass} overflow-hidden bg-bg-2`}>
   {item.service && (
-    <span class="absolute top-3 left-3 z-10 bg-[#111827] text-white text-[10px] font-medium px-2 py-0.5 rounded">
+    <span class="absolute top-3 left-3 z-10 bg-surface-fixed text-white text-xs font-medium px-2 py-0.5 rounded">
       {item.service}
     </span>
   )}

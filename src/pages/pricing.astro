@@ -20,28 +20,28 @@ const calNamespace = getCalNamespace(calLink)
 // back to launch-day defaults until that content is filled in.
 const packages = pricingPage?.packages?.length ? pricingPage.packages : [
   {
-    title: 'Starter', price: '$99', period: '/video',
-    description: 'For single videos and quick turnarounds.',
-    features: ['Up to 5 min final video', '1 round of revisions', 'Basic color grading', 'Captions included', '48h turnaround'],
+    title: 'Single Edit', price: '199', period: 'video',
+    description: 'A single short or long-form video edit.',
+    features: ['One fully-edited video', 'Fast 3-5 day turnaround', 'Captions & subtitles included', 'Color grading & sound mixing', '2 rounds of revisions', 'Thumbnail poster included'],
     featured: false,
   },
   {
-    title: 'Growth', price: '$249', period: '/video',
-    description: 'For creators publishing regularly.',
-    features: ['Up to 15 min final video', '2 rounds of revisions', 'Color grading + sound design', 'Motion graphics titles', '24h turnaround'],
+    title: 'Monthly Retainer', price: '1999', period: 'month',
+    description: 'For growing brands posting regularly.',
+    features: ['Up to 15 edited videos / month', 'Priority 2-3 day turnaround', 'Unlimited revisions', 'Content strategy support', 'Thumbnail posters included', 'One video in progress at a time'],
     featured: true,
   },
   {
-    title: 'Agency', price: 'Custom', period: '',
-    description: 'For ongoing or bulk monthly volume.',
-    features: ['Dedicated editor', 'Unlimited revisions', 'Priority turnaround', 'Monthly retainer pricing'],
+    title: 'Custom', customPriceLabel: "Let's talk",
+    description: "Not sure what you need? Let's scope it together.",
+    features: ['Dedicated editor option', 'Flexible volume & cadence', 'Multi-platform deliverables', 'Brand style guide matching', 'Team onboarding & workflow', 'Volume pricing available'],
     featured: false,
   },
 ]
 
 const packagesWithCta = packages.map((pkg: any) => ({
   ...pkg,
-  ctaLabel: pkg.price === 'Custom' ? 'Get a Custom Quote' : 'Get Started',
+  ctaLabel: pkg.ctaLabel ?? (pkg.customPriceLabel ? 'Get a free quote' : pkg.featured ? 'Subscribe now' : 'Book a call'),
 }))
 
 const addOns = pricingPage?.addOns?.length ? pricingPage.addOns : [
@@ -80,8 +80,9 @@ function cellClasses(i: number, total: number) {
   ].filter(Boolean).join(' ')
 }
 
-// JSON-LD — Product/Offer schema for each fixed-price package
-const numericPackages = packages.filter((p: any) => /^\$[\d,.]+$/.test(p.price))
+// JSON-LD — Product/Offer schema for each fixed-price package (excludes the
+// Custom tier, which has no numeric price — just a customPriceLabel).
+const numericPackages = packages.filter((p: any) => !p.customPriceLabel && /^[\d,.]+$/.test(p.price ?? ''))
 const pricingSchema = numericPackages.map((p: any) => ({
   '@context': 'https://schema.org',
   '@type': 'Product',

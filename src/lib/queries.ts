@@ -27,8 +27,7 @@ export const HOME_PAGE_QUERY = `
     servicesSection { badge, heading, highlightPhrase, subtitle, viewAllLabel, tags },
     pricingSection {
       badge, heading, highlightPhrase, subtitle,
-      packages[] { title, description, price, period, ctaLabel, featured, features },
-      helpPanel { block1Heading, block1Subtext, block1CtaLabel, block2Heading, block2Subtext, block2CtaLabel }
+      packages[] { title, description, price, period, customPriceLabel, ctaLabel, featured, features }
     },
     trustStats[] { val, label, description },
     processSection { badge, heading, highlightPhrase, subtitle },
@@ -77,7 +76,7 @@ export const CONTACT_PAGE_QUERY = `
 // ── Pricing Page ─────────────────────────────────────────────────
 export const PRICING_PAGE_QUERY = `
   *[_type == "pricingPage"][0] {
-    packages[] { title, price, period, description, features, featured },
+    packages[] { title, price, period, customPriceLabel, description, features, featured },
     addOns[] { name, price, description },
     faqs[] { question, answer }
   }

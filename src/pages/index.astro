@@ -142,34 +142,35 @@ const pricingSection = {
   packages: home?.pricingSection?.packages?.length ? home.pricingSection.packages : [
     {
       title: 'Single Edit', price: '199', period: 'video',
-      description: 'A single short or long form video edit',
-      ctaLabel: 'Book a Call',
+      description: 'A single short or long-form video edit.',
+      ctaLabel: 'Book a call',
       featured: false,
       features: [
-        'One fully-edited video (short or long-form)', 'Fast 3-5 day turnaround', 'Captions/subtitles included',
-        'Color grading & sound mixing', '2 round of revisions', 'Thumbnail poster included',
-        'Short up to 60 sec, Long up to 2 mins',
+        'One fully-edited video', 'Fast 3-5 day turnaround', 'Captions & subtitles included',
+        'Color grading & sound mixing', '2 rounds of revisions', 'Thumbnail poster included',
       ],
     },
     {
-      title: 'Regular Edit', price: '1999', period: 'month',
-      description: 'Growing brands aiming for post regularly',
-      ctaLabel: 'Subscribe Now',
+      title: 'Monthly Retainer', price: '1999', period: 'month',
+      description: 'For growing brands posting regularly.',
+      ctaLabel: 'Subscribe now',
       featured: true,
       features: [
-        'Up to 15 edited videos per month', 'Priority 2-3 day turnaround', 'Unlimited revisions',
-        'Regular updates', 'Strategy support for content', 'Thumbnail poster included', 'One video at a time',
+        'Up to 15 edited videos / month', 'Priority 2-3 day turnaround', 'Unlimited revisions',
+        'Content strategy support', 'Thumbnail posters included', 'One video in progress at a time',
+      ],
+    },
+    {
+      title: 'Custom', customPriceLabel: "Let's talk",
+      description: "Not sure what you need? Let's scope it together.",
+      ctaLabel: 'Get a free quote',
+      featured: false,
+      features: [
+        'Dedicated editor option', 'Flexible volume & cadence', 'Multi-platform deliverables',
+        'Brand style guide matching', 'Team onboarding & workflow', 'Volume pricing available',
       ],
     },
   ],
-  helpPanel: {
-    block1Heading: home?.pricingSection?.helpPanel?.block1Heading ?? "Still can't decide?",
-    block1Subtext: home?.pricingSection?.helpPanel?.block1Subtext ?? "Let's figure out what you need",
-    block1CtaLabel: home?.pricingSection?.helpPanel?.block1CtaLabel ?? "Let's Talk",
-    block2Heading: home?.pricingSection?.helpPanel?.block2Heading ?? 'Get a free quote',
-    block2Subtext: home?.pricingSection?.helpPanel?.block2Subtext ?? 'Free quote, no obligation.',
-    block2CtaLabel: home?.pricingSection?.helpPanel?.block2CtaLabel ?? 'Get Quote',
-  },
 }
 
 // JSON-LD — Organization schema
@@ -263,9 +264,9 @@ const faqSchema = {
       </div>
 
       {portfolio?.length ? (
-        <div class="border-t border-border-light grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-5 px-6 md:px-7.5 pt-8 pb-10 md:pb-14">
-          {portfolio.slice(0, 8).map((item: any) => (
-            <PortfolioCard item={item} />
+        <div class="border-t border-border-light grid grid-cols-2 gap-4 md:gap-5 px-6 md:px-7.5 pt-8 pb-10 md:pb-14">
+          {portfolio.slice(0, 4).map((item: any) => (
+            <PortfolioCard item={item} aspectClass="aspect-[3/2]" />
           ))}
         </div>
       ) : (
@@ -284,7 +285,6 @@ const faqSchema = {
     highlightPhrase={pricingSection.highlightPhrase}
     subtitle={pricingSection.subtitle}
     packages={pricingSection.packages}
-    helpPanel={pricingSection.helpPanel}
     calLink={calLink}
     calNamespace={calNamespace}
   />

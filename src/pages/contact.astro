@@ -3,6 +3,7 @@ import MainLayout from '../layouts/MainLayout.astro'
 import FAQ from '../components/FAQ.astro'
 import DatePicker from '../components/DatePicker.astro'
 import PhoneInput from '../components/PhoneInput.astro'
+import SelectDropdown from '../components/SelectDropdown.astro'
 import PageHeroBackground from '../components/PageHeroBackground.astro'
 import Spacer from '../components/Spacer.astro'
 import { fetchSanity } from '../lib/sanity'
@@ -42,6 +43,7 @@ const faqs = contact?.faqs?.length ? contact.faqs : [
   title="Contact — Get a Free Quote | adnan.yt"
   description="Tell me about your video project and get a free, no-obligation quote within 24 hours."
   schema={breadcrumbSchema([{ name: 'Home', url: '/' }, { name: 'Contact', url: '/contact' }])}
+  hideFloatingWhatsApp={true}
 >
 
   <section class="relative overflow-hidden">
@@ -68,28 +70,28 @@ const faqs = contact?.faqs?.length ? contact.faqs : [
       <form id="contact-form" class="space-y-5" novalidate>
         <div class="grid sm:grid-cols-2 gap-5">
           <div>
-            <label for="name" class="label">Name</label>
-            <input id="name" name="name" type="text" required class="input rounded-none py-4" placeholder="Your name" />
+            <label for="name" class="label">Name <span class="text-error" aria-hidden="true">*</span></label>
+            <input
+              id="name" name="name" type="text" required autocomplete="name"
+              class="input rounded-none py-4" placeholder="Your name"
+              aria-required="true" aria-describedby="name-error"
+            />
+            <p id="name-error" class="field-error hidden" role="alert"></p>
           </div>
           <div>
-            <label for="email" class="label">Email</label>
-            <input id="email" name="email" type="email" required class="input rounded-none py-4" placeholder="you@example.com" />
+            <label for="email" class="label">Email <span class="text-error" aria-hidden="true">*</span></label>
+            <input
+              id="email" name="email" type="email" required autocomplete="email"
+              class="input rounded-none py-4" placeholder="you@example.com"
+              aria-required="true" aria-describedby="email-error"
+            />
+            <p id="email-error" class="field-error hidden" role="alert"></p>
           </div>
         </div>
 
         <div class="grid sm:grid-cols-2 gap-5">
-          <div>
-            <label for="service" class="label">Service Interested In</label>
-            <select id="service" name="service" class="input rounded-none py-4">
-              {serviceOptions.map((s: string) => <option value={s}>{s}</option>)}
-            </select>
-          </div>
-          <div>
-            <label for="budget" class="label">Budget Range</label>
-            <select id="budget" name="budget" class="input rounded-none py-4">
-              {budgetOptions.map((b: string) => <option value={b}>{b}</option>)}
-            </select>
-          </div>
+          <SelectDropdown id="service" name="service" label="Service Interested In" options={serviceOptions} />
+          <SelectDropdown id="budget" name="budget" label="Budget Range" options={budgetOptions} />
         </div>
 
         <div class="grid sm:grid-cols-2 gap-5">
@@ -98,11 +100,13 @@ const faqs = contact?.faqs?.length ? contact.faqs : [
         </div>
 
         <div>
-          <label for="message" class="label">Project Details</label>
+          <label for="message" class="label">Project Details <span class="text-error" aria-hidden="true">*</span></label>
           <textarea
             id="message" name="message" rows="6" required class="input rounded-none resize-none"
             placeholder="Tell me about your project — goals, style references, footage length, anything else useful."
+            aria-required="true" aria-describedby="message-error"
           ></textarea>
+          <p id="message-error" class="field-error hidden" role="alert"></p>
         </div>
 
         <div class="cf-turnstile" data-sitekey={import.meta.env.PUBLIC_TURNSTILE_SITE_KEY} data-theme="auto"></div>
@@ -183,8 +187,63 @@ const faqs = contact?.faqs?.length ? contact.faqs : [
   const submitBtn = document.getElementById('contact-submit') as HTMLButtonElement
   const status = document.getElementById('contact-status') as HTMLParagraphElement
 
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+  const validators: Record<string, (value: string) => string | null> = {
+    name: (v) => (v.trim() ? null : 'Please enter your name.'),
+    email: (v) => {
+      if (!v.trim()) return 'Please enter your email address.'
+      if (!EMAIL_RE.test(v.trim())) return 'Please enter a valid email address (e.g. you@example.com).'
+      return null
+    },
+    message: (v) => (v.trim() ? null : 'Please describe your project so I can prepare an accurate quote.'),
+  }
+
+  const fields = Object.keys(validators).map((name) => ({
+    name,
+    input: form?.elements.namedItem(name) as HTMLInputElement | HTMLTextAreaElement,
+    error: document.getElementById(`${name}-error`) as HTMLParagraphElement,
+  }))
+
+  function showFieldError(field: (typeof fields)[number], message: string) {
+    field.input.setAttribute('aria-invalid', 'true')
+    field.error.textContent = message
+    field.error.classList.remove('hidden')
+  }
+
+  function clearFieldError(field: (typeof fields)[number]) {
+    field.input.removeAttribute('aria-invalid')
+    field.error.textContent = ''
+    field.error.classList.add('hidden')
+  }
+
+  function validateField(field: (typeof fields)[number]): boolean {
+    const message = validators[field.name](field.input.value)
+    if (message) {
+      showFieldError(field, message)
+      return false
+    }
+    clearFieldError(field)
+    return true
+  }
+
+  fields.forEach((field) => {
+    // Validate on blur (not keystroke) so errors don't appear mid-typing.
+    field.input.addEventListener('blur', () => validateField(field))
+    // Once an error is showing, live-clear it as the user fixes the field.
+    field.input.addEventListener('input', () => {
+      if (field.input.getAttribute('aria-invalid') === 'true') validateField(field)
+    })
+  })
+
   form?.addEventListener('submit', async (e) => {
     e.preventDefault()
+
+    const invalidFields = fields.filter((field) => !validateField(field))
+    if (invalidFields.length > 0) {
+      invalidFields[0].input.focus()
+      return
+    }
 
     const data = Object.fromEntries(new FormData(form).entries())
 
@@ -203,6 +262,7 @@ const faqs = contact?.faqs?.length ? contact.faqs : [
       if (result.success) {
         ;(window as any).showToast?.('Message sent!', "Thanks for reaching out — I'll be in touch within 24 hours.")
         form.reset()
+        fields.forEach(clearFieldError)
       } else {
         status.classList.remove('hidden')
         status.textContent = result.error ?? 'Something went wrong. Please try again.'

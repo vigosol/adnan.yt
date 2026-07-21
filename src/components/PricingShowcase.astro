@@ -5,19 +5,12 @@ import Spacer from './Spacer.astro'
 interface Package {
   title: string
   description?: string
-  price: string
+  price?: string
   period?: string
+  customPriceLabel?: string
   ctaLabel?: string
   featured?: boolean
   features?: string[]
-}
-interface HelpPanel {
-  block1Heading?: string
-  block1Subtext?: string
-  block1CtaLabel?: string
-  block2Heading?: string
-  block2Subtext?: string
-  block2CtaLabel?: string
 }
 interface Props {
   badge?: string
@@ -25,7 +18,6 @@ interface Props {
   highlightPhrase?: string
   subtitle?: string
   packages: Package[]
-  helpPanel?: HelpPanel
   showHeroBackground?: boolean
   calLink?: string
   calNamespace?: string
@@ -36,16 +28,18 @@ const {
   highlightPhrase = 'best package',
   subtitle = 'Transparent pricing. No hidden costs. Just results.',
   packages,
-  helpPanel = {},
   showHeroBackground = false,
   calLink,
   calNamespace,
 } = Astro.props as Props
 
-// A package CTA labeled "Book a Call" opens the Cal.com popup instead of
-// linking to /contact — every other label keeps the normal contact link.
+// A package CTA labeled "Book a Call" opens the Cal.com popup; one containing
+// "quote" opens the free-quote modal; everything else links to /contact.
 function isBookACallLabel(label?: string) {
   return /book a call/i.test(label ?? '')
+}
+function isQuoteLabel(label?: string) {
+  return /quote/i.test(label ?? '')
 }
 
 // Split the heading around the highlighted phrase so it can render in accent
@@ -62,26 +56,14 @@ function splitHeading(text: string, phrase?: string) {
 }
 const headingParts = splitHeading(heading, highlightPhrase)
 
-const {
-  block1Heading = "Still can't decide?",
-  block1Subtext = "Let's figure out what you need",
-  block1CtaLabel = "Let's Talk",
-  block2Heading = 'Get a free quote',
-  block2Subtext = 'Free quote, no obligation.',
-  block2CtaLabel = 'Get Quote',
-} = helpPanel
-
-// Packages + the help panel share one row — homepage passes 2 packages (3
-// cols total), the standalone /pricing page passes 3 (4 cols total). Needs
-// a static lookup so Tailwind's build-time scanner can see the literal class.
-const totalCols = packages.length + 1
+// Needs a static lookup so Tailwind's build-time scanner can see the literal class.
 const colsClass: Record<number, string> = {
+  1: 'md:grid-cols-1',
   2: 'md:grid-cols-2',
   3: 'md:grid-cols-3',
   4: 'md:grid-cols-4',
-  5: 'md:grid-cols-5',
 }
-const gridColsClass = colsClass[totalCols] ?? 'md:grid-cols-3'
+const gridColsClass = colsClass[packages.length] ?? 'md:grid-cols-3'
 ---
 
 <section>
@@ -101,79 +83,78 @@ const gridColsClass = colsClass[totalCols] ?? 'md:grid-cols-3'
   {showHeroBackground && <Spacer borderTop borderBottom />}
 
   <div class="container md:border-x md:border-border-light md:px-0">
-    <div class={`${showHeroBackground ? '' : 'border-t border-border-light'} grid grid-cols-1 ${gridColsClass} md:divide-x md:divide-border-light`}>
-      {packages.map(pkg => (
-        <div class={`p-8 md:p-10 flex flex-col border-b md:border-b-0 border-border-light ${pkg.featured ? 'bg-accent-dark' : 'bg-bg'}`}>
-          <div class="flex items-center gap-2 mb-2">
-            <h3 class={`font-bold text-2xl ${pkg.featured ? 'text-white' : 'text-text-white'}`}>{pkg.title}</h3>
-            {pkg.featured && (
-              <span class="inline-block bg-white text-accent-dark text-xs font-normal rounded-full px-3 py-1 whitespace-nowrap">Most Popular</span>
+    <div class={`${showHeroBackground ? '' : 'border-t border-border-light'} py-10 md:py-14 px-6 md:px-8`}>
+      <div class={`grid grid-cols-1 ${gridColsClass} gap-6`}>
+        {packages.map(pkg => (
+          <div class={`border p-8 flex flex-col bg-bg-1 transition-colors ${pkg.featured ? 'border-accent glow-accent' : 'border-border-light'}`}>
+            <div class="flex items-center flex-wrap gap-2 mb-2">
+              <h3 class="font-bold text-2xl text-text-white">{pkg.title}</h3>
+              {pkg.featured && <span class="badge-accent whitespace-nowrap">Most Popular</span>}
+            </div>
+
+            {pkg.description && (
+              <p class="text-text-muted text-base mb-6">{pkg.description}</p>
+            )}
+
+            {pkg.customPriceLabel ? (
+              <div class="text-4xl font-black text-text-white mb-6 tracking-tight">{pkg.customPriceLabel}</div>
+            ) : (
+              <div class="flex items-baseline gap-1 mb-6 text-text-white">
+                <span class="text-lg self-start mt-1">$</span>
+                <span class="text-5xl font-bold tracking-tight">{pkg.price}</span>
+                {pkg.period && <span class="text-text-muted text-sm">/{pkg.period.replace(/^\/+/, '')}</span>}
+              </div>
+            )}
+
+            {(() => {
+              const ctaClass = `group inline-flex items-center justify-center gap-2 rounded-btn px-5 py-3 font-semibold text-base transition-colors mb-8 w-full cursor-pointer ${
+                pkg.featured
+                  ? 'bg-accent-dark text-white hover:bg-accent-darker'
+                  : 'border border-border-light text-text-white hover:bg-bg-2'
+              }`
+              const arrow = (
+                <svg class="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              )
+              if (isQuoteLabel(pkg.ctaLabel)) {
+                return (
+                  <button type="button" data-open-quote-modal class={ctaClass}>
+                    {pkg.ctaLabel ?? 'Get Started'}
+                    {arrow}
+                  </button>
+                )
+              }
+              return (
+                <a
+                  href="/contact"
+                  {...(calLink && isBookACallLabel(pkg.ctaLabel) ? {
+                    'data-cal-link': calLink,
+                    'data-cal-namespace': calNamespace,
+                    'data-cal-config': '{"layout":"month_view","useSlotsViewOnSmallScreen":"true"}',
+                  } : {})}
+                  class={ctaClass}
+                >
+                  {pkg.ctaLabel ?? 'Get Started'}
+                  {arrow}
+                </a>
+              )
+            })()}
+
+            {pkg.features && pkg.features.length > 0 && (
+              <ul class="space-y-3">
+                {pkg.features.map(f => (
+                  <li class="flex items-start gap-2.5 text-base text-text">
+                    <svg class="w-4 h-4 mt-0.5 shrink-0 text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                      <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    {f}
+                  </li>
+                ))}
+              </ul>
             )}
           </div>
-          {pkg.description && (
-            <p class={`text-base mb-6 ${pkg.featured ? 'text-white' : 'text-text-muted'}`}>{pkg.description}</p>
-          )}
-
-          <div class={`flex items-baseline gap-1 mb-6 ${pkg.featured ? 'text-white' : 'text-text-white'}`}>
-            <span class="text-lg self-start mt-1">$</span>
-            <span class="text-5xl font-bold tracking-tight">{pkg.price}</span>
-            {pkg.period && <span class={`text-sm ${pkg.featured ? 'text-white' : 'text-text-muted'}`}>/{pkg.period.replace(/^\/+/, '')}</span>}
-          </div>
-
-          <a
-            href="/contact"
-            {...(calLink && isBookACallLabel(pkg.ctaLabel) ? {
-              'data-cal-link': calLink,
-              'data-cal-namespace': calNamespace,
-              'data-cal-config': '{"layout":"month_view","useSlotsViewOnSmallScreen":"true"}',
-            } : {})}
-            class={`group inline-flex items-center justify-center gap-2 rounded-[4px] px-5 py-3 font-semibold text-base transition-colors mb-8 ${
-              pkg.featured ? 'bg-white text-accent-dark hover:bg-bg-2' : 'bg-accent-dark text-white hover:bg-accent-darker'
-            }`}
-          >
-            {pkg.ctaLabel ?? 'Get Started'}
-            <svg class="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
-          </a>
-
-          {pkg.features?.length > 0 && (
-            <ul class="space-y-3">
-              {pkg.features.map(f => (
-                <li class={`flex items-start gap-2.5 text-base ${pkg.featured ? 'text-white' : 'text-text'}`}>
-                  <svg class={`w-4 h-4 mt-0.5 shrink-0 ${pkg.featured ? 'text-white' : 'text-accent'}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                    <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" />
-                  </svg>
-                  {f}
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      ))}
-
-      <div class="p-8 md:p-10 flex flex-col justify-between bg-bg">
-        <div>
-          <h3 class="font-bold text-2xl text-text-white mb-2">{block1Heading}</h3>
-          <p class="text-text-muted text-base mb-6">{block1Subtext}</p>
-          <a href="/contact" class="group inline-flex items-center justify-center gap-2 rounded-[4px] border-2 border-transparent bg-[#111827] hover:bg-white text-white hover:text-[#111827] hover:border-[#111827] px-5 py-3 font-semibold text-base transition-colors w-full">
-            {block1CtaLabel}
-            <svg class="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
-          </a>
-        </div>
-
-        <div class="mt-12">
-          <h3 class="font-bold text-2xl text-text-white mb-2">{block2Heading}</h3>
-          <p class="text-text-muted text-base mb-6">{block2Subtext}</p>
-          <button type="button" data-open-quote-modal class="group inline-flex items-center justify-center gap-2 rounded-[4px] border-2 border-transparent bg-[#111827] hover:bg-white text-white hover:text-[#111827] hover:border-[#111827] px-5 py-3 font-semibold text-base transition-colors w-full">
-            {block2CtaLabel}
-            <svg class="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
-          </button>
-        </div>
+        ))}
       </div>
     </div>
   </div>

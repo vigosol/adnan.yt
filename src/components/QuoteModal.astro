@@ -32,7 +32,7 @@ function splitHeading(text: string, phrase?: string) {
 const headingParts = splitHeading(heading, highlightPhrase)
 ---
 
-<div id="quote-modal-overlay" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/60 p-4">
+<div id="quote-modal-overlay" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 p-4">
   <div id="quote-modal-box" role="dialog" aria-modal="true" aria-labelledby="quote-modal-heading" class="bg-bg-1 rounded-card w-full max-w-[640px] max-h-[90vh] overflow-y-auto p-6 md:p-8">
     <div class="flex items-center justify-between mb-6">
       <span class="inline-flex items-center gap-1.5 bg-bg-2 text-text-muted text-xs font-medium px-3 py-1.5 rounded-full">
@@ -71,11 +71,13 @@ const headingParts = splitHeading(heading, highlightPhrase)
       <div class="grid sm:grid-cols-2 gap-5">
         <div>
           <label for="quote-name" class="label uppercase text-xs tracking-wide">Name</label>
-          <input id="quote-name" name="name" type="text" required class="input" placeholder="Your name" />
+          <input id="quote-name" name="name" type="text" required class="input" placeholder="Your name" aria-describedby="quote-name-error" />
+          <p id="quote-name-error" class="field-error hidden" role="alert"></p>
         </div>
         <div>
           <label for="quote-email" class="label uppercase text-xs tracking-wide">Email</label>
-          <input id="quote-email" name="email" type="email" required class="input" placeholder="you@example.com" />
+          <input id="quote-email" name="email" type="email" required class="input" placeholder="you@example.com" aria-describedby="quote-email-error" />
+          <p id="quote-email-error" class="field-error hidden" role="alert"></p>
         </div>
       </div>
 
@@ -97,7 +99,9 @@ const headingParts = splitHeading(heading, highlightPhrase)
         <textarea
           id="quote-message" name="message" rows="4" required class="input resize-none"
           placeholder="What are you making, how often do you publish, and what does success look like?"
+          aria-describedby="quote-message-error"
         ></textarea>
+        <p id="quote-message-error" class="field-error hidden" role="alert"></p>
       </div>
 
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-2">
@@ -127,6 +131,43 @@ const headingParts = splitHeading(heading, highlightPhrase)
   const status = document.getElementById('quote-status') as HTMLParagraphElement
   const defaultLabel = submitBtn?.textContent ?? 'Request my quote →'
   const chipsContainer = document.getElementById('quote-service-chips') as HTMLDivElement
+
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  const validators: Record<string, (value: string) => string | null> = {
+    name: (v) => (v.trim() ? null : 'Please enter your name.'),
+    email: (v) => {
+      if (!v.trim()) return 'Please enter your email address.'
+      if (!EMAIL_RE.test(v.trim())) return 'Please enter a valid email address (e.g. you@example.com).'
+      return null
+    },
+    message: (v) => (v.trim() ? null : 'Please describe your project so I can prepare an accurate quote.'),
+  }
+  const quoteFields = Object.keys(validators).map((name) => ({
+    name,
+    input: form?.elements.namedItem(name) as HTMLInputElement | HTMLTextAreaElement,
+    error: document.getElementById(`quote-${name}-error`) as HTMLParagraphElement,
+  }))
+
+  function validateQuoteField(field: (typeof quoteFields)[number]): boolean {
+    const message = validators[field.name](field.input.value)
+    if (message) {
+      field.input.setAttribute('aria-invalid', 'true')
+      field.error.textContent = message
+      field.error.classList.remove('hidden')
+      return false
+    }
+    field.input.removeAttribute('aria-invalid')
+    field.error.textContent = ''
+    field.error.classList.add('hidden')
+    return true
+  }
+
+  quoteFields.forEach((field) => {
+    field.input?.addEventListener('blur', () => validateQuoteField(field))
+    field.input?.addEventListener('input', () => {
+      if (field.input.getAttribute('aria-invalid') === 'true') validateQuoteField(field)
+    })
+  })
 
   function openModal() {
     overlay.classList.remove('hidden')
@@ -165,6 +206,12 @@ const headingParts = splitHeading(heading, highlightPhrase)
 
   form?.addEventListener('submit', async (e) => {
     e.preventDefault()
+
+    const invalidFields = quoteFields.filter((field) => !validateQuoteField(field))
+    if (invalidFields.length > 0) {
+      invalidFields[0].input.focus()
+      return
+    }
 
     const data = Object.fromEntries(new FormData(form).entries()) as Record<string, string>
     const services = Array.from(chipsContainer?.querySelectorAll('.quote-chip.is-selected') ?? [])
