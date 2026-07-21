@@ -15,7 +15,7 @@ const defaultCountry = countries.find(c => c.iso2 === 'US')!
 <div data-phone-input class="relative">
   {label && <label for={id} class="label">{label}</label>}
 
-  <div class="flex items-stretch bg-bg-2 border border-border focus-within:border-accent transition-colors">
+  <div class="input-box flex items-stretch bg-bg-2 border border-border focus-within:border-accent focus-within:shadow-[0_0_0_1px_var(--color-accent)] transition-colors">
     <button
       type="button"
       data-phone-toggle
@@ -54,7 +54,7 @@ const defaultCountry = countries.find(c => c.iso2 === 'US')!
         data-phone-search
         placeholder="Search"
         autocomplete="off"
-        class="flex-1 bg-transparent outline-none text-sm text-text placeholder:text-text-muted"
+        class="flex-1 bg-transparent outline-none text-sm text-text placeholder:text-text-muted rounded-sm focus-visible:ring-2 focus-visible:ring-accent"
       />
     </div>
     <div class="max-h-72 overflow-y-auto" data-country-list>

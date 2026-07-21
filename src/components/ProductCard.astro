@@ -22,7 +22,12 @@ const slug = typeof product.slug === 'string' ? product.slug : product.slug.curr
         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
       />
     ) : (
-      <div class="w-full h-full flex items-center justify-center text-4xl">🛒</div>
+      <div class="w-full h-full flex items-center justify-center text-text-muted">
+        <svg class="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+          <circle cx="9" cy="21" r="1" /><circle cx="19" cy="21" r="1" />
+          <path d="M1 3h3l2.4 12.4a2 2 0 0 0 2 1.6h9.2a2 2 0 0 0 2-1.6L22 7H6" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </div>
     )}
   </div>
   <div class="p-5">

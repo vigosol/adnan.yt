@@ -80,9 +80,17 @@
   --shadow-glow: 0 0 24px color-mix(in oklch, var(--color-accent) 25%, transparent);
 }
 
+/* Native form-control chrome (select popups, autofill, scrollbars) follows
+   the OS scheme unless told otherwise — declare it explicitly so it tracks
+   our `.dark` class toggle instead of defaulting to black on a dark OS. */
+:root {
+  color-scheme: light;
+}
+
 /* ── Dark theme — toggled via `.dark` class on <html> ───────────
    Brand colors stay constant; only the neutral scale flips. */
 :root.dark {
+  color-scheme: dark;
   --color-accent-text:  var(--color-accent-light);
 
   --color-bg:           #111827;
@@ -246,7 +254,7 @@
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    height: 40px;
+    height: 44px;
     background-color: #111827;
     color: #fff;
     font-weight: 500;
@@ -399,6 +407,13 @@
   .input:focus {
     border-color: var(--color-accent);
     box-shadow: 0 0 0 1px var(--color-accent);
+  }
+  /* Dark mode: lighter elevated surface so the field reads as a distinct
+     box against the near-black page bg (bg-2 was too close to bg, and
+     fully transparent let the page bg show through as solid black). */
+  :root.dark .input,
+  :root.dark .input-box {
+    background-color: var(--color-bg-3);
   }
 
   .label {
